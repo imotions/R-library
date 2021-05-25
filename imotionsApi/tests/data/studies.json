@@ -1,0 +1,410 @@
+[
+    {
+        "id": "48b9109b-fd27-4151-a62d-b987d53934bc",
+        "name": "Great Commercials",
+        "studyUniqueId": "34cd1e76-a9e3-447b-9d40-85c97144920f",
+        "company": "181a40ee-d57f-4410-a80e-92dea456188e",
+        "currentLab": null,
+        "sessions": [],
+        "respondents": [{
+                "id": "2a006018-dcfd-4f97-b14a-ddb32f39e495",
+                "age": 61,
+                "gender": "MALE",
+                "label": "Niels",
+                "company": "181a40ee-d57f-4410-a80e-92dea456188e",
+                "study": "48b9109b-fd27-4151-a62d-b987d53934bc",
+                "session": null,
+                "variables": {},
+                "createdDate": "2017-01-27T11:06:55.835Z"
+            },
+            {
+                "id": "73dcc936-0ea3-49a9-ad36-72944207ae77",
+                "age": 59,
+                "gender": "FEMALE",
+                "label": "Mariann",
+                "company": "181a40ee-d57f-4410-a80e-92dea456188e",
+                "study": "48b9109b-fd27-4151-a62d-b987d53934bc",
+                "session": null,
+                "variables": {},
+                "createdDate": "2017-01-27T11:06:55.835Z"
+            }
+        ],
+        "studyOwner": "dd6db612-bf28-49dc-a23d-649e3e953c9c",
+        "availableOn": [],
+        "state": "UPLOAD_COMPLETE",
+        "respondentRegistration": "CREATE_NEW",
+        "zipFileName": "api/content/StudyUpload/181a40ee-d57f-4410-a80e-92dea456188e/34cd1e76-a9e3-447b-9d40-85c97144920e",
+        "quota": null,
+        "respondentDataUrl": null,
+        "screenWidth": 0,
+        "screenHeight": 0,
+        "stimuli": [{
+                "id": "6ec203d0-c903-4636-a0d8-00fe4daabedc",
+                "parentStimuli": null,
+                "name": "A",
+                "displayName": "Charity - Couple ",
+                "type": "VIDEO",
+                "exposureTimeMs": 20000,
+                "exposureOffsetMs": 0,
+                "width": 1920,
+                "height": 1080,
+                "imageUrl": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/6ec203d0-c903-4636-a0d8-00fe4daabedc/content/7c1dfb9b-cd38-40fe-838b-ba286e9217af.png",
+                "videoUrl": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/6ec203d0-c903-4636-a0d8-00fe4daabedc/content/cc043778-ccda-4edb-9d02-aeeb9ac229a9.mp4",
+                "surveyQuestions": null,
+                "segmentData": [{
+                        "id": "66f8b96f-361f-4102-a6a3-07b31323ea70",
+                        "segment": {
+                            "id": "1bf2dacf-221f-473e-a917-e1812d5505e9",
+                            "name": "Male"
+                        },
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/6ec203d0-c903-4636-a0d8-00fe4daabedc/segment/1bf2dacf-221f-473e-a917-e1812d5505e9/38606f57-f6bc-4b30-8c24-f21d45cf5c0f",
+                        "surveyAnswers": null
+                    },
+                    {
+                        "id": "213346a0-bede-435c-80b9-4fb0a41ec309",
+                        "segment": {
+                            "id": "5d4d535f-83e2-4c3e-bd92-00f87473f2bb",
+                            "name": "All Respondents"
+                        },
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/6ec203d0-c903-4636-a0d8-00fe4daabedc/segment/5d4d535f-83e2-4c3e-bd92-00f87473f2bb/079015c5-8fba-45ac-a505-10fe75d7a073",
+                        "surveyAnswers": null
+                    }
+                ],
+                "respondentData": [{
+                        "id": "2a134d73-4ea4-4e29-b067-97595ac32b36",
+                        "respondent": {
+                            "id": "2a006018-dcfd-4f97-b14a-ddb32f39e495"
+                        },
+                        "surveyAnswers": null,
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/6ec203d0-c903-4636-a0d8-00fe4daabedc/respondent/2a006018-dcfd-4f97-b14a-ddb32f39e495/c82a3940-49ce-4d78-a897-d590cf40115e",
+                        "screenRecordingUrl": null,
+                        "faceRecordingUrl": null,
+                        "sceneRecordingUrl": null
+                    },
+                    {
+                        "id": "268ef016-a0f6-4571-8630-45111593c571",
+                        "respondent": {
+                            "id": "73dcc936-0ea3-49a9-ad36-72944207ae77"
+                        },
+                        "surveyAnswers": null,
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/6ec203d0-c903-4636-a0d8-00fe4daabedc/respondent/73dcc936-0ea3-49a9-ad36-72944207ae77/b0cfa881-31b0-4cef-b6f0-112690c21dcb",
+                        "screenRecordingUrl": null,
+                        "faceRecordingUrl": null,
+                        "sceneRecordingUrl": null
+                    }
+                ]
+            },
+            {
+                "id": "f2b7e653-b472-4669-bbde-ed8745dae649",
+                "parentStimuli": null,
+                "name": "B",
+                "displayName": "Welcome Message",
+                "type": "SURVEY",
+                "exposureTimeMs": 3000000,
+                "exposureOffsetMs": 0,
+                "width": 1920,
+                "height": 1080,
+                "imageUrl": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/f2b7e653-b472-4669-bbde-ed8745dae649/content/076bd7bb-49c0-485f-88c8-625d5ee01889.jpg",
+                "videoUrl": null,
+                "surveyQuestions": null,
+                "segmentData": [{
+                        "id": "f42ace7a-e25f-46cb-a114-d809c7781627",
+                        "segment": {
+                            "id": "1bf2dacf-221f-473e-a917-e1812d5505e9",
+                            "name": "Male"
+                        },
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/f2b7e653-b472-4669-bbde-ed8745dae649/segment/1bf2dacf-221f-473e-a917-e1812d5505e9/3d4f8e4d-4241-4885-93ba-0ca1db257f37",
+                        "surveyAnswers": null
+                    },
+                    {
+                        "id": "76d4259a-7dd4-4603-9ac7-911a7ef41dce",
+                        "segment": {
+                            "id": "5d4d535f-83e2-4c3e-bd92-00f87473f2bb",
+                            "name": "All Respondents"
+                        },
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/f2b7e653-b472-4669-bbde-ed8745dae649/segment/5d4d535f-83e2-4c3e-bd92-00f87473f2bb/051bfc48-2a93-4726-b005-1b719bc6568c",
+                        "surveyAnswers": null
+                    }
+                ],
+                "respondentData": [{
+                        "id": "2f2b1c53-f620-482b-b5b3-7d3fcf2a5a56",
+                        "respondent": {
+                            "id": "73dcc936-0ea3-49a9-ad36-72944207ae77"
+                        },
+                        "surveyAnswers": null,
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/f2b7e653-b472-4669-bbde-ed8745dae649/respondent/73dcc936-0ea3-49a9-ad36-72944207ae77/bb09b7c0-aac1-4c10-ab2a-ed35f2b65720",
+                        "screenRecordingUrl": null,
+                        "faceRecordingUrl": null,
+                        "sceneRecordingUrl": null
+                    },
+                    {
+                        "id": "b46f50ad-15e2-4890-b0ba-1260cc892701",
+                        "respondent": {
+                            "id": "2a006018-dcfd-4f97-b14a-ddb32f39e495"
+                        },
+                        "surveyAnswers": null,
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/f2b7e653-b472-4669-bbde-ed8745dae649/respondent/2a006018-dcfd-4f97-b14a-ddb32f39e495/39bf6831-76d5-4694-8756-d6740d492dca",
+                        "screenRecordingUrl": null,
+                        "faceRecordingUrl": null,
+                        "sceneRecordingUrl": null
+                    }
+                ]
+            }
+        ],
+        "segments": [{
+                "id": "5d4d535f-83e2-4c3e-bd92-00f87473f2bb",
+                "name": "All Respondents",
+                "respondents": [{
+                        "id": "73dcc936-0ea3-49a9-ad36-72944207ae77",
+                        "age": 59,
+                        "gender": "FEMALE",
+                        "label": "Mariann",
+                        "company": "181a40ee-d57f-4410-a80e-92dea456188e",
+                        "study": "48b9109b-fd27-4151-a62d-b987d53934bc",
+                        "session": null,
+                        "variables": {},
+                        "createdDate": "2017-01-27T11:06:55.835Z"
+                    },
+                    {
+                        "id": "2a006018-dcfd-4f97-b14a-ddb32f39e495",
+                        "age": 61,
+                        "gender": "MALE",
+                        "label": "Niels",
+                        "company": "181a40ee-d57f-4410-a80e-92dea456188e",
+                        "study": "48b9109b-fd27-4151-a62d-b987d53934bc",
+                        "session": null,
+                        "variables": {},
+                        "createdDate": "2017-01-27T11:06:55.835Z"
+                    }
+                ],
+                "processingState": "COMPLETED"
+            },
+            {
+                "id": "1bf2dacf-221f-473e-a917-e1812d5505e9",
+                "name": "Male",
+                "respondents": [{
+                    "id": "2a006018-dcfd-4f97-b14a-ddb32f39e495",
+                    "age": 61,
+                    "gender": "MALE",
+                    "label": "Niels",
+                    "company": "181a40ee-d57f-4410-a80e-92dea456188e",
+                    "study": "48b9109b-fd27-4151-a62d-b987d53934bc",
+                    "session": null,
+                    "variables": {},
+                    "createdDate": "2017-01-27T11:06:55.835Z"
+                }],
+                "processingState": "COMPLETED"
+            }
+        ],
+        "pieces": [],
+        "deleted": false,
+        "finishedDate": null,
+        "createdDate": "2017-01-27T10:37:14.647Z",
+        "updatedDate": "2017-01-27T11:10:18.876Z",
+        "inProgress": false
+    },
+    {
+        "id": "2f8d3175-1234-4cc3-8b1e-b2d3a4bd8be1",
+        "name": "Mindshare Commercials",
+        "studyUniqueId": "34cd1e76-a9e3-447b-9d40-85c97144920e",
+        "company": "181a40ee-d57f-4410-a80e-92dea456188e",
+        "currentLab": null,
+        "sessions": [],
+        "respondents": [{
+                "id": "2a006018-dcfd-4f97-b14a-ddb32f39e495",
+                "age": 61,
+                "gender": "MALE",
+                "label": "Niels",
+                "company": "181a40ee-d57f-4410-a80e-92dea456188e",
+                "study": "48b9109b-fd27-4151-a62d-b987d53934bc",
+                "session": null,
+                "variables": {},
+                "createdDate": "2017-01-27T11:06:55.835Z"
+            },
+            {
+                "id": "73dcc936-0ea3-49a9-ad36-72944207ae77",
+                "age": 59,
+                "gender": "FEMALE",
+                "label": "Mariann",
+                "company": "181a40ee-d57f-4410-a80e-92dea456188e",
+                "study": "48b9109b-fd27-4151-a62d-b987d53934bc",
+                "session": null,
+                "variables": {},
+                "createdDate": "2017-01-27T11:06:55.835Z"
+            }
+        ],
+        "studyOwner": "dd6db612-bf28-49dc-a23d-649e3e953c9c",
+        "availableOn": [],
+        "state": "UPLOAD_COMPLETE",
+        "respondentRegistration": "CREATE_NEW",
+        "zipFileName": "api/content/StudyUpload/181a40ee-d57f-4410-a80e-92dea456188e/34cd1e76-a9e3-447b-9d40-85c97144920e",
+        "quota": null,
+        "respondentDataUrl": null,
+        "screenWidth": 0,
+        "screenHeight": 0,
+        "stimuli": [{
+                "id": "6ec203d0-c903-4636-a0d8-00fe4daabedc",
+                "parentStimuli": null,
+                "name": "C",
+                "displayName": "Charity - Couple ",
+                "type": "VIDEO",
+                "exposureTimeMs": 20000,
+                "exposureOffsetMs": 0,
+                "width": 1920,
+                "height": 1080,
+                "imageUrl": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/6ec203d0-c903-4636-a0d8-00fe4daabedc/content/7c1dfb9b-cd38-40fe-838b-ba286e9217af.png",
+                "videoUrl": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/6ec203d0-c903-4636-a0d8-00fe4daabedc/content/cc043778-ccda-4edb-9d02-aeeb9ac229a9.mp4",
+                "surveyQuestions": null,
+                "segmentData": [{
+                        "id": "66f8b96f-361f-4102-a6a3-07b31323ea70",
+                        "segment": {
+                            "id": "1bf2dacf-221f-473e-a917-e1812d5505e9",
+                            "name": "Male"
+                        },
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/6ec203d0-c903-4636-a0d8-00fe4daabedc/segment/1bf2dacf-221f-473e-a917-e1812d5505e9/38606f57-f6bc-4b30-8c24-f21d45cf5c0f",
+                        "surveyAnswers": null
+                    },
+                    {
+                        "id": "213346a0-bede-435c-80b9-4fb0a41ec309",
+                        "segment": {
+                            "id": "5d4d535f-83e2-4c3e-bd92-00f87473f2bb",
+                            "name": "All Respondents"
+                        },
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/6ec203d0-c903-4636-a0d8-00fe4daabedc/segment/5d4d535f-83e2-4c3e-bd92-00f87473f2bb/079015c5-8fba-45ac-a505-10fe75d7a073",
+                        "surveyAnswers": null
+                    }
+                ],
+                "respondentData": [{
+                        "id": "2a134d73-4ea4-4e29-b067-97595ac32b36",
+                        "respondent": {
+                            "id": "2a006018-dcfd-4f97-b14a-ddb32f39e495"
+                        },
+                        "surveyAnswers": null,
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/6ec203d0-c903-4636-a0d8-00fe4daabedc/respondent/2a006018-dcfd-4f97-b14a-ddb32f39e495/c82a3940-49ce-4d78-a897-d590cf40115e",
+                        "screenRecordingUrl": null,
+                        "faceRecordingUrl": null,
+                        "sceneRecordingUrl": null
+                    },
+                    {
+                        "id": "268ef016-a0f6-4571-8630-45111593c571",
+                        "respondent": {
+                            "id": "73dcc936-0ea3-49a9-ad36-72944207ae77"
+                        },
+                        "surveyAnswers": null,
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/6ec203d0-c903-4636-a0d8-00fe4daabedc/respondent/73dcc936-0ea3-49a9-ad36-72944207ae77/b0cfa881-31b0-4cef-b6f0-112690c21dcb",
+                        "screenRecordingUrl": null,
+                        "faceRecordingUrl": null,
+                        "sceneRecordingUrl": null
+                    }
+                ]
+            },
+            {
+                "id": "f2b7e653-b472-4669-bbde-ed8745dae649",
+                "parentStimuli": null,
+                "name": "D",
+                "displayName": "Welcome Message",
+                "type": "SURVEY",
+                "exposureTimeMs": 3000000,
+                "exposureOffsetMs": 0,
+                "width": 1920,
+                "height": 1080,
+                "imageUrl": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/f2b7e653-b472-4669-bbde-ed8745dae649/content/076bd7bb-49c0-485f-88c8-625d5ee01889.jpg",
+                "videoUrl": null,
+                "surveyQuestions": null,
+                "segmentData": [{
+                        "id": "f42ace7a-e25f-46cb-a114-d809c7781627",
+                        "segment": {
+                            "id": "1bf2dacf-221f-473e-a917-e1812d5505e9",
+                            "name": "Male"
+                        },
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/f2b7e653-b472-4669-bbde-ed8745dae649/segment/1bf2dacf-221f-473e-a917-e1812d5505e9/3d4f8e4d-4241-4885-93ba-0ca1db257f37",
+                        "surveyAnswers": null
+                    },
+                    {
+                        "id": "76d4259a-7dd4-4603-9ac7-911a7ef41dce",
+                        "segment": {
+                            "id": "5d4d535f-83e2-4c3e-bd92-00f87473f2bb",
+                            "name": "All Respondents"
+                        },
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/f2b7e653-b472-4669-bbde-ed8745dae649/segment/5d4d535f-83e2-4c3e-bd92-00f87473f2bb/051bfc48-2a93-4726-b005-1b719bc6568c",
+                        "surveyAnswers": null
+                    }
+                ],
+                "respondentData": [{
+                        "id": "2f2b1c53-f620-482b-b5b3-7d3fcf2a5a56",
+                        "respondent": {
+                            "id": "73dcc936-0ea3-49a9-ad36-72944207ae77"
+                        },
+                        "surveyAnswers": null,
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/f2b7e653-b472-4669-bbde-ed8745dae649/respondent/73dcc936-0ea3-49a9-ad36-72944207ae77/bb09b7c0-aac1-4c10-ab2a-ed35f2b65720",
+                        "screenRecordingUrl": null,
+                        "faceRecordingUrl": null,
+                        "sceneRecordingUrl": null
+                    },
+                    {
+                        "id": "b46f50ad-15e2-4890-b0ba-1260cc892701",
+                        "respondent": {
+                            "id": "2a006018-dcfd-4f97-b14a-ddb32f39e495"
+                        },
+                        "surveyAnswers": null,
+                        "url": "https://my.imotions.com/api/content/study/48b9109b-fd27-4151-a62d-b987d53934bc/stimuli/f2b7e653-b472-4669-bbde-ed8745dae649/respondent/2a006018-dcfd-4f97-b14a-ddb32f39e495/39bf6831-76d5-4694-8756-d6740d492dca",
+                        "screenRecordingUrl": null,
+                        "faceRecordingUrl": null,
+                        "sceneRecordingUrl": null
+                    }
+                ]
+            }
+        ],
+        "segments": [{
+                "id": "5d4d535f-83e2-4c3e-bd92-00f87473f2bb",
+                "name": "All Respondents",
+                "respondents": [{
+                        "id": "73dcc936-0ea3-49a9-ad36-72944207ae77",
+                        "age": 59,
+                        "gender": "FEMALE",
+                        "label": "Mariann",
+                        "company": "181a40ee-d57f-4410-a80e-92dea456188e",
+                        "study": "48b9109b-fd27-4151-a62d-b987d53934bc",
+                        "session": null,
+                        "variables": {},
+                        "createdDate": "2017-01-27T11:06:55.835Z"
+                    },
+                    {
+                        "id": "2a006018-dcfd-4f97-b14a-ddb32f39e495",
+                        "age": 61,
+                        "gender": "MALE",
+                        "label": "Niels",
+                        "company": "181a40ee-d57f-4410-a80e-92dea456188e",
+                        "study": "48b9109b-fd27-4151-a62d-b987d53934bc",
+                        "session": null,
+                        "variables": {},
+                        "createdDate": "2017-01-27T11:06:55.835Z"
+                    }
+                ],
+                "processingState": "COMPLETED"
+            },
+            {
+                "id": "1bf2dacf-221f-473e-a917-e1812d5505e9",
+                "name": "Male",
+                "respondents": [{
+                    "id": "2a006018-dcfd-4f97-b14a-ddb32f39e495",
+                    "age": 61,
+                    "gender": "MALE",
+                    "label": "Niels",
+                    "company": "181a40ee-d57f-4410-a80e-92dea456188e",
+                    "study": "48b9109b-fd27-4151-a62d-b987d53934bc",
+                    "session": null,
+                    "variables": {},
+                    "createdDate": "2017-01-27T11:06:55.835Z"
+                }],
+                "processingState": "COMPLETED"
+            }
+        ],
+        "pieces": [],
+        "deleted": false,
+        "finishedDate": null,
+        "createdDate": "2017-01-27T10:37:14.647Z",
+        "updatedDate": "2017-01-27T11:10:18.876Z",
+        "inProgress": false
+    }
+]
