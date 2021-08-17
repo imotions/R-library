@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.vscode
+.cache
+.idea
+*.iml
+target
+NAMESPACE
+man

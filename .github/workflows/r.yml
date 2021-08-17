@@ -1,0 +1,84 @@
+# For help debugging build failures open an issue on the RStudio community with the 'github-actions' tag.
+# https://community.rstudio.com/new-topic?category=Package%20development&tags=github-actions
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+name: R test, lint & check
+
+jobs:
+  R-test-lint:
+    runs-on: windows-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: r-lib/actions/setup-r@v1      
+
+      - name: Query dependencies
+        run: |
+          install.packages('remotes')
+          saveRDS(remotes::dev_package_deps("imotionsApi", dependencies = TRUE), ".github/depends.Rds", version = 2)
+          writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
+        shell: Rscript {0}
+
+      - name: Restore R package cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
+
+      - name: Install R dependencies
+        run: |
+          install.packages(c('rcmdcheck', 'devtools'))
+          remotes::install_deps("imotionsApi", dependencies = TRUE)
+        shell: Rscript {0}
+      
+      - name: Run tests
+        run: |
+          library(data.table)
+          library(dplyr)
+          library(tidyr)
+          options(testthat.output_file = 'test-results-tests.xml')
+          result <- as.data.frame(devtools::test("imotionsApi", reporter='junit'))
+          if (sum(result$failed) > 0 || any(result$error)) {
+            q(status = 1)
+          }
+        shell: Rscript {0}
+
+      - name: Run linter
+        id: linter
+        run: |
+          lints <- lintr::lint_package("imotionsApi")
+          for (i in seq_along(lints)) {
+            if (lints[[i]]$type == "style") lints[[i]]$type <- "warning"
+          }
+          lintr::checkstyle_output(lints, "test-results-lintr.xml")
+          if (length(lints) > 0) {
+            q(status = 1)
+          }
+        shell: Rscript {0}
+
+      - name: R package check
+        run: |
+          options(crayon.enabled = TRUE)
+          rcmdcheck::rcmdcheck("imotionsApi", args = "--no-manual", error_on = "error")
+        shell: Rscript {0}
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action/composite@v1
+        if: always()
+        with:
+          files: test-results-tests.xml
+
+      - name: Publish linter results
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        if: always()
+        with:
+          name: Linter results
+          path: test-results-lintr.xml
