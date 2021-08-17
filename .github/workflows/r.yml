@@ -14,7 +14,7 @@ name: R-CMD-check
 
 jobs:
   R-CMD-check:
-    runs-on: ubuntu-20.04
+    runs-on: windows-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
