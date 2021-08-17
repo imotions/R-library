@@ -14,7 +14,7 @@ name: R-CMD-check
 
 jobs:
   R-CMD-check:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -28,5 +28,5 @@ jobs:
       - name: Check
         run: |
           options(crayon.enabled = TRUE)
-          rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
+          rcmdcheck::rcmdcheck("imotionsApi", args = "--no-manual", error_on = "error")
         shell: Rscript {0}
