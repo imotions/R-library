@@ -23,13 +23,12 @@ jobs:
       - name: Install BSPM
         run: |
           sudo add-apt-repository ppa:c2d4u.team/c2d4u4.0+ # if using Ubuntu 20.04
-          sudo add-apt-repository ppa:edd/r-4.0
           sudo apt-get update
           sudo apt-get install r-cran-bspm
       - name: Query dependencies
         run: |
           bspm::enable() 
-          install.packages('remotes')
+          install.packages('remotes', 'bspm')
           saveRDS(remotes::dev_package_deps("imotionsApi", dependencies = TRUE), ".github/depends.Rds", version = 2)
           writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
         shell: Rscript {0}
