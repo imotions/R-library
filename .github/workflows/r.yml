@@ -27,8 +27,8 @@ jobs:
           sudo apt-get install r-cran-bspm
       - name: Query dependencies
         run: |
-          bspm::enable() 
           install.packages('remotes', 'bspm')
+          bspm::enable() 
           saveRDS(remotes::dev_package_deps("imotionsApi", dependencies = TRUE), ".github/depends.Rds", version = 2)
           writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
         shell: Rscript {0}
