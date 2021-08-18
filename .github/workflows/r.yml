@@ -38,6 +38,10 @@ jobs:
           install.packages(c("rcmdcheck"))
           remotes::install_deps("imotionsApi", dependencies = TRUE)
         shell: Rscript {0}
+      - name: Run linter
+        run: |
+          lintr::lint_package("imotionsApi")
+        shell: Rscript {0}
       - name: Check
         run: |
           options(crayon.enabled = TRUE)
