@@ -23,7 +23,6 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       USE_BSPM: "true"
       _R_CHECK_FORCE_SUGGESTS_: "false"
-      LIBARROW_BINARY: "true"
     steps:
       - uses: actions/checkout@v2
 
@@ -38,6 +37,7 @@ jobs:
         run: |
           cd imotionsApi
           sudo apt install r-cran-rcmdcheck
+          export LIBARROW_BINARY=true
           ./run.sh install_all
 
       - name: Run linter
