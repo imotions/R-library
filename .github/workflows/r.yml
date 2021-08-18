@@ -33,6 +33,12 @@ jobs:
           chmod 0755 run.sh
           ./run.sh bootstrap
 
+      - name: Install arrow
+        run: |
+          Sys.setenv(LIBARROW_BINARY = TRUE)
+          install.packages("arrow")
+        shell: Rscript {0}
+
       - name: Dependencies
         run: |
           cd imotionsApi
