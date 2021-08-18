@@ -28,6 +28,8 @@ jobs:
 
       - name: Bootstrap
         run: |
+          cd imotionsApi
+          pwd
           curl -OLs https://eddelbuettel.github.io/r-ci/run.sh
           chmod 0755 run.sh
           ./run.sh bootstrap
@@ -37,6 +39,7 @@ jobs:
 
       - name: Run linter
         run: |
+          print(getwd())
           lintr::lint_package("imotionsApi")
         shell: Rscript {0}
       
