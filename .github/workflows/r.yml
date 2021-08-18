@@ -12,42 +12,34 @@ on:
 
 name: R-CMD-check
 
+env:
+  USE_BSPM: "true"
+  _R_CHECK_FORCE_SUGGESTS_: "false"
+
 jobs:
   R-CMD-check:
     runs-on: ubuntu-20.04
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      USE_BSPM: "true"
+      _R_CHECK_FORCE_SUGGESTS_: "false"
     steps:
       - uses: actions/checkout@v2
-      - uses: r-lib/actions/setup-r@v1
-      - name: Install BSPM
+
+      - name: Bootstrap
         run: |
-          sudo add-apt-repository ppa:c2d4u.team/c2d4u4.0+ # if using Ubuntu 20.04
-          sudo apt-get update
-          sudo apt-get install r-cran-bspm
-          echo "bspm::enable()" | sudo tee --append /etc/R/Rprofile.site
-      - name: Query dependencies
-        run: |
-          install.packages('remotes')
-          saveRDS(remotes::dev_package_deps("imotionsApi", dependencies = TRUE), ".github/depends.Rds", version = 2)
-          writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
-        shell: Rscript {0}
-      - name: Install system dependencies
-        if: runner.os == 'Linux'
-        run: |
-          while read -r cmd
-          do
-            eval sudo $cmd
-          done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04", "imotionsApi"))')
-      - name: Install dependencies
-        run: |
-          install.packages(c("rcmdcheck"))
-          remotes::install_deps("imotionsApi", dependencies = TRUE)
-        shell: Rscript {0}
+          curl -OLs https://eddelbuettel.github.io/r-ci/run.sh
+          chmod 0755 run.sh
+          ./run.sh bootstrap
+
+      - name: Dependencies
+        run: ./run.sh install_all
+
       - name: Run linter
         run: |
           lintr::lint_package("imotionsApi")
         shell: Rscript {0}
+      
       - name: Check
         run: |
           options(crayon.enabled = TRUE)
