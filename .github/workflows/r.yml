@@ -47,6 +47,7 @@ jobs:
       
       - name: Check
         run: |
+          install.packages("rcmdcheck")
           options(crayon.enabled = TRUE)
           rcmdcheck::rcmdcheck("imotionsApi", args = "--no-manual", error_on = "error")
         shell: Rscript {0}
