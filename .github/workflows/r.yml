@@ -22,8 +22,7 @@ jobs:
       - uses: r-lib/actions/setup-r@v1
       - name: Install BSPM
         run: |
-          sudo add-apt-repository ppa:marutter/c2d4u # if using Ubuntu 20.04
-          sudo add-apt-repository ppa:edd/r-4.0      # if using Debian testing
+          sudo ppa:c2d4u.team/c2d4u4.0+
           sudo apt-get update
           sudo apt-get install r-cran-bspm
       - name: Query dependencies
