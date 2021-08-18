@@ -35,7 +35,7 @@ mockedGetAOIs <- function(study, stimulus = NULL, respondent = NULL, generateInO
     getJSON_Stub$withArgs(url = respondentAOIsPath)$returns(jsonlite::fromJSON(respondentAOIsPath))
 
     privateGetAOIDetails_Stub <- stub(privateGetAOIDetails)
-    privateGetAOIDetails_Stub$returns(jsonlite::fromJSON("../data/aoiDetailsForStimulusRespondent.json"))
+    privateGetAOIDetails_Stub$returns(jsonlite::fromJSON("../data/AOIDetailsForStimulusRespondent.json"))
     privateGetAOIDetails_Stub$expects(study = study, imObject = stimulus, respondent = respondent)
 
     AOIs <- mockr::with_mock(
