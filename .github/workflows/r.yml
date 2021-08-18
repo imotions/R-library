@@ -41,7 +41,6 @@ jobs:
 
       - name: Run linter
         run: |
-          print(getwd())
           lintr::lint_package("imotionsApi")
         shell: Rscript {0}
       
