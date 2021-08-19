@@ -4,52 +4,42 @@ on:
   push:
     branches:
       - main
-      - master
   pull_request:
     branches:
       - main
-      - master
 
 name: R-CMD-check
-
-env:
-  USE_BSPM: "true"
-  _R_CHECK_FORCE_SUGGESTS_: "false"
 
 jobs:
   R-CMD-check:
     runs-on: ubuntu-20.04
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      USE_BSPM: "true"
-      _R_CHECK_FORCE_SUGGESTS_: "false"
     steps:
       - uses: actions/checkout@v2
-
-      - name: Bootstrap
+      - uses: r-lib/actions/setup-r@v1
+      - name: Query dependencies
         run: |
-          cd imotionsApi
-          curl -OLs https://eddelbuettel.github.io/r-ci/run.sh
-          chmod 0755 run.sh
-          ./run.sh bootstrap
-
-      - name: Install arrow
+          options(crayon.enabled = TRUE)
+          install.packages('remotes')
+        shell: Rscript {0}
+      - name: Install system dependencies
+        if: runner.os == 'Linux'
+        run: |
+          while read -r cmd
+          do
+            eval sudo $cmd
+          done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04", "imotionsApi"))')
+      - name: Install dependencies
         run: |
           Sys.setenv(LIBARROW_BINARY = TRUE)
-          install.packages("arrow")
+          install.packages(c("rcmdcheck"))
+          remotes::install_deps("imotionsApi", dependencies = TRUE)
         shell: Rscript {0}
-
-      - name: Dependencies
-        run: |
-          cd imotionsApi
-          sudo apt install -y r-cran-rcmdcheck
-          ./run.sh install_all
-
-      - name: Run linter
+      - name: Linter
         run: |
           lintr::lint_package("imotionsApi")
         shell: Rscript {0}
-      
       - name: Check
         run: |
           options(crayon.enabled = TRUE)
