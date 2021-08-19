@@ -42,8 +42,7 @@ jobs:
       - name: Dependencies
         run: |
           cd imotionsApi
-          sudo apt install r-cran-rcmdcheck
-          export LIBARROW_BINARY=true
+          sudo apt install -y r-cran-rcmdcheck
           ./run.sh install_all
 
       - name: Run linter
