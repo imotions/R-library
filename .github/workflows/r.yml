@@ -52,6 +52,7 @@ jobs:
         shell: Rscript {0}
 
       - name: Run linter
+        id: linter
         run: |
           lints <- lintr::lint_package("imotionsApi")
           lintr::checkstyle_output(lints, "test-results-lintr.xml")
@@ -72,8 +73,17 @@ jobs:
         with:
           files: test-results-tests.xml
 
-      - name: Publish linter results
+      - name: Publish linter results (success)
         uses: jwgmeligmeyling/checkstyle-github-action@master
-        if: always()
+        if: steps.linter.exit_status == 0
         with:
+          name: Linter results
           path: test-results-lintr.xml
+
+      - name: Publish linter results (failure)
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        if: steps.linter.exit_status != 0
+        with:
+          name: Linter results
+          path: test-results-lintr.xml
+        run: exit 1
