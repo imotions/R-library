@@ -11,7 +11,7 @@ on:
 name: R test, lint, check package
 
 jobs:
-  R-CMD-check:
+  R-test-lint:
     runs-on: windows-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -25,7 +25,7 @@ jobs:
           remotes::install_deps("imotionsApi", dependencies = TRUE)
         shell: Rscript {0}
       
-      - name: Tests
+      - name: Run tests
         run: |
           devtools::load_all("imotionsApi")
           library(data.table)
@@ -34,29 +34,32 @@ jobs:
           options(testthat.output_file = 'test-results-tests.xml')
           result <- as.data.frame(devtools::test("imotionsApi", reporter='junit'))
           if (sum(result$failed) > 0 || any(result$error)) {
-            q(status=1)
+            q(status = 1)
           }
         shell: Rscript {0}
 
-      - name: Linter
+      - name: Run linter
         run: |
           lints <- lintr::lint_package("imotionsApi")
           lintr::checkstyle_output(lints, "test-results-lintr.xml")
+          if (length(lints) > 0) {
+            q(status = 1)
+          }
         shell: Rscript {0}
 
-      - name: Check
+      - name: R package check
         run: |
           options(crayon.enabled = TRUE)
           rcmdcheck::rcmdcheck("imotionsApi", args = "--no-manual", error_on = "error")
         shell: Rscript {0}
 
-      - name: Publish Test Results
+      - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action/composite@v1
         if: always()
         with:
           files: test-results-tests.xml
 
-      - name: Publish lintr results
+      - name: Publish linter results
         uses: jwgmeligmeyling/checkstyle-github-action@master
         if: always()
         with:
