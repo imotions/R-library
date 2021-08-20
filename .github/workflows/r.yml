@@ -12,40 +12,29 @@ name: R-CMD-check
 
 jobs:
   R-CMD-check:
-    runs-on: ubuntu-20.04
+    runs-on: windows-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v2
-      - uses: r-lib/actions/setup-r@v1
-      - name: Set up R packages repository
-        run: |
-          sudo add-apt-repository ppa:c2d4u.team/c2d4u4.0+
-          sudo apt install -y r-cran-jsonlite r-cran-data.table r-cran-tidyselect r-cran-purrr
-          rm ~/.Rprofile
-      
-      - name: Prepare to install dependencies
-        run: |
-          Sys.setenv(LIBARROW_BINARY = TRUE)
-          install.packages(c('remotes', 'rcmdcheck'), repos = "http://cran.us.r-project.org")
-        shell: Rscript {0}
-      
-      - name: Install system dependencies
-        if: runner.os == 'Linux'
-        run: |
-          while read -r cmd
-          do
-            eval sudo $cmd
-          done < <(Rscript -e 'writeLines(remotes::system_requirements("ubuntu", "20.04", "imotionsApi"))')
-      
+      - uses: r-lib/actions/setup-r@v1      
+
       - name: Install R dependencies
-        run: remotes::install_deps("imotionsApi", dependencies = TRUE)
+        run: |
+          install.packages(c('remotes', 'rcmdcheck', 'devtools'))
+          remotes::install_deps("imotionsApi", dependencies = TRUE)
         shell: Rscript {0}
       
+      - name: Tests
+        run: |
+          devtools::test("imotionsApi")
+        shell: Rscript {0}
+
       - name: Linter
         run: |
           lintr::lint_package("imotionsApi")
         shell: Rscript {0}
+
       - name: Check
         run: |
           options(crayon.enabled = TRUE)
