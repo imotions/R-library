@@ -73,17 +73,9 @@ jobs:
         with:
           files: test-results-tests.xml
 
-      - name: Publish linter results (success)
+      - name: Publish linter results
         uses: jwgmeligmeyling/checkstyle-github-action@master
-        if: steps.linter.exit_status == 0
+        if: always()
         with:
           name: Linter results
           path: test-results-lintr.xml
-
-      - name: Publish linter results (failure)
-        uses: jwgmeligmeyling/checkstyle-github-action@master
-        if: steps.linter.exit_status != 0
-        with:
-          name: Linter results
-          path: test-results-lintr.xml
-        run: exit 1
