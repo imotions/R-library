@@ -27,7 +27,6 @@ jobs:
       
       - name: Run tests
         run: |
-          devtools::load_all("imotionsApi")
           library(data.table)
           library(dplyr)
           library(tidyr)
