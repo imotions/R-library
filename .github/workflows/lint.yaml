@@ -40,7 +40,11 @@ jobs:
         shell: Rscript {0}
 
       - name: Install package
-        run: R CMD INSTALL imotionsApi
+        run: |
+          pwd
+          ls -l
+          ls -l imotionsApi
+          R CMD INSTALL imotionsApi
 
       - name: Lint
         run: lintr::lint_package("imotionsApi")
