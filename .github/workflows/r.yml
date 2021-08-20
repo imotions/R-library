@@ -8,7 +8,7 @@ on:
     branches:
       - main
 
-name: R-CMD-check
+name: R test, lint, check package
 
 jobs:
   R-CMD-check:
