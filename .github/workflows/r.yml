@@ -28,6 +28,8 @@ jobs:
       - name: Tests
         run: |
           devtools::load_all("imotionsApi")
+          library(data.table)
+          library(tidyr)
           options(testthat.output_file = 'test-results.xml')
           result <- as.data.frame(devtools::test("imotionsApi", reporter='junit'))
           if (sum(result$failed) > 0 || any(result$error)) {
