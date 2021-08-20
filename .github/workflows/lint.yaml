@@ -41,9 +41,7 @@ jobs:
 
       - name: Install package
         run: |
-          pwd
-          ls -l
-          ls -l imotionsApi
+          touch imotionsApi/NAMESPACE
           R CMD INSTALL imotionsApi
 
       - name: Lint
