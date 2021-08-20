@@ -27,7 +27,13 @@ jobs:
       
       - name: Tests
         run: |
-          devtools::test("imotionsApi")
+          setwd("imotionsApi")
+          devtools::load_all()
+          options(testthat.output_file = 'test-out.xml')
+          result <- as.data.frame(devtools::test(reporter='junit'))
+          if (sum(result$failed) > 0 || any(result$error)) {
+            q(status=1)
+          }
         shell: Rscript {0}
 
       - name: Linter
