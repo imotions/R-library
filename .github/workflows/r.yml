@@ -27,10 +27,9 @@ jobs:
       
       - name: Tests
         run: |
-          setwd("imotionsApi")
-          devtools::load_all()
-          options(testthat.output_file = 'test-out.xml')
-          result <- as.data.frame(devtools::test(reporter='junit'))
+          devtools::load_all("imotionsApi")
+          options(testthat.output_file = 'test-results.xml')
+          result <- as.data.frame(devtools::test("imotionsApi", reporter='junit'))
           if (sum(result$failed) > 0 || any(result$error)) {
             q(status=1)
           }
@@ -46,3 +45,9 @@ jobs:
           options(crayon.enabled = TRUE)
           rcmdcheck::rcmdcheck("imotionsApi", args = "--no-manual", error_on = "error")
         shell: Rscript {0}
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action/composite@v1
+        if: always()
+        with:
+          files: test-results.xml
