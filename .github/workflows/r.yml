@@ -8,7 +8,7 @@ on:
     branches:
       - main
 
-name: R test, lint, check package
+name: R test, lint & check
 
 jobs:
   R-test-lint:
