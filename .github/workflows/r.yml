@@ -55,6 +55,9 @@ jobs:
         id: linter
         run: |
           lints <- lintr::lint_package("imotionsApi")
+          for (i in seq_along(lints)) {
+            if (lints[[i]]$type == "style") lints[[i]]$type <- "warning"
+          }
           lintr::checkstyle_output(lints, "test-results-lintr.xml")
           if (length(lints) > 0) {
             q(status = 1)
