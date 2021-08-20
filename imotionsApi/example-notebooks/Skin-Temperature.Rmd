@@ -1,0 +1,195 @@
+---
+title: "Skin Temperature"
+description: "Computes absolute skin temperature for each respondent assuming amp run in DC, according to corresponding gain and chosen temperature scale."
+helpUrl: https://go.imotions.com/Skin_Temperature
+dependencies:
+  sensor: "Biopac"
+params:
+  token: "xxxxx"
+  studyId: "xxxxx"
+  respondentId: "xxxxx"
+  selectedSensorName: ""
+  flowName: "xxxxx"
+  iMotionsVersion: "xxxxx"
+  GainSelection:
+   label: "Select corresponding gain used"
+   value: "1"
+   selected: "1"
+   input: select
+   choices: ["0.5", "1", "2", "5"]
+  TemperatureScaleSelection:
+   label: "Choose temperature scale"
+   value: "Fahrenheit (deg F)"
+   selected: "Fahrenheit (deg F)"
+   input: select
+   choices: ["Fahrenheit (deg F)", "Celcius (deg C)"]
+output:
+  html_document:
+    df_print: kable
+    code_folding: hide
+    code_download: true
+---
+
+```{r global_options, include=FALSE}
+library(imotionsApi)
+library(data.table)
+library(dplyr)
+library(kableExtra)
+library(knitr)
+
+start_time <- Sys.time()
+```
+
+```{r Parameters, purl = TRUE}
+# Retrieves parameters
+selectedSensorName <- params$selectedSensorName
+gain <- as.numeric(params$GainSelection)
+temp_scale <- params$TemperatureScaleSelection
+```
+
+```{r Get skin temperature sample, purl = TRUE}
+#' Retrieving skin temperature datasample
+#'
+#' @param study An imStudy object as returned from \code{\link{imotionsApi::imStudy}}.
+#' @param respondent An imRespondent object as returned from \code{\link{imotionsApi::getRespondents}}.
+#' @param selectedSensorName selectedSensorName from software dropdown - cloud value is empty and we use autodetection
+#'
+#' @details Supports Biopac
+#'
+#' @return A data.table containing the requested skin temperature data for a given respondent
+getSkintempSample <- function(study, respondent, selectedSensorName) {
+    # Retrieves all sensors for a respondent of interest
+    rSensors <- getRespondentSensors(study, respondent)
+    rSensors <- rSensors[!sensor == "R Analysis" & eventSourceType == "Sensor", ]
+
+    # in case of empty selectedSensorName (cloud data), the function will autodetect it
+    sensorSensor <- unlist(strsplit(selectedSensorName, "||", fixed = T))[1]
+    sensorName <- unlist(strsplit(selectedSensorName, "||", fixed = T))[2]
+    sensorInstance <<- unlist(strsplit(selectedSensorName, "||", fixed = T))[3]
+
+    if ((!is.na(sensorSensor) & sensorSensor == "Biopac") || (is.na(sensorSensor) && "Biopac" %in% rSamples$sensor)) {
+        message("Biopac Sensor identified.")
+        tempSampleIdx <- grepl("SKT100C", rSensors$instance) & grepl("Biopac", rSensors$sensor)
+        instanceIdx <- sensorInstance == rSensors$instance
+
+        # if the instance name match a skin temperature data we use this one, else we select the first device found
+        if (sum(tempSampleIdx & instanceIdx, na.rm = T) == 1) {
+            tempSampleIdx <- tempSampleIdx & instanceIdx
+        }
+
+        if (sum(tempSampleIdx) == 0) {
+            message("Skin temperature sample not found.")
+            return(NULL)
+        }
+
+        if (sum(tempSampleIdx) > 1) {
+            infoMessage("More than one Biopac device is present. Using the first one.")
+        }
+
+        # Retrieves the name of the wanted signal
+        sensor <- rSensors[tempSampleIdx, ][1, ]
+        signalNames <- sensor$signals[[1]]
+        signalName <- signalNames[grepl("Raw", signalNames)]
+        
+        if (!signalName %in% signalNames) {
+            message("The skin temperature signal was not found.")
+            return(NULL)
+        }
+
+        # Retrieves data for respondent, containing the Timestamp and Signal column
+        Temp_Raw <- getSensorData(study, sensor, signalName)
+    }
+
+    # Renames the Signal column to Volt
+    names(Temp_Raw)[2] <- "Volt"
+    return(Temp_Raw)
+}
+```
+
+```{r set, purl = FALSE}
+studyId <- params$studyId
+respondentId <- params$respondentId
+
+### Connect to iMotions and retrieve informations
+connection <- imConnection(params$token)
+study <- imStudy(connection, studyId)
+respondent <- getRespondent(study, respondentId)
+
+studyName <- study$name
+respondentName <- respondent$name
+```
+
+```{r Raw data to temperature, purl = FALSE}
+# Extracting data sample
+Temp_signal <- getSkintempSample(study, respondent, selectedSensorName)
+
+# Converts to Fahrenheit and adjusting with corresponding gain
+Temp_signal$Volt <- (Temp_signal$Volt * gain) + 90
+
+# Converts to Celsius if it is chosen, otherwise proceeded with Fahrenheit
+# Columns are furthermore renamed according to chosen temperature scale 
+if (temp_scale == "Celcius (deg C)") {
+    colname <- "Skin Temperature (deg C)"
+    Temp_signal$Volt <- (Temp_signal$Volt - 30) / 2
+} else {
+    colname <- "Skin Temperature (deg F)"
+}
+
+setnames(Temp_signal, "Volt", colname)
+```
+
+
+```{r Upload, purl = FALSE}
+# Creates metadata for appropriate grouping of the signal
+group <- c("", "Skin Temperature")
+metadata <- data.table("Provided By" = "iMotions", "Group" = group)
+
+# Uploading the converted signals
+ul_temp_signal <- uploadSensorData(params, study, Temp_signal, respondent, "Absolute Skin Temperature",
+                                   scriptName = "Skin-Temperature", metadata)
+
+end_time <- Sys.time()
+time_taken <- end_time - start_time
+```
+
+
+#### Study: ``r studyName``
+#### Respondent: ``r respondentName``
+#### Sensor: ``r sensorInstance``
+
+--- 
+This R notebook has performed the following steps:
+
+* Retrieval of the raw signal (Volt, V) from the sensor.
+
+* Generates the calibrated skin temperature in `r temp_scale` based on raw signal amplified by a gain of `r gain`. 
+
+*Computation started at `r format(start_time, usetz = TRUE)` / Notebook execution time: `r format(time_taken)`*
+
+### References
+
+```{r license, echo = FALSE}
+# The contents of this notebook are licensed under the MIT license:
+# Copyright (c) 2018 iMotions
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+```
+
+
+
