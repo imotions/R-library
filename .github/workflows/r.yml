@@ -31,7 +31,7 @@ jobs:
           library(data.table)
           library(dplyr)
           library(tidyr)
-          options(testthat.output_file = 'test-results.xml')
+          options(testthat.output_file = 'test-results-tests.xml')
           result <- as.data.frame(devtools::test("imotionsApi", reporter='junit'))
           if (sum(result$failed) > 0 || any(result$error)) {
             q(status=1)
@@ -40,7 +40,8 @@ jobs:
 
       - name: Linter
         run: |
-          lintr::lint_package("imotionsApi")
+          lints <- lintr::lint_package("imotionsApi")
+          lintr::checkstyle_output(lints, "test-results-lintr.xml")
         shell: Rscript {0}
 
       - name: Check
@@ -49,8 +50,8 @@ jobs:
           rcmdcheck::rcmdcheck("imotionsApi", args = "--no-manual", error_on = "error")
         shell: Rscript {0}
 
-      - name: Publish Unit Test Results
+      - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v1
         if: always()
         with:
-          files: test-results.xml
+          files: test-results*.xml
