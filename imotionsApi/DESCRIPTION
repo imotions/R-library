@@ -27,6 +27,7 @@ Suggests:
     mockr (>= 0.1),
     lintr (>= 1.0.0),
     knitr,
+	markdown,
     rmarkdown
 URL:
     https://imotions.com,
