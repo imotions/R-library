@@ -17,8 +17,6 @@ imotionsApiEnvironment <- new.env()
 imotionsApiEnvironment$loadedStudies <- list()
 
 
-
-
 ## Connection =========================================================================================================
 
 #' Create a connection with the iMotions API.
