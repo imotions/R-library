@@ -150,14 +150,14 @@ mockedPrivateUploadSignals <- function(params, study, data, respondent, sensorNa
     privateSaveSignalsToFile_Stub$return("../data/testFile.csv")
 
     getUploadSensorsUrl_Stub <- stub(getUploadSensorsUrl)
-    getUploadSensorsUrl_Stub$expects(study = study, imObject = respondent, stimulusId = stimulus$id)
-    getUploadSensorsUrl_Stub$withArgs(stimulusId = stimulus$id)$returns(uploadUrlStimulusPath)
-    getUploadSensorsUrl_Stub$withArgs(stimulusId = NULL)$returns(uploadUrlStudyPath)
+    getUploadSensorsUrl_Stub$expects(study = study, imObject = respondent, stimulus = stimulus)
+    getUploadSensorsUrl_Stub$withArgs(stimulus = stimulus)$returns(uploadUrlStimulusPath)
+    getUploadSensorsUrl_Stub$withArgs(stimulus = NULL)$returns(uploadUrlStudyPath)
 
     if (is.null(stimulus)) {
         endpoint <- paste("target:", respondent$name)
     } else {
-        endpoint <- paste("target:", respondent$name, "stimulus:", stimulus$name)
+        endpoint <- paste0("target: ", respondent$name, ", stimulus: ", stimulus$name)
     }
 
     postJSON_Stub <- stub(postJSON)
@@ -193,6 +193,7 @@ context("privateSaveSignalsToFile()");
 
 test_that("Data should get stored as a temporary file", {
     tmpDir <- tempdir(check = TRUE)
+    data <- checkDataFormat(data)
     dataFileName <- suppressWarnings(privateSaveSignalsToFile(params, data, sensorName, scriptName, additionalMetadata))
 
     # Check that file exists at the good location
@@ -246,7 +247,7 @@ test_that("Data header should be as expected", {
     expect_identical(dataHeader[7], expectedMetadataUrl, "wrong metadata")
 })
 
-context("privateCreateSignalsMetadata()")
+context("privateCreateMetadata()")
 
 checkMandatoryMetadata <- function(metadata) {
     expect_identical(metadata[1], "#METADATA", "wrong #METADATA")
@@ -255,7 +256,8 @@ checkMandatoryMetadata <- function(metadata) {
 }
 
 test_that("Mandatory metadata should be as expected", {
-    metadata <- privateCreateSignalsMetadata(data)
+    data <- checkDataFormat(data)
+    metadata <- privateCreateMetadata(data)
 
     expect_equal(length(metadata), 3, info = "should be composed of 3 lines")
     checkMandatoryMetadata(metadata)
@@ -263,7 +265,8 @@ test_that("Mandatory metadata should be as expected", {
 })
 
 test_that("Adding custom metadata should work as expected", {
-    metadata <- privateCreateSignalsMetadata(data, additionalMetadata)
+    data <- checkDataFormat(data)
+    metadata <- privateCreateMetadata(data, additionalMetadata)
 
     expect_equal(length(metadata), 5, info = "should be composed of 5 lines (mandatory + additional)")
     checkMandatoryMetadata(metadata)
@@ -272,9 +275,9 @@ test_that("Adding custom metadata should work as expected", {
 
     # More or less metadata rows than data columns should throw a warning and not append metadata
     additionalMetadata <- data.frame("Group" = "", "Units" = "ms")
-    metadata <- suppressWarnings(privateCreateSignalsMetadata(data, additionalMetadata))
+    metadata <- suppressWarnings(privateCreateMetadata(data, additionalMetadata))
     expect_equal(length(metadata), 3, info = "should be composed of 3 lines (mandatory only)")
-    warning <- capture_warning(privateCreateSignalsMetadata(data, additionalMetadata))
+    warning <- capture_warning(privateCreateMetadata(data, additionalMetadata))
     expect_identical(warning$message, "Wrong additional metadata format - ignoring it...", "should throw a warning")
 
 })
