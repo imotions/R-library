@@ -21,7 +21,7 @@ Imports:
     dplyr,
     methods,
     purrr,
-	stringr
+    stringr
 Suggests:
     testthat (>= 1.0.2),
     stubthat (>= 1.2.0),
