@@ -71,12 +71,12 @@ test_that("should throw errors if arguments are missing or not from the good cla
                      "respondent not being an imRespondent object should throw an error")
 
     # in case generateInOutFiles is true and not both respondent and stimulus are provided
-    warning <- capture_warning(getAOIs(study, stimuli[1, ], generateInOutFiles = T))
+    warning <- capture_warning(mockedGetAOIs(study, stimuli[1, ], generateInOutFiles = T))
     expect_identical(warning$message,
                      "InOut files can only be generated when both respondent and stimulus argument are provided.",
                      "respondent argument must be provided")
 
-    warning <- capture_warning(getAOIs(study, stimulus = NULL, respondents[1, ], generateInOutFiles = T))
+    warning <- capture_warning(mockedGetAOIs(study, stimulus = NULL, respondents[1, ], generateInOutFiles = T))
     expect_identical(warning$message,
                      "InOut files can only be generated when both respondent and stimulus argument are provided.",
                      "stimulus argument must be provided")
@@ -138,7 +138,7 @@ test_that("should return a imAOIList object for a respondent and stimulus of int
 
   # if no AOIs is present for a specific respondent/stimulus pair, should return the correct warning
   warning <- capture_warning(mockedGetAOIs(study, respondent = respondents[1, ], stimulus = stimuli[1, ]))
-  expect_identical(warning$message, "No AOI defined for respondent: Wendy stimulus: AntiSmoking40Sec",
+  expect_identical(warning$message, "No AOI defined for respondent: Wendy, stimulus: AntiSmoking40Sec",
                    "no AOI warning should have been thrown for this respondent/stimulus")
   expect_null(suppressWarnings(mockedGetAOIs(study, respondent = respondents[1, ], stimulus = stimuli[1, ])),
               "AOI should be null")
@@ -227,7 +227,7 @@ mockedGetAOI <- function(study, AOIId) {
 
 test_that("should throw error/warnings if arguments are missing or if no AOIs in the study", {
     # in case of missing AOI id
-    error <- capture_error(mockedGetAOI(study))
+    error <- capture_error(getAOI(study))
     expect_identical(error$message, "Please specify an AOIId. Available AOIs can be found with `getAOIs()`",
                      "missing `AOIId` param not handled properly")
 

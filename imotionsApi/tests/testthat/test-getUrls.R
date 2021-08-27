@@ -5,7 +5,10 @@ context("Testing `getUrls` functions");
 
 # Load study and respondent
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
-respondent <- getRespondent(study, "09bd22e6-29b6-4a8a-8cc1-4780a5163e63")
+respondentId <- "09bd22e6-29b6-4a8a-8cc1-4780a5163e63"
+respondent <- getRespondent(study, respondentId)
+stimulusId <- "1000"
+stimulus <- getStimulus(study, stimulusId)
 studyId <- "af8c2165-4389-4cc3-8b1e-b2d3a4bd8be1"
 
 # Load sensor
@@ -36,11 +39,10 @@ test_that("all getUrl function should work as expected", {
     expect_identical(getStudySpecificUrl(remoteStudy), "https://my.imotions.com/testcustom")
 
     #getSensorsUrl
-    stimulusId <- 1000
     sensorsUrl <- paste0(studyUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63/samples")
     sensorStimulusUrl <- paste0(studyUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63/stimuli/1000/samples")
     expect_identical(getSensorsUrl(study, respondent), sensorsUrl)
-    expect_identical(getSensorsUrl(study, respondent, stimulusId), sensorStimulusUrl)
+    expect_identical(getSensorsUrl(study, respondent, stimulus), sensorStimulusUrl)
 
     #getSensorDataUrl
     sensorDataUrl <- paste0("https://my.imotions.com/testcustom", sensor$dataUrl)
@@ -48,27 +50,27 @@ test_that("all getUrl function should work as expected", {
 
     #getUploadSensorsUrl
     expect_identical(getUploadSensorsUrl(study, respondent), paste0(sensorsUrl, "/data"))
-    expect_identical(getUploadSensorsUrl(study, respondent, stimulusId), paste0(sensorStimulusUrl, "/data"))
+    expect_identical(getUploadSensorsUrl(study, respondent, stimulus), paste0(sensorStimulusUrl, "/data"))
 
-    #getAOIsUr
-    respondentId <- 1010
+    #getAOIsUrl
     AOIUrl <- "https://my.imotions.com/testcustom/aois/af8c2165-4389-4cc3-8b1e-b2d3a4bd8be1"
     expect_identical(getAOIsUrl(study), AOIUrl)
-    expect_identical(getAOIsUrl(study, stimulusId), paste0(AOIUrl, "/stimuli/", stimulusId))
-    expect_identical(getAOIsUrl(study, respondentId = respondentId), paste0(AOIUrl, "/respondent/", respondentId))
+    expect_identical(getAOIsUrl(study, stimulusId), paste0(AOIUrl, "/stimuli/1000"))
+    expect_identical(getAOIsUrl(study, respondentId = respondentId),
+                     paste0(AOIUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63"))
 
     error <- capture_error(getAOIsUrl(study, stimulusId, respondentId))
     expect_identical(error$message, "Please provide either stimulusId or respondentId, not both.",
                      "too many params not handled properly")
 
     #getAOIDetailsForStimulusUrl
-    expect_identical(getAOIDetailsForStimulusUrl(study, stimulusId), paste0(AOIUrl, "/stimuli/", stimulusId, "/*"))
-    expect_identical(getAOIDetailsForStimulusUrl(study, stimulusId, respondentId),
+    expect_identical(getAOIDetailsUrl(study, stimulus), paste0(AOIUrl, "/stimuli/", stimulusId, "/*"))
+    expect_identical(getAOIDetailsUrl(study, stimulus, respondent),
                      paste0(AOIUrl, "/stimuli/", stimulusId, "/respondent/", respondentId, "/*"))
 
     #getAOIDetailsUrl
     expect_identical(getAOIDetailsUrl(study, AOI), paste0(AOIUrl, "/stimuli/", AOI$stimulusId, "/", AOI$id))
-    expect_identical(getAOIDetailsUrl(study, AOI, respondentId),
+    expect_identical(getAOIDetailsUrl(study, AOI, respondent),
                      paste0(AOIUrl, "/stimuli/", AOI$stimulusId, "/respondent/", respondentId, "/", AOI$id))
 
     #getRespondentScenesUrl

@@ -1,7 +1,7 @@
 Package: imotionsApi
 Type: Package
 Title: iMotions Data Library
-Version: 2.1.0
+Version: 2.1.1
 Date: 2020-04-16
 Author: Amandine Grappe, Paolo Masulli
 Maintainer: iMotions <support@imotions.com>
@@ -20,7 +20,8 @@ Imports:
     tidyr,
     dplyr,
     methods,
-    purrr
+    purrr,
+    stringr
 Suggests:
     testthat (>= 1.0.2),
     stubthat (>= 1.2.0),

@@ -42,7 +42,7 @@ test_that("should throw errors if arguments are missing or not from the good cla
 
 outputDirectory <- "outputDirectoryPath"
 fileName <- "export.csv"
-expectedData <- fread("../data/exportData.csv")
+expectedData <- fread("../data/exportData.csv", skip = 2)
 
 mockedCreateExport <- function(study, data, outputDirectory, fileName, expectedData, expectedMetadata, expectedfilePath,
                                expectCall, metadata = NULL) {
@@ -69,7 +69,7 @@ mockedCreateExport <- function(study, data, outputDirectory, fileName, expectedD
 
 test_that("should call writeLines and fwrite with the good parameters", {
     data <- checkDataFormat(data)
-    expectedMetadata <- c("\ufeff#METADATA", NULL, "#DATA")
+    expectedMetadata <- c("\ufeff#METADATA,,,", NULL, "#DATA,,,")
     expectedfilePath <- "outputDirectoryPath/export.csv"
 
     mockedCreateExport(study, data, outputDirectory, fileName, expectedData, expectedMetadata, expectedfilePath,
