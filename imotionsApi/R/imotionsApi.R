@@ -566,6 +566,8 @@ getAOI <- function(study, AOIId) {
 #' @param stimulus Optional - An imStimulus object as returned from \code{\link{getStimuli}}.
 #' @param AOI Optional - An imAOI object as returned from \code{\link{getAOIs}}.
 #' @param segment Optional - An imSegment object as returned from \code{\link{getSegments}}.
+#' @param keepVariables Optional - A boolean indicating whether respondent variables should be kept (if available),
+#'                      by default only the "group" variable is exposed.
 #'
 #' @return An imRespondentList object (data.table) with all respondents of interest.
 #' @export
@@ -595,8 +597,11 @@ getAOI <- function(study, AOIId) {
 #'
 #' ## Get all respondents in a specific segment for whom a specific AOI has been defined
 #' respondents <- imotionsApi::getRespondents(study, AOI = AOIs[1, ], segment = segments[1, ])
+#'
+#' ## Get all respondents in the study and access their available variables
+#' respondents <- imotionsApi::getRespondents(study, keepVariables = TRUE)
 #' }
-getRespondents <- function(study, stimulus = NULL, AOI = NULL, segment = NULL) {
+getRespondents <- function(study, stimulus = NULL, AOI = NULL, segment = NULL, keepVariables = FALSE) {
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
     assertClass(study, "imStudy", "`study` argument is not an imStudy object")
     assertClass(stimulus, "imStimulus", "`stimulus` argument is not an imStimulus object")
@@ -616,6 +621,10 @@ getRespondents <- function(study, stimulus = NULL, AOI = NULL, segment = NULL) {
         segmentRespondentsIds <- segment$respondents[[1]]$id
         segmentStimulusRespondentsId <- intersect(respondents$id, segmentRespondentsIds)
         respondents <- respondents[respondents$id %in% segmentStimulusRespondentsId, ]
+    }
+
+    if (!keepVariables) {
+        respondents[, names(respondents) %like% "variables."] <- NULL
     }
 
     respondents <- createImObject(respondents, "Respondent")
@@ -648,14 +657,23 @@ privateRespondentFiltering <- function(study, obj = NULL) {
 #' @keywords internal
 privateRespondentFiltering.imStudy <- function(study, ...) {
     respondents <- study$respondents
+    respVariables <- NULL
 
-    if (!exists("Group", respondents$variables)) {
-        respondents$group <- "Default"
-    } else {
-        respondents$group <- respondents$variables$Group
+    if (exists("variables", respondents)) {
+        respVariables <- respondents$variables
+
+        if (!exists("Group", respVariables)) {
+            respondents$group <- "Default"
+        } else {
+            respondents$group <- respVariables$Group
+        }
+
+        names(respVariables) <- paste0("variables.", names(respVariables))
     }
 
+    respVariables$variables.Group <- NULL
     respondents <- respondents[, c("label", "id", "group", "age", "gender")]
+    respondents <- cbind(respondents, respVariables)
     names(respondents)[1] <- "name"
 
     respondents$gender <- formatGender(respondents$gender)
