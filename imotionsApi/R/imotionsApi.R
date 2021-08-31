@@ -566,8 +566,9 @@ getAOI <- function(study, AOIId) {
 #' @param stimulus Optional - An imStimulus object as returned from \code{\link{getStimuli}}.
 #' @param AOI Optional - An imAOI object as returned from \code{\link{getAOIs}}.
 #' @param segment Optional - An imSegment object as returned from \code{\link{getSegments}}.
-#' @param keepVariables Optional - A boolean indicating whether respondent variables should be kept (if available),
-#'                      by default only the "group" variable is exposed.
+#' @param keepRespondentVariables Optional - A boolean indicating whether respondent variables should be kept (if they
+#'                                are available). If this has the default value of FALSE, only the "group" variable is
+#'                                exposed.
 #'
 #' @return An imRespondentList object (data.table) with all respondents of interest.
 #' @export
@@ -599,9 +600,9 @@ getAOI <- function(study, AOIId) {
 #' respondents <- imotionsApi::getRespondents(study, AOI = AOIs[1, ], segment = segments[1, ])
 #'
 #' ## Get all respondents in the study and access their available variables
-#' respondents <- imotionsApi::getRespondents(study, keepVariables = TRUE)
+#' respondents <- imotionsApi::getRespondents(study, keepRespondentVariables = TRUE)
 #' }
-getRespondents <- function(study, stimulus = NULL, AOI = NULL, segment = NULL, keepVariables = FALSE) {
+getRespondents <- function(study, stimulus = NULL, AOI = NULL, segment = NULL, keepRespondentVariables = FALSE) {
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
     assertClass(study, "imStudy", "`study` argument is not an imStudy object")
     assertClass(stimulus, "imStimulus", "`stimulus` argument is not an imStimulus object")
@@ -623,7 +624,7 @@ getRespondents <- function(study, stimulus = NULL, AOI = NULL, segment = NULL, k
         respondents <- respondents[respondents$id %in% segmentStimulusRespondentsId, ]
     }
 
-    if (!keepVariables) {
+    if (!keepRespondentVariables) {
         respondents[, names(respondents) %like% "variables."] <- NULL
     }
 
