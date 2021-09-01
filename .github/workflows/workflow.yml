@@ -7,8 +7,11 @@ on:
   pull_request:
     branches:
       - main
+  release:
+    branches:
+      - main
 
-name: R test, lint & check
+name: R test, lint & check, build, release
 
 jobs:
   R-test-lint:
@@ -70,6 +73,33 @@ jobs:
           options(crayon.enabled = TRUE)
           rcmdcheck::rcmdcheck("imotionsApi", args = "--no-manual", error_on = "error")
         shell: Rscript {0}
+
+      - name: Build package 
+        run: |
+          devtools::build("imotionsApi")
+        shell: Rscript {0}
+
+      - name: Publish latest
+        uses: "marvinpinto/action-automatic-releases@latest"
+        if: ${{ github.event_name == 'push' }}
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Latest"
+          files: |
+            LICENSE
+            *.tar.gz
+
+      - name: Publish tagged release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        if: ${{ github.event_name == 'release' }}
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            LICENSE
+            *.tar.gz
 
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action/composite@v1
