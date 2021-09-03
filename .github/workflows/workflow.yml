@@ -70,7 +70,18 @@ jobs:
           rcmdcheck::rcmdcheck("imotionsApi", args = "--no-manual", error_on = "error")
         shell: Rscript {0}
 
-      - name: Build package 
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=datetime::$(date +'%Y%m%d-%H%M%S')"
+        
+      - name: Fix version number for snapshot
+        run: |
+          cat imotionsApi/DESCRIPTION
+          sed -i 's/0000000000/${{ steps.date.outputs.datetime }}/' imotionsApi/DESCRIPTION
+          cat imotionsApi/DESCRIPTION
+
+      - name: Build package
+        if: ${{ github.event_name == 'push' }} 
         run: |
           devtools::build("imotionsApi")
         shell: Rscript {0}
@@ -80,12 +91,25 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "snapshot"
+          automatic_release_tag: "snapshot-${{ steps.date.outputs.datetime }}"
           prerelease: true
-          title: "Snapshot"
+          title: "Snapshot ${{ steps.date.outputs.datetime }}"
           files: |
             LICENSE
             *.tar.gz
+
+      - name: Remove snapshot build and fix version number for release
+        run: |
+          rm *.tar.gz
+          cat imotionsApi/DESCRIPTION
+          sed -i 's/-0000000000//' imotionsApi/DESCRIPTION
+          cat imotionsApi/DESCRIPTION
+
+      - name: Build package 
+        if: ${{ github.event_name == 'release' }}
+        run: |
+          devtools::build("imotionsApi")
+        shell: Rscript {0}
 
       - name: Publish tagged release
         uses: "marvinpinto/action-automatic-releases@latest"
