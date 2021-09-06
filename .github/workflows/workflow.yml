@@ -7,9 +7,6 @@ on:
   pull_request:
     branches:
       - main
-  release:
-    branches:
-      - main
 
 name: R test, lint & check, build, release
 
@@ -80,7 +77,7 @@ jobs:
           sed -i 's/0000000000/${{ steps.date.outputs.datetime }}/' imotionsApi/DESCRIPTION
           cat imotionsApi/DESCRIPTION
 
-      - name: Build package
+      - name: Build snapshot package
         if: ${{ github.event_name == 'push' }} 
         run: |
           devtools::build("imotionsApi")
@@ -98,22 +95,27 @@ jobs:
             LICENSE
             *.tar.gz
 
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+        shell: bash
+
       - name: Remove snapshot build and fix version number for release
         run: |
           rm *.tar.gz
           cat imotionsApi/DESCRIPTION
-          sed -i 's/-0000000000//' imotionsApi/DESCRIPTION
+          sed -i "/^Version:/c\Version: ${{ steps.get_version.outputs.VERSION }}" imotionsApi/DESCRIPTION
           cat imotionsApi/DESCRIPTION
 
-      - name: Build package 
-        if: ${{ github.event_name == 'release' }}
+      - name: Build release package 
+        if: startsWith(github.ref, 'refs/tags/v')
         run: |
           devtools::build("imotionsApi")
         shell: Rscript {0}
 
       - name: Publish tagged release
         uses: "marvinpinto/action-automatic-releases@latest"
-        if: ${{ github.event_name == 'release' }}
+        if: startsWith(github.ref, 'refs/tags/v')
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
