@@ -7,11 +7,14 @@ on:
   pull_request:
     branches:
       - main
+  release:
+    types:
+      - created
 
 name: R test, lint & check, build, release
 
 jobs:
-  R-test-lint:
+  R-test-lint-build-release:
     runs-on: windows-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -84,13 +87,12 @@ jobs:
         shell: Rscript {0}
 
       - name: Publish snapshot
-        uses: "marvinpinto/action-automatic-releases@latest"
+        uses: softprops/action-gh-release@v1
         if: ${{ github.event_name == 'push' }}
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "snapshot-${{ steps.date.outputs.datetime }}"
+          tag_name: "snapshot-${{ steps.date.outputs.datetime }}"
           prerelease: true
-          title: "Snapshot ${{ steps.date.outputs.datetime }}"
+          name: "Snapshot ${{ steps.date.outputs.datetime }}"
           files: |
             LICENSE
             *.tar.gz
@@ -114,11 +116,9 @@ jobs:
         shell: Rscript {0}
 
       - name: Publish tagged release
-        uses: "marvinpinto/action-automatic-releases@latest"
+        uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/v')
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: false
           files: |
             LICENSE
             *.tar.gz
