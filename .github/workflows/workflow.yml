@@ -99,10 +99,7 @@ jobs:
 
       - name: Get the version
         id: get_version
-        run: |
-          echo ${GITHUB_REF}
-          echo ${GITHUB_REF/refs\/tags\/v/}
-          echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
         shell: bash
 
       - name: Remove snapshot build and fix version number for release
