@@ -1,5 +1,5 @@
 ---
-title: "Example Notebook Explained (tryout)"
+title: "Example Notebook Explained"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{example-notebook-explained}
