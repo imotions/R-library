@@ -57,6 +57,16 @@ output:
     code_download: true
 ```
 
+The character string after "title": `title: "Skin Temperature"` defines the notebook's name shown under "Algorithm" when one adds notebook in iMotions desktop.
+
+![notebook's name shown under "Algorithm".](tutorial2-7.png)
+
+The character string after "description": `description: "Computes absolute skin temperature for each respondent assuming amp run in DC, according to corresponding gain and chosen temperature scale."` summarizes the notebook's functions shown in iMotions desktop when one adds notebook.
+
+![notebook's summary.](tutorial2-8.png)
+
+The character string after "sensor" under "dependencies": `sensor: "Biopac"` defines what type of sensors can be used for running this notebook.
+
 Normally a notebook will specify a particular study to work on as part of its code. However we would like the notebook
 to be able to run against any study. To achieve this we use the R markdown parameters feature to set the values for
 the study the notebook is currently being run for. The system will assign a token, studyId, respondentId in the params
@@ -67,13 +77,80 @@ creating analysis. E.g.,
 params:
  token: "1234-5678-9012-3456"
  studyId: "210799d9-5c1e-45e0-aaab-8271e0d2c4aa"
+ respondentId: "1000"
 ```
 
 R code in the rest of the notebook can then access this, E.g., `imotionsApi::imConnection(params$token)`
 
 If your notebook takes additional parameters such as the “TemperatureScale” (Fahrenheit or Celsius)
 to use for Skin Temperature conversion, you can also add that to the params block, and the values of
-these parameters will be assigned based on the user's choices in the UI.
+these parameters will be assigned based on the user's choices in the UI. There are in total, six types of
+params variables: select, checkbox, text and numeric:
+
+"Select" type in R:
+```{eval=F, echo=T}
+params:
+  GainSelection:
+   label: "Select corresponding gain used"
+   value: "1"
+   selected: "1"
+   input: select
+   choices: ["0.5", "1", "2", "5"]
+```
+
+![Select type in iMotions desktop.](tutorial2-9.png)
+
+"Multi-Select" type in R:
+```{eval=F, echo=T}
+params:
+ Powerbands:
+   label: "Powerbands options"
+   value: "Alpha"
+   selected: "Alpha"
+   input: select
+   choices: ["Delta", "Theta", "Alpha", "Beta", "Gamma"]
+   multiple: yes
+```
+
+!["Multi-Select" type in iMotions desktop](tutorial2-13.png)
+
+"Checkbox" type in R:
+```{eval=F, echo=T}
+params:
+  Autoflip: 
+   label: "Check the polarity of the signal and flip it if necessary"
+   value: FALSE
+   input: checkbox
+```
+
+!["Checkbox" type in iMotions desktop](tutorial2-10.png)
+
+
+"Text" type in R:
+```{eval=F, echo=T}
+params:
+ refChannel1:
+   label: "Reference channel 1"
+   value: "Ref"
+   input: text
+```
+
+!["Text" type in iMotions desktop](tutorial2-11.png)
+
+
+"Numeric" type in R:
+```{eval=F, echo=T}
+params:
+ extremethr:
+   label: "Artefact threshold [in μV]"
+   value: 120
+   input: numeric
+   min: 0
+```
+
+!["Numeric" type in iMotions desktop](tutorial2-12.png)
+
+
 
 Please note that the new R library will apply the computation on study level: when you load a signal,
 it will be retrieved for the entire duration of the study recording i.e., for all the stimuli.
@@ -236,3 +313,10 @@ When the notebook is knitted, an HTML file (report) will be generated with speci
 specified when creating analysis. The report normally includes study/analysis information, graphs/tables, algorithm
 descriptions and embedded R codes. In this example, the first part specifies study related information
 (study, respondent, sensor etc.) and is followed by algorithm descriptions.
+
+
+## 9. Dropping the R file in the right path
+
+The properly functioning .Rmd file needs to be put in the path `C:\Program Files\iMotions\Lab_XG\RNotebooks` or for export files `C:\Program Files\iMotions\Lab_XG\RNotebooks\Exports`, in order to be able to run in iMotions desktop. Please be aware that there could be repeated notebooks of the same kind co-existing, after your editting. You can either delete the repeated ones or keep them separate by using different notebook names. Normally, you will need to provide administrator permissions to edit the files in this path.
+
+
