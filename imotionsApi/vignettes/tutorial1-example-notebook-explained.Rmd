@@ -84,8 +84,8 @@ R code in the rest of the notebook can then access this, E.g., `imotionsApi::imC
 
 If your notebook takes additional parameters such as the “TemperatureScale” (Fahrenheit or Celsius)
 to use for Skin Temperature conversion, you can also add that to the params block, and the values of
-these parameters will be assigned based on the user's choices in the UI. There are in total, six types of
-params variables: select, checkbox, text and numeric:
+these parameters will be assigned based on the user's choices in the UI. There are in total, five types of
+params variables available with iMotions desktop: select, multi-select, checkbox, text and numeric:
 
 "Select" type in R:
 ```{eval=F, echo=T}
