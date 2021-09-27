@@ -21,7 +21,7 @@ This article will use Skin Temperature R Notebook as an example, to explain the 
 iMotions platform, read user input parameters and generate results. The full notebook script can be found here.
 
 If you write your own R Notebooks that use the imotionsApi package, please note that imotionsApi is licensed under
-GPL 3.0.
+[GPL 3.0](https://github.com/imotions/R-library/blob/main/LICENSE).
 
 ## 1. Defining metadata
 
@@ -167,7 +167,7 @@ library(knitr)
 
 Load the packages needed for the notebook running. iMotions already has the iMotions R library and various third-party
 packages needed for released notebooks installed. If you install other packages as part of the code in your notebook, 
-they will not work in iMotions desktop since they need to be installed from iMotions side.
+they will not work in iMotions desktop since they need to be installed from iMotions side. You can find all iMotions installed packages from here: `C:\Program Files\iMotions\Lab_XG\R\library`.
 
 imotionsApi is an iMotions proprietary package that provides functions to access your iMotions studies. Please refer to
 here for an overview of available functions and detailed descriptions or type ?imotionsApi in the RStudio console
@@ -310,13 +310,13 @@ provided by `imotionsApi`. The data then can be viewed and exported locally thro
 ## 8. Generating report
 
 When the notebook is knitted, an HTML file (report) will be generated with specific values for parameters that the user
-specified when creating analysis. The report normally includes study/analysis information, graphs/tables, algorithm
+specified when creating analysis in iMotions. The report normally includes study/analysis information, graphs/tables, algorithm
 descriptions and embedded R codes. In this example, the first part specifies study related information
 (study, respondent, sensor etc.) and is followed by algorithm descriptions.
 
 
 ## 9. Dropping the R file in the right path
 
-The properly functioning .Rmd file needs to be put in the path `C:\Program Files\iMotions\Lab_XG\RNotebooks` or for export files `C:\Program Files\iMotions\Lab_XG\RNotebooks\Exports`, in order to be able to run in iMotions desktop. Please be aware that there could be repeated notebooks of the same kind co-existing, after your editting. You can either delete the repeated ones or keep them separate by using different notebook names. Normally, you will need to provide administrator permissions to edit the files in this path.
+The properly functioning .Rmd file needs to be put in the path `C:\Users\[username]\Documents\iMotions\RNotebooks` or for export files `C:\Users\[username]\Documents\iMotions\RNotebooks\Exports`, in order to be able to run in iMotions desktop. You may need to create the files called `RNotebooks` or `Exports` yourself for the first time. Please be aware that there could be repeated notebooks of the same kind co-existing, after your editting. You can either delete the repeated ones or keep them separate by using different notebook names.
 
 

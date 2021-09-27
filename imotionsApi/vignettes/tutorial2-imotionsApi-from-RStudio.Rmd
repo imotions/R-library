@@ -128,8 +128,7 @@ In this example, the 4th row’s sensor information is what we want to extract f
 ![Respondent samples.](tutorial2-4.png)
 
 We extract the 4th row by columns “sensor” (a value given by iMotions based on what sensor you connected. In this
-example, it’s “Biopac”) and “instance” (a value given by iMotions based on what sensor you connected. 
-In this example, it’s “SKT100C”):
+example, it’s “Biopac”) and “instance” (a device name given by users. In this example, it’s “SKT100C”):
 
 ```{r, eval=F, echo=T}
 tempSampleIdx <- grepl("SKT100C", rSensors$instance) & grepl("Biopac", rSensors$sensor)
