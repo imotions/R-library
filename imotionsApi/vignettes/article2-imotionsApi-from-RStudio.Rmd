@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 This article will explain when you run analysis in RStudio, how one can access study data that has been finished
 collecting in iMotions. The retrieved data can be further analyzed, visualized, exported from RStudio to further fulfill 
-your research purposes. It is recommended to read this article first to gain an overview of how R Notebook is composed 
+your research purposes. It is recommended to read [this article](https://github.com/imotions/R-library/tree/add_tutorials/documentation/article1-example-notebook-explained.html) first to gain an overview of how R Notebook is composed 
 and runs in iMotions.
 
 The study “Resp_SpO2_Temp_Biopac” with collected raw skin temperature data and the Skin Temperature R Notebook will be 
@@ -27,15 +27,15 @@ temperature data from RStudio:
 
 ![Study data in iMotions.](tutorial2-1.png)
 
-The full Skin Temperature R Notebook script is uploaded here.
-The iMotions study link is at the bottom of  this article (For signed in users only).
+The full Skin Temperature R Notebook script is uploaded [here](https://github.com/imotions/R-library/blob/main/imotionsApi/example-notebooks/SkinTemperature.Rmd).
+The iMotions study link is at the bottom of [this article](https://help.imotions.com/hc/en-us/articles/4405330087442) (For signed in users only).
 
 ## 1. Load the imotionsApi package
 
 In RStudio, give the command: `library(imotionsApi)`.
 
 `imotionsApi` is an iMotions proprietary package that provides functions to access your iMotions studies. Please refer to
-here for an overview of available functions and detailed descriptions or type ?imotionsApi in the RStudio console. 
+[here](https://raw.githubusercontent.com/imotions/R-library/add_tutorials/documentation/imotionsApi_2.1.2.pdf) for an overview of available functions and detailed descriptions or type ?imotionsApi in the RStudio console. 
 Load other packages that you need for your notebook running.
 
 ## 2. Token and IDs
