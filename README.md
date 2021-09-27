@@ -29,5 +29,5 @@ Please refer to the documentation of the methods in the `imotionsApi` package fo
 
 ### Articles
 
-- **Article 1: How Notebook Runs in iMotions - An Example Notebook Explained**: go through the code of an existing notebook running in iMotions platform → [See article here]((https://htmlpreview.github.io/https://github.com/imotions/R-library/tree/main/documentation/article1-example-notebook-explained.html).
-- **Article 2: How to Access iMotions Data from RStudio: how to retrieve iMotions data from RStudio** → [See article here](https://htmlpreview.github.io/https://github.com/imotions/R-library/tree/main/documentation/article2-imotionsApi-from-RStudio.html).
+- **Article 1: How Notebook Runs in iMotions - An Example Notebook Explained**: go through the code of an existing notebook running in iMotions platform → [See article here](https://htmlpreview.github.io/?https://github.com/imotions/R-library/blob/add_tutorials/documentation/article1-example-notebook-explained.html).
+- **Article 2: How to Access iMotions Data from RStudio: how to retrieve iMotions data from RStudio** → [See article here](https://htmlpreview.github.io/?https://github.com/imotions/R-library/blob/add_tutorials/documentation/article2-imotionsApi-from-RStudio.html).
