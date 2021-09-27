@@ -2,7 +2,7 @@
 title: "Example Notebook Explained"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{example-notebook-explained}
+  %\VignetteIndexEntry{Example Notebook Explained}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

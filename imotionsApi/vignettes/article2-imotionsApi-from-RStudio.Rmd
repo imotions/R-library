@@ -2,7 +2,7 @@
 title: "imotionsApi From RStudio"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{imotionsApi-from-RStudio}
+  %\VignetteIndexEntry{imotionsApi From RStudio}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 
 This article will explain when you run analysis in RStudio, how one can access study data that has been finished
 collecting in iMotions. The retrieved data can be further analyzed, visualized, exported from RStudio to further fulfill 
-your research purposes. It is recommended to read [this article](https://github.com/imotions/R-library/tree/main/documentation/article1-example-notebook-explained.html) first to gain an overview of how R Notebook is composed 
+your research purposes. It is recommended to read [this article](https://htmlpreview.github.io/https://github.com/imotions/R-library/tree/main/documentation/article1-example-notebook-explained.html) first to gain an overview of how R Notebook is composed 
 and runs in iMotions.
 
 The study “Resp_SpO2_Temp_Biopac” with collected raw skin temperature data and the Skin Temperature R Notebook will be 
