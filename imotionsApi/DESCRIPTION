@@ -26,8 +26,12 @@ Suggests:
     testthat (>= 1.0.2),
     stubthat (>= 1.2.0),
     mockr (>= 0.1),
-    lintr (>= 1.0.0)
+    lintr (>= 1.0.0),
+    knitr,
+	markdown,
+    rmarkdown
 URL:
     https://imotions.com,
     https://my.imotions.com/#studies
 RoxygenNote: 7.1.1
+VignetteBuilder: knitr
