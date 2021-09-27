@@ -67,7 +67,7 @@ jobs:
       - name: R package check
         run: |
           options(crayon.enabled = TRUE)
-          rcmdcheck::rcmdcheck("imotionsApi", args = "--no-manual", error_on = "error")
+          rcmdcheck::rcmdcheck("imotionsApi", args = "--no-manual --ignore-vignettes", error_on = "error")
         shell: Rscript {0}
 
       - name: Get current date
