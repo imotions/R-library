@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 
-# Tutorial 1: How R Notebooks Run in iMotions - An Example Notebook Explained
+# Article 1: How R Notebooks Run in iMotions - An Example Notebook Explained
 
 This article will use Skin Temperature R Notebook as an example, to explain the basics of how R Notebooks run in the 
 iMotions platform, read user input parameters and generate results. The full notebook script can be found [here](https://github.com/imotions/R-library/blob/main/imotionsApi/example-notebooks/SkinTemperature.Rmd).
