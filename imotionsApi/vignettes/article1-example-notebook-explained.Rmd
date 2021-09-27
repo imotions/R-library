@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 # Tutorial 1: How R Notebooks Run in iMotions - An Example Notebook Explained
 
 This article will use Skin Temperature R Notebook as an example, to explain the basics of how R Notebooks run in the 
-iMotions platform, read user input parameters and generate results. The full notebook script can be found here.
+iMotions platform, read user input parameters and generate results. The full notebook script can be found [here](https://github.com/imotions/R-library/blob/main/imotionsApi/example-notebooks/SkinTemperature.Rmd).
 
 If you write your own R Notebooks that use the imotionsApi package, please note that imotionsApi is licensed under
 [GPL 3.0](https://github.com/imotions/R-library/blob/main/LICENSE).
@@ -49,7 +49,7 @@ params:
    value: "Fahrenheit (deg F)"
    selected: "Fahrenheit (deg F)"
    input: select
-   choices: ["Fahrenheit (deg F)", "Celcius (deg C)"]
+   choices: ["Fahrenheit (deg F)", "Celsius (deg C)"]
 output:
   html_document:
     df_print: kable
@@ -276,7 +276,7 @@ Temp_signal$Volt <- (Temp_signal$Volt * gain) + 90
 
 # Converts to Celsius if it is chosen, otherwise proceeded with Fahrenheit
 # Columns are furthermore renamed according to chosen temperature scale 
-if (temp_scale == "Celcius (deg C)") {
+if (temp_scale == "Celsius (deg C)") {
     colname <- "Skin Temperature (deg C)"
     Temp_signal$Volt <- (Temp_signal$Volt - 30) / 2
 } else {
