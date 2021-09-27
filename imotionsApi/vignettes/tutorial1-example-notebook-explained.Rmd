@@ -21,7 +21,7 @@ This article will use Skin Temperature R Notebook as an example, to explain the 
 iMotions platform, read user input parameters and generate results. The full notebook script can be found here.
 
 If you write your own R Notebooks that use the imotionsApi package, please note that imotionsApi is licensed under
-GPL 3.0.
+GPL 3.0. 
 
 ## 1. Defining metadata
 
