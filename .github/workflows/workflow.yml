@@ -7,11 +7,14 @@ on:
   pull_request:
     branches:
       - main
+  release:
+    types:
+      - created
 
-name: R test, lint & check
+name: R test, lint & check, build, release
 
 jobs:
-  R-test-lint:
+  R-test-lint-build-release:
     runs-on: windows-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -41,9 +44,6 @@ jobs:
       
       - name: Run tests
         run: |
-          library(data.table)
-          library(dplyr)
-          library(tidyr)
           options(testthat.output_file = 'test-results-tests.xml')
           result <- as.data.frame(devtools::test("imotionsApi", reporter='junit'))
           if (sum(result$failed) > 0 || any(result$error)) {
@@ -69,6 +69,59 @@ jobs:
           options(crayon.enabled = TRUE)
           rcmdcheck::rcmdcheck("imotionsApi", args = "--no-manual", error_on = "error")
         shell: Rscript {0}
+
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=datetime::$(date +'%Y%m%d-%H%M%S')"
+        
+      - name: Fix version number for snapshot
+        run: |
+          cat imotionsApi/DESCRIPTION
+          sed -i 's/0000000000/${{ steps.date.outputs.datetime }}/' imotionsApi/DESCRIPTION
+          cat imotionsApi/DESCRIPTION
+
+      - name: Build snapshot package
+        if: ${{ github.event_name == 'push' }} 
+        run: |
+          devtools::build("imotionsApi")
+        shell: Rscript {0}
+
+      - name: Publish snapshot
+        uses: softprops/action-gh-release@v1
+        if: ${{ github.event_name == 'push' }}
+        with:
+          tag_name: "snapshot-${{ steps.date.outputs.datetime }}"
+          prerelease: true
+          name: "Snapshot ${{ steps.date.outputs.datetime }}"
+          files: |
+            LICENSE
+            *.tar.gz
+
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
+        shell: bash
+
+      - name: Remove snapshot build and fix version number for release
+        run: |
+          rm *.tar.gz
+          cat imotionsApi/DESCRIPTION
+          sed -i "/^Version:/c\Version: ${{ steps.get_version.outputs.VERSION }}" imotionsApi/DESCRIPTION
+          cat imotionsApi/DESCRIPTION
+
+      - name: Build release package 
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          devtools::build("imotionsApi")
+        shell: Rscript {0}
+
+      - name: Publish tagged release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/v')
+        with:
+          files: |
+            LICENSE
+            *.tar.gz
 
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action/composite@v1

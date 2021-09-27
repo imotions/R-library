@@ -20,7 +20,7 @@ test_that("check that local connection works as expected", {
 
     # test message output
     tmp <- capture_message(imConnection("xxxxxxxx"))
-    expect_identical(tmp$message, "Connecting to iMotions API... (custom server: http://localhost:8086)\n",
+    expect_identical(tmp$message, "Connecting to iMotions API... http://localhost:8086\n",
                      "wrong message output")
 })
 
@@ -33,7 +33,8 @@ test_that("check that remote connection works as expected", {
 
     # test message output
     tmp <- capture_message(imConnection("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"))
-    expect_identical(tmp$message, "Connecting to iMotions API... \n", "wrong message output")
+    expect_identical(tmp$message, "Connecting to iMotions API... https://my.imotions.com/api\n",
+                     "wrong message output")
 })
 
 test_that("check that custom baseUrl works as expected", {
@@ -46,7 +47,7 @@ test_that("check that custom baseUrl works as expected", {
 
     # test message output
     tmp <- capture_message(imConnection("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", "https://my.imotions.com/testcustom"))
-    expect_identical(tmp$message, "Connecting to iMotions API... (custom server: https://my.imotions.com/testcustom)\n",
+    expect_identical(tmp$message, "Connecting to iMotions API... https://my.imotions.com/testcustom\n",
                      "wrong message output")
 })
 

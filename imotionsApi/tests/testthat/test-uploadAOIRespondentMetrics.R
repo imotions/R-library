@@ -77,35 +77,35 @@ test_that("should return a warning if the AOI is not found for the specific resp
                 "result should be null")
 })
 
-test_that("should not call fwrite if metrics is of wrong format", {
+test_that("should not call write.csv if metrics is of wrong format", {
     wrongData <- data.frame("Timestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
     privateGetAOIDetails_Stub$returns(AOIDetailsFile)
 
-    fwrite_Stub <- stub(fwrite)
+    writecsv_Stub <- stub(write.csv)
 
     warning <- capture_warning(mockr::with_mock(
         privateGetAOIDetails = privateGetAOIDetails_Stub$f,
-        fwrite = fwrite_Stub$f,
+        write.csv = writecsv_Stub$f,
         uploadAOIRespondentMetrics(study, AOI, respondent, wrongData)
     ))
 
-    expect_equal(fwrite_Stub$calledTimes(), 0, info = "fwrite_Stub() should not be called")
+    expect_equal(writecsv_Stub$calledTimes(), 0, info = "writecsv_Stub() should not be called")
     expect_identical(warning$message, "Metrics should be a data.frame/data.table composed of only one row")
 })
 
-test_that("should call fwrite if metrics are of good format", {
+test_that("should call write.csv if metrics are of good format", {
     metrics <- checkDataFormat(metrics)
     privateGetAOIDetails_Stub$returns(AOIDetailsFile)
 
-    fwrite_Stub <- stub(fwrite)
+    writecsv_Stub <- stub(write.csv)
     filepath <- paste0(tools::file_path_sans_ext(AOIDetailsFile$fileId), "metrics.csv")
-    fwrite_Stub$expect(x = metrics, file = filepath)
+    writecsv_Stub$expect(x = metrics, file = filepath)
 
     mockr::with_mock(
         privateGetAOIDetails = privateGetAOIDetails_Stub$f,
-        fwrite = fwrite_Stub$f,
+        write.csv = writecsv_Stub$f,
         uploadAOIRespondentMetrics(study, AOI, respondent, metrics)
     )
 
-    expect_equal(fwrite_Stub$calledTimes(), 1, info = "fwrite_Stub() should be called")
+    expect_equal(writecsv_Stub$calledTimes(), 1, info = "writecsv_Stub() should be called")
 })

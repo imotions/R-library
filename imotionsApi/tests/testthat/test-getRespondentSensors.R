@@ -14,7 +14,7 @@ sensorsStimulusPath <- "../data/respondentSensorsStimulus.json"
 
 mockedGetRespondentSensors <- function(study, respondent, stimulus = NULL) {
     getSensorsUrl_Stub <- stub(getSensorsUrl)
-    getSensorsUrl_Stub$expects(study = study, imObject = respondent, stimulusId = stimulus$id)
+    getSensorsUrl_Stub$expects(study = study, imObject = respondent, stimulus = stimulus)
 
     if (!is.null(stimulus)) {
         endpoint <- paste("respondent:", respondent$name, "stimulus:", stimulus$name)
@@ -22,8 +22,8 @@ mockedGetRespondentSensors <- function(study, respondent, stimulus = NULL) {
         endpoint <- paste("respondent:", respondent$name)
     }
 
-    getSensorsUrl_Stub$withArgs(stimulusId = stimulus$id)$returns(sensorsStimulusPath)
-    getSensorsUrl_Stub$withArgs(stimulusId = NULL)$returns(sensorsPath)
+    getSensorsUrl_Stub$withArgs(stimulus = stimulus)$returns(sensorsStimulusPath)
+    getSensorsUrl_Stub$withArgs(stimulus = NULL)$returns(sensorsPath)
 
     getJSON_Stub <- stub(getJSON)
     getJSON_Stub$expects(connection = study$connection, message = paste("Retrieving sensors for", endpoint))
