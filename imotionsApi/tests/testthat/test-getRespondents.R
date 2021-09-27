@@ -126,10 +126,25 @@ test_that("getRespondents() by segment and AOI", {
 
 test_that("should create a defaut group if none are available", {
     study_no_group <- study
-    study_no_group$respondents$variables$Group <- NULL
+    names(study_no_group$respondents$variables) <- "TEST"
 
     respondents <- getRespondents(study_no_group)
     expect_identical(unique(respondents$group), "Default", "Default group should have been created")
+})
+
+test_that("should expose respondent variables if available", {
+    #Add respondent variables to the study
+    study_more_variables <- study
+    study_more_variables$respondents$variables$var1 <- "var1"
+    study_more_variables$respondents$variables$var2 <- "var2"
+
+    respondents <- getRespondents(study_more_variables, keepRespondentVariables = T)
+    expect_identical(names(respondents), c("name", "id", "group", "age", "gender", "variables.var1", "variables.var2"),
+                     "Columns with variables should have been created")
+
+    respondents <- getRespondents(study_more_variables, keepRespondentVariables = F)
+    expect_identical(names(respondents), c("name", "id", "group", "age", "gender"),
+                     "No columns with variables should have been created")
 })
 
 context("getRespondent()")

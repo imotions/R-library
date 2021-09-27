@@ -21,27 +21,25 @@ stimulus <- getStimuli(study)[4, ]
 
 mockedPrivateGetAOIDetails <- function(study, imObject, respondent = NULL) {
     getAOIDetailsUrl_Stub <- stub(getAOIDetailsUrl)
-    getAOIDetailsForStimulusUrl_Stub <- stub(getAOIDetailsForStimulusUrl)
+    getAOIDetailsUrl_Stub$expects(study = study, imObject = imObject, respondent = respondent)
 
     if (inherits(imObject, "imAOI")) {
-        getAOIDetailsUrl_Stub$expects(study = study, AOI = imObject, respondentId = respondent$id)
-        getAOIDetailsUrl_Stub$withArgs(respondentId = respondent$id)$returns(AOIDetailsRespondentPath)
-        getAOIDetailsUrl_Stub$withArgs(respondentId = NULL)$returns(AOIDetailsPath)
+        getAOIDetailsUrl_Stub$withArgs(respondent = respondent)$returns(AOIDetailsRespondentPath)
+        getAOIDetailsUrl_Stub$withArgs(respondent = NULL)$returns(AOIDetailsPath)
 
         if (is.null(respondent)) {
             endpoint <- paste("AOI:", imObject$name)
         } else {
-            endpoint <- paste("AOI:", imObject$name, "respondent:", respondent$name)
+            endpoint <- paste0("AOI: ", imObject$name, ", Respondent:", respondent$name)
         }
     } else if (inherits(imObject, "imStimulus")) {
-        getAOIDetailsForStimulusUrl_Stub$expects(study = study, stimulusId = imObject$id, respondentId = respondent$id)
-        getAOIDetailsForStimulusUrl_Stub$withArgs(respondentId = respondent$id)$returns(AOIDetailForStimulusRPath)
-        getAOIDetailsForStimulusUrl_Stub$withArgs(respondentId = NULL)$returns(AOIDetailForStimulusPath)
+        getAOIDetailsUrl_Stub$withArgs(respondent = respondent)$returns(AOIDetailForStimulusRPath)
+        getAOIDetailsUrl_Stub$withArgs(respondent = NULL)$returns(AOIDetailForStimulusPath)
 
         if (is.null(respondent)) {
-            endpoint <- paste("all AOIs in stimulus:", imObject$name)
+            endpoint <- paste("Stimulus:", imObject$name)
         } else {
-            endpoint <- paste("all AOIs in stimulus:", imObject$name, "respondent:", respondent$name)
+            endpoint <- paste0("Stimulus: ", imObject$name, ", Respondent:", respondent$name)
         }
     }
 
@@ -53,7 +51,6 @@ mockedPrivateGetAOIDetails <- function(study, imObject, respondent = NULL) {
     getJSON_Stub$withArgs(url = AOIDetailForStimulusRPath)$returns(jsonlite::fromJSON(AOIDetailForStimulusRPath))
 
     AOIdetails <- mockr::with_mock(getAOIDetailsUrl = getAOIDetailsUrl_Stub$f,
-                                   getAOIDetailsForStimulusUrl = getAOIDetailsForStimulusUrl_Stub$f,
                                    getJSON = getJSON_Stub$f,
                                    privateGetAOIDetails(study, imObject, respondent))
 

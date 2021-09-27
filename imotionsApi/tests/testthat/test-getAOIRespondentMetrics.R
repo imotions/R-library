@@ -70,7 +70,7 @@ test_that("should throw a warning if the AOI has not been defined for this respo
 
 test_that("should throw a warning if no metrics have been found for this respondent", {
     warning <- capture_warning(mockedGetAOIRespondentMetrics(study, AOI, respondent, AOIDetailsFile))
-    expect_identical(warning$message, "No metrics found for AOI: New Aoi, respondent: Wendy",
+    expect_identical(warning$message, "No metrics found for AOI: New Aoi, Respondent: Wendy",
                      "no metrics found should throw an error")
 
     expect_null(suppressWarnings(mockedGetAOIRespondentMetrics(study, AOI, respondent, AOIDetailsFile)),
