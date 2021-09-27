@@ -27,7 +27,7 @@ connection <- imConnection("xxxxxxxx")
 Please refer to the documentation of the methods in the `imotionsApi` package for further instructions and examples.
 
 
-### Tutorials
+### Articles
 
-- **Tutorial 1: How Notebook Runs in iMotions - An Example Notebook Explained**: go through the code of an existing notebook running in iMotions platform → See article here.
-- **Tutorial 2: How to Access iMotions Data from RStudio: how to retrieve iMotions data from RStudio** → See the article here.
+- **Article 1: How Notebook Runs in iMotions - An Example Notebook Explained**: go through the code of an existing notebook running in iMotions platform → See article here.
+- **Article 2: How to Access iMotions Data from RStudio: how to retrieve iMotions data from RStudio** → See the article here.
