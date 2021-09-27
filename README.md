@@ -1,6 +1,6 @@
 # R-Library
 
-[![R test, lint & check](https://github.com/imotions/R-library/actions/workflows/r.yml/badge.svg)](https://github.com/imotions/R-library/actions/workflows/r.yml)
+[![R test, lint & check, build, release](https://github.com/imotions/R-library/actions/workflows/workflow.yml/badge.svg)](https://github.com/imotions/R-library/actions/workflows/workflow.yml)
 
 With the iMotions R library `imotionsApi`, it is possible to edit or write notebooks that can be used to generate metrics, signals, or HTML reports for studies.
 
@@ -27,7 +27,7 @@ connection <- imConnection("xxxxxxxx")
 Please refer to the documentation of the methods in the `imotionsApi` package for further instructions and examples.
 
 
-### Tutorials
+### Articles
 
-- **Tutorial 1: How Notebook Runs in iMotions - An Example Notebook Explained**: go through the code of an existing notebook running in iMotions platform → See article here.
-- **Tutorial 2: How to Access iMotions Data from RStudio: how to retrieve iMotions data from RStudio** → See the article here.
+- **Article 1: How Notebook Runs in iMotions - An Example Notebook Explained**: go through the code of an existing notebook running in iMotions platform → [See article here](https://htmlpreview.github.io/?https://github.com/imotions/R-library/blob/main/documentation/article1-example-notebook-explained.html).
+- **Article 2: How to Access iMotions Data from RStudio: how to retrieve iMotions data from RStudio** → [See article here](https://htmlpreview.github.io/?https://github.com/imotions/R-library/blob/main/documentation/article2-imotionsApi-from-RStudio.html).
