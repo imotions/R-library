@@ -317,6 +317,8 @@ descriptions and embedded R codes. In this example, the first part specifies stu
 
 ## 9. Dropping the R file in the right path
 
-The properly functioning .Rmd file needs to be put in the path `C:\Users\[username]\Documents\iMotions\RNotebooks` or for export files `C:\Users\[username]\Documents\iMotions\RNotebooks\Exports`, in order to be able to run in iMotions desktop. You may need to create the files called `RNotebooks` or `Exports` yourself for the first time. Please be aware that there could be repeated notebooks of the same kind co-existing, after your editting. You can either delete the repeated ones or keep them separate by using different notebook names.
-
-
+The properly functioning .Rmd file needs to be put in the path `C:\Users\[username]\Documents\iMotions\RNotebooks` or 
+for export files `C:\Users\[username]\Documents\iMotions\RNotebooks\Exports`, in order to be able to run in iMotions desktop. 
+You may need to create the folders called `RNotebooks` or `Exports` yourself if they don't exist. 
+Please be aware that there could be repeated notebooks with the same name shown in iMotions, after your editing.
+We recommend that you change a notebook's title, when you edit it.
