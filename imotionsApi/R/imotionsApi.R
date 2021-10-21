@@ -797,10 +797,25 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
     }
 
     sensors <- getJSON(study$connection, getSensorsUrl(study, respondent, stimulus),
-                       message = paste("Retrieving sensors for", endpoint))
+                       message = paste("Retrieving sensors for", endpoint), simplifyDataFrame = FALSE)
+    signalsMetaData <- list()
+    signals <- list()
+    for (i in 1:length(sensors)) {
+        rawSignalsMetaData <- sensors[[i]]$signalsMetaData
+        for (j in 1:length(rawSignalsMetaData)) {
+            rawSignalsMetaData[[j]][sapply(rawSignalsMetaData[[j]], is.null)] <- NA
+        }
+        signalsMetaData[[i]] <- as.data.frame(rbindlist(rawSignalsMetaData, fill = TRUE))
+        sensors[[i]]$signalsMetaData <- NULL
+        signals[[i]] <- sensors[[i]]$signals
+        sensors[[i]]$signals <- NULL
+        sensors[[i]][sapply(sensors[[i]], is.null)] <- NA
+    }
+    sensors <- rbindlist(sensors, fill = TRUE)
 
     assertValid(length(sensors) > 0, paste("No sensors found for", endpoint))
-    sensors$signalsMetaData <- NULL
+    sensors$signals <- signals
+    sensors$signalsMetaData <- signalsMetaData
     sensors$respondent <- list(respondent)
     sensors <- reorderSensorColumns(sensors)
 
@@ -1986,16 +2001,17 @@ getRespondentAnnotationsUrl <- function(study, respondent) {
 #' @param url The url/path where the JSON file is located.
 #' @param message Optional - a short message indicating which steps are getting performed to get a more indicative
 #'                error message.
+#' @param ... Optional - arguments passed to jsonlite::fromJSON.
 #'
 #' @return The retrieved JSON file.
 #' @keywords internal
-getJSON <- function(connection, url, message = NULL) {
+getJSON <- function(connection, url, message = NULL, ...) {
     response <- getHttr(connection, url)
     response_status <- getHttrStatusCode(response)
     stopOnHttpError(response_status, message)
 
     text <- content(x = response, as = "text", encoding = "UTF-8")
-    return(fromJSON(txt = text))
+    return(fromJSON(txt = text, ...))
 }
 
 
@@ -2211,7 +2227,8 @@ checkDataFormat <- function(data) {
 #' @keywords internal
 reorderColnames <- function(data, explicitlyOrdered) {
     explicitlyOrdered <- explicitlyOrdered[explicitlyOrdered %in% names(data)]
-    data[, c(explicitlyOrdered, setdiff(names(data), explicitlyOrdered))]
+    setcolorder(data, explicitlyOrdered)
+    data
 }
 
 #' Make sensors columns order a bit more intuitive, and reliable.
@@ -2221,7 +2238,7 @@ reorderColnames <- function(data, explicitlyOrdered) {
 #' @return A sensors data.table with reordered columns.
 #' @keywords internal
 reorderSensorColumns <- function(sensors) {
-    reorderColnames(sensors, c("eventSourceType", "name", "signals", "sensor", "instance", "dataUrl", "respondent"))
+    reorderColnames(sensors, c("eventSourceType", "name", "signals", "sensor", "instance", "dataUrl", "respondent", "signalsMetaData"))
 }
 
 
