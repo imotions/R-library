@@ -800,9 +800,9 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
                        message = paste("Retrieving sensors for", endpoint), simplifyDataFrame = FALSE)
     signalsMetaData <- list()
     signals <- list()
-    for (i in 1:length(sensors)) {
+    for (i in seq_len(sensors)) {
         rawSignalsMetaData <- sensors[[i]]$signalsMetaData
-        for (j in 1:length(rawSignalsMetaData)) {
+        for (j in seq_len(rawSignalsMetaData)) {
             rawSignalsMetaData[[j]][sapply(rawSignalsMetaData[[j]], is.null)] <- NA
         }
         signalsMetaData[[i]] <- as.data.frame(rbindlist(rawSignalsMetaData, fill = TRUE))
@@ -2238,7 +2238,8 @@ reorderColnames <- function(data, explicitlyOrdered) {
 #' @return A sensors data.table with reordered columns.
 #' @keywords internal
 reorderSensorColumns <- function(sensors) {
-    reorderColnames(sensors, c("eventSourceType", "name", "signals", "sensor", "instance", "dataUrl", "respondent", "signalsMetaData"))
+    reorderColnames(sensors, c("eventSourceType", "name", "signals", "sensor", "instance", "dataUrl", "respondent",
+                               "signalsMetaData"))
 }
 
 
