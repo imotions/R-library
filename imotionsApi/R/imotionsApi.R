@@ -798,6 +798,9 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
 
     sensors <- getJSON(study$connection, getSensorsUrl(study, respondent, stimulus),
                        message = paste("Retrieving sensors for", endpoint), simplifyDataFrame = FALSE)
+
+    assertValid(length(sensors) > 0, paste("No sensors found for", endpoint))
+
     signalsMetaData <- list()
     signals <- list()
     for (i in seq_along(sensors)) {
@@ -809,7 +812,6 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
     }
     suppressWarnings(sensors <- rbindlist(sensors, fill = TRUE))
 
-    assertValid(length(sensors) > 0, paste("No sensors found for", endpoint))
     sensors$signals <- signals
     sensors$signalsMetaData <- signalsMetaData
     sensors$respondent <- list(rep(respondent, nrow(sensors)))
@@ -2229,13 +2231,13 @@ reorderColnames <- function(data, explicitlyOrdered) {
 
 #' Make sensors columns order a bit more intuitive, and reliable.
 #'
-#' @param sensors A sensors data.table to reoder.
+#' @param sensors A sensors data.table to reorder.
 #'
 #' @return A sensors data.table with reordered columns.
 #' @keywords internal
 reorderSensorColumns <- function(sensors) {
     reorderColnames(sensors, c("eventSourceType", "name", "signals", "sensor", "instance", "dataUrl", "respondent",
-                               "signalsMetaData"))
+                               "sensorSpecific", "signalsMetaData"))
 }
 
 
