@@ -800,9 +800,9 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
                        message = paste("Retrieving sensors for", endpoint), simplifyDataFrame = FALSE)
     signalsMetaData <- list()
     signals <- list()
-    for (i in seq_len(sensors)) {
+    for (i in seq_along(sensors)) {
         rawSignalsMetaData <- sensors[[i]]$signalsMetaData
-        for (j in seq_len(rawSignalsMetaData)) {
+        for (j in seq_along(rawSignalsMetaData)) {
             rawSignalsMetaData[[j]][sapply(rawSignalsMetaData[[j]], is.null)] <- NA
         }
         signalsMetaData[[i]] <- as.data.frame(rbindlist(rawSignalsMetaData, fill = TRUE))
@@ -816,7 +816,7 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
     assertValid(length(sensors) > 0, paste("No sensors found for", endpoint))
     sensors$signals <- signals
     sensors$signalsMetaData <- signalsMetaData
-    sensors$respondent <- list(respondent)
+    sensors$respondent <- list(rep(respondent, nrow(sensors)))
     sensors <- reorderSensorColumns(sensors)
 
     sensors <- createImObject(sensors, "Sensor")
