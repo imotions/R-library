@@ -75,8 +75,8 @@ test_that("should return a imSensorList object", {
     sensors <- mockedGetRespondentSensors(study, respondent)
 
     expect_true(inherits(sensors, "imSensorList"), "`sensors` should be an imSensorList object")
-    expect_equal(nrow(sensors), 8, info = "`sensors` should contain 8 sensors")
-    correctColumns <- c("eventSourceType", "name", "signals", "sensor", "instance", "dataUrl", "respondent", "signalsMetaData")
+    expect_equal(nrow(sensors), 4, info = "`sensors` should contain 4 sensors")
+    correctColumns <- c("eventSourceType", "name", "signals", "sensor", "instance", "dataUrl", "respondent", "signalsMetaData", "sensorSpecific")
     expect_identical(colnames(sensors), correctColumns, "sensors need to have the correct columns in the correct order")
 
     # check that taking only one sensor changes the class of the object
