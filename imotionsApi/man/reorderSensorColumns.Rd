@@ -7,7 +7,7 @@
 reorderSensorColumns(sensors)
 }
 \arguments{
-\item{sensors}{A sensors data.table to reoder.}
+\item{sensors}{A sensors data.table to reorder.}
 }
 \value{
 A sensors data.table with reordered columns.
