@@ -802,16 +802,12 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
     signals <- list()
     for (i in seq_along(sensors)) {
         rawSignalsMetaData <- sensors[[i]]$signalsMetaData
-        for (j in seq_along(rawSignalsMetaData)) {
-            rawSignalsMetaData[[j]][sapply(rawSignalsMetaData[[j]], is.null)] <- NA
-        }
-        signalsMetaData[[i]] <- as.data.frame(rbindlist(rawSignalsMetaData, fill = TRUE))
+        suppressWarnings(signalsMetaData[[i]] <- rbindlist(rawSignalsMetaData, fill = TRUE))
         sensors[[i]]$signalsMetaData <- NULL
         signals[[i]] <- sensors[[i]]$signals
         sensors[[i]]$signals <- NULL
-        sensors[[i]][sapply(sensors[[i]], is.null)] <- NA
     }
-    sensors <- rbindlist(sensors, fill = TRUE)
+    suppressWarnings(sensors <- rbindlist(sensors, fill = TRUE))
 
     assertValid(length(sensors) > 0, paste("No sensors found for", endpoint))
     sensors$signals <- signals
