@@ -797,11 +797,24 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
     }
 
     sensors <- getJSON(study$connection, getSensorsUrl(study, respondent, stimulus),
-                       message = paste("Retrieving sensors for", endpoint))
+                       message = paste("Retrieving sensors for", endpoint), simplifyDataFrame = FALSE)
 
     assertValid(length(sensors) > 0, paste("No sensors found for", endpoint))
-    sensors$signalsMetaData <- NULL
-    sensors$respondent <- list(respondent)
+
+    signalsMetaData <- list()
+    signals <- list()
+    for (i in seq_along(sensors)) {
+        rawSignalsMetaData <- sensors[[i]]$signalsMetaData
+        suppressWarnings(signalsMetaData[[i]] <- rbindlist(rawSignalsMetaData, fill = TRUE))
+        sensors[[i]]$signalsMetaData <- NULL
+        signals[[i]] <- sensors[[i]]$signals
+        sensors[[i]]$signals <- NULL
+    }
+    suppressWarnings(sensors <- rbindlist(sensors, fill = TRUE))
+
+    sensors$signals <- signals
+    sensors$signalsMetaData <- signalsMetaData
+    sensors$respondent <- list(rep(respondent, nrow(sensors)))
     sensors <- reorderSensorColumns(sensors)
 
     sensors <- createImObject(sensors, "Sensor")
@@ -1154,6 +1167,39 @@ getSensorData <- function(study, sensor, signalsName = NULL, intervals = NULL) {
     }
 
     return(data)
+}
+
+
+#' Download metadata corresponding to a specific sensor (sensor and signals metadata).
+#'
+#' Available sensors in your study can be listed using the \code{\link{getRespondentSensors}}.
+#'
+#' Metadata contains sensor metadata and signal metadata
+#'
+#' @param sensor An imSensor object as returned from \code{\link{getRespondentSensors}}.
+#'
+#' @return A list of two data frames containing respectively the sensor and the signals metadata.
+#' @export
+#' @examples
+#' \dontrun{
+#' connection <- imotionsApi::imConnection("xxxxxxxx")
+#' studies <- imotionsApi::listStudies(connection)
+#' study <- imotionsApi::imStudy(connection, studies$id[1])
+#' respondents <- imotionsApi::getRespondents(study)
+#' sensors <- imotionsApi::getRespondentSensors(study, respondents[1, ])
+#' metadata <- imotionsApi::getSensorMetaData(study, sensors[1, ])
+#' }
+getSensorMetaData <- function(sensor) {
+    assertValid(hasArg(sensor), "Please specify a sensor loaded with `getRespondentSensors()`")
+    assertClass(sensor, "imSensor", "`sensor` argument is not an imSensor object")
+
+    sensorMetaData <- fromJSON(URLdecode(sensor$sensorSpecific))
+    signalsMetaData <- sensor$signalsMetaData[[1]]
+
+    return(list(
+        sensor = sensorMetaData,
+        signals = signalsMetaData
+    ))
 }
 
 
@@ -1986,16 +2032,17 @@ getRespondentAnnotationsUrl <- function(study, respondent) {
 #' @param url The url/path where the JSON file is located.
 #' @param message Optional - a short message indicating which steps are getting performed to get a more indicative
 #'                error message.
+#' @param ... Optional - arguments passed to jsonlite::fromJSON.
 #'
 #' @return The retrieved JSON file.
 #' @keywords internal
-getJSON <- function(connection, url, message = NULL) {
+getJSON <- function(connection, url, message = NULL, ...) {
     response <- getHttr(connection, url)
     response_status <- getHttrStatusCode(response)
     stopOnHttpError(response_status, message)
 
     text <- content(x = response, as = "text", encoding = "UTF-8")
-    return(fromJSON(txt = text))
+    return(fromJSON(txt = text, ...))
 }
 
 
@@ -2211,17 +2258,19 @@ checkDataFormat <- function(data) {
 #' @keywords internal
 reorderColnames <- function(data, explicitlyOrdered) {
     explicitlyOrdered <- explicitlyOrdered[explicitlyOrdered %in% names(data)]
-    data[, c(explicitlyOrdered, setdiff(names(data), explicitlyOrdered))]
+    setcolorder(data, explicitlyOrdered)
+    data
 }
 
 #' Make sensors columns order a bit more intuitive, and reliable.
 #'
-#' @param sensors A sensors data.table to reoder.
+#' @param sensors A sensors data.table to reorder.
 #'
 #' @return A sensors data.table with reordered columns.
 #' @keywords internal
 reorderSensorColumns <- function(sensors) {
-    reorderColnames(sensors, c("eventSourceType", "name", "signals", "sensor", "instance", "dataUrl", "respondent"))
+    reorderColnames(sensors, c("eventSourceType", "name", "signals", "sensor", "instance", "dataUrl", "respondent",
+                               "sensorSpecific", "signalsMetaData"))
 }
 
 

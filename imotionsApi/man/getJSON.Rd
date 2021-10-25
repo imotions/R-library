@@ -5,7 +5,7 @@
 \title{Retrieve a JSON file from the indicated path/url - optionally allow the user to add more information about to know
 when an error occurred.}
 \usage{
-getJSON(connection, url, message = NULL)
+getJSON(connection, url, message = NULL, ...)
 }
 \arguments{
 \item{connection}{An imConnection object as returned from \code{\link{imConnection}}.}
@@ -14,6 +14,8 @@ getJSON(connection, url, message = NULL)
 
 \item{message}{Optional - a short message indicating which steps are getting performed to get a more indicative
 error message.}
+
+\item{...}{Optional - arguments passed to jsonlite::fromJSON.}
 }
 \value{
 The retrieved JSON file.

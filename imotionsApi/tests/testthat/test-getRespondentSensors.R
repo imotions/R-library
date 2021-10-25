@@ -27,8 +27,9 @@ mockedGetRespondentSensors <- function(study, respondent, stimulus = NULL) {
 
     getJSON_Stub <- stub(getJSON)
     getJSON_Stub$expects(connection = study$connection, message = paste("Retrieving sensors for", endpoint))
-    getJSON_Stub$withArgs(url = sensorsStimulusPath)$returns(jsonlite::fromJSON(sensorsStimulusPath))
-    getJSON_Stub$withArgs(url = sensorsPath)$returns(jsonlite::fromJSON(sensorsPath))
+    getJSON_Stub$withArgs(url = sensorsStimulusPath)$returns(jsonlite::fromJSON(sensorsStimulusPath,
+                                                                                simplifyDataFrame = FALSE))
+    getJSON_Stub$withArgs(url = sensorsPath)$returns(jsonlite::fromJSON(sensorsPath, simplifyDataFrame = FALSE))
 
     sensors <- mockr::with_mock(
         getSensorsUrl = getSensorsUrl_Stub$f,
@@ -70,11 +71,13 @@ test_that("should throw errors if arguments are missing or not from the good cla
 
 test_that("should return a imSensorList object", {
     # Load sensors
+
     sensors <- mockedGetRespondentSensors(study, respondent)
 
     expect_true(inherits(sensors, "imSensorList"), "`sensors` should be an imSensorList object")
-    expect_equal(nrow(sensors), 8, info = "`sensors` should contain 8 sensors")
-    correctColumns <- c("eventSourceType", "name", "signals", "sensor", "instance", "dataUrl", "respondent")
+    expect_equal(nrow(sensors), 4, info = "`sensors` should contain 4 sensors")
+    correctColumns <- c("eventSourceType", "name", "signals", "sensor", "instance", "dataUrl", "respondent",
+                        "sensorSpecific", "signalsMetaData")
     expect_identical(colnames(sensors), correctColumns, "sensors need to have the correct columns in the correct order")
 
     # check that taking only one sensor changes the class of the object
@@ -92,7 +95,8 @@ test_that("should return a imSensorList object at the stimulus level", {
 
     expect_true(inherits(sensors, "imSensorList"), "`sensors` should be an imSensorList object")
     expect_equal(nrow(sensors), 5, info = "`sensors` should contain 5 sensors")
-    correctColumns <- c("eventSourceType", "name", "signals", "sensor", "instance", "dataUrl", "respondent")
+    correctColumns <- c("eventSourceType", "name", "signals", "sensor", "instance", "dataUrl", "respondent",
+                        "signalsMetaData")
     expect_identical(colnames(sensors), correctColumns, "sensors need to have the correct columns in the correct order")
 
 })
