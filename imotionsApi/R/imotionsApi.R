@@ -1170,6 +1170,39 @@ getSensorData <- function(study, sensor, signalsName = NULL, intervals = NULL) {
 }
 
 
+#' Download metadata corresponding to a specific sensor (sensor and signals metadata).
+#'
+#' Available sensors in your study can be listed using the \code{\link{getRespondentSensors}}.
+#'
+#' Metadata contains sensor metadata and signal metadata
+#'
+#' @param sensor An imSensor object as returned from \code{\link{getRespondentSensors}}.
+#'
+#' @return An list containing two data frames containing respectively the sensor and the signals metadata.
+#' @export
+#' @examples
+#' \dontrun{
+#' connection <- imotionsApi::imConnection("xxxxxxxx")
+#' studies <- imotionsApi::listStudies(connection)
+#' study <- imotionsApi::imStudy(connection, studies$id[1])
+#' respondents <- imotionsApi::getRespondents(study)
+#' sensors <- imotionsApi::getRespondentSensors(study, respondents[1, ])
+#' metadata <- imotionsApi::getSensorMetaData(study, sensors[1, ])
+#' }
+getSensorMetaData <- function(sensor) {
+    assertValid(hasArg(sensor), "Please specify a sensor loaded with `getRespondentSensors()`")
+    assertClass(sensor, "imSensor", "`sensor` argument is not an imSensor object")
+
+    sensorMetaData <- fromJSON(URLdecode(sensor$sensorSpecific))
+    signalsMetaData <- sensor$signalsMetaData[[1]]
+
+    return(list(
+        sensor = sensorMetaData,
+        signals = signalsMetaData
+    ))
+}
+
+
 #' Get the inOutGaze information, inOutMouseClick information and AOI's intervals for a specific AOI/respondent
 #' combination. Note that imAOI object, by definition, are linked to a specific stimulus.
 #'
