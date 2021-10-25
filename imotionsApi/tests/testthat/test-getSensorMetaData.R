@@ -79,4 +79,3 @@ test_that("should return sensor metadata for this sensor", {
                 "signals metadata should have all the signals of this sensor in the name column")
 
 })
-
