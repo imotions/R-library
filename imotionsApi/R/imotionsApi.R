@@ -1178,7 +1178,7 @@ getSensorData <- function(study, sensor, signalsName = NULL, intervals = NULL) {
 #'
 #' @param sensor An imSensor object as returned from \code{\link{getRespondentSensors}}.
 #'
-#' @return An list containing two data frames containing respectively the sensor and the signals metadata.
+#' @return A list of two data frames containing respectively the sensor and the signals metadata.
 #' @export
 #' @examples
 #' \dontrun{
