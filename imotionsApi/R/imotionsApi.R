@@ -1326,7 +1326,7 @@ getAOIRespondentMetrics <- function(study, AOI, respondent) {
         return(NULL)
     }
 
-    metrics <- setDT(fread(AOIDetails$resultId))
+    metrics <- setDT(read.csv(AOIDetails$resultId))
     metrics <- checkDataFormat(metrics)
     return(metrics)
 }
