@@ -1,7 +1,7 @@
 Package: imotionsApi
 Type: Package
 Title: iMotions Data Library
-Version: 2.1.3-0000000000
+Version: 2.1.3.1-0000000000
 Date: 2020-04-16
 Author: Amandine Grappe, Paolo Masulli
 Maintainer: iMotions <support@imotions.com>
@@ -9,7 +9,6 @@ Description: Provides functions to access your iMotions studies.
 Copyright: iMotions
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
 Depends: R (>= 3.2.2)
 Imports:
     jsonlite (>= 1.5),
@@ -28,10 +27,10 @@ Suggests:
     mockr (>= 0.1),
     lintr (>= 1.0.0),
     knitr,
-	markdown,
+    markdown,
     rmarkdown
 URL:
     https://imotions.com,
     https://my.imotions.com/#studies
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 VignetteBuilder: knitr
