@@ -27,12 +27,15 @@ test_that("should throw errors if arguments are missing or not from the good cla
                      "respondent not being an imRespondent object should throw an error")
 })
 
+expected_column_names <- c("name", "id", "type", "imageUrl", "videoUrl", "exposureTimeMs", "displayOrder", "relevant",
+                           "parentId", "parentName")
+
 test_that("should return all stimuli from this study", {
     stimuli <- getStimuli(study)
     expect_true(inherits(stimuli, "imStimulusList"), "`stimuli` should be an imStimulusList object")
     expect(nrow(stimuli) == 6, "stimuli should contain 6 stimuli")
-    expect_identical(colnames(stimuli), c("name", "id", "parentStimuli", "type", "imageUrl", "videoUrl",
-                                          "exposureTimeMs", "displayOrder", "relevant"), "stimuli infos not matching")
+
+    expect_identical(colnames(stimuli), expected_column_names, "stimuli infos not matching")
 
     # check that taking only one stimulus changes the class of the object
     stimulus <- stimuli[1, ]
@@ -58,8 +61,7 @@ test_that("getStimuli() by respondent", {
     stimuli <- getStimuli(study, respondents[1, ])
     expect_true(inherits(stimuli, "imStimulusList"), "`stimuli` should be an imStimulusList object")
     expect(nrow(stimuli) == 5, "stimuli should contain 5 stimuli")
-    expect_identical(colnames(stimuli), c("name", "id", "parentStimuli", "type", "imageUrl", "videoUrl",
-                                          "exposureTimeMs", "displayOrder", "relevant"), "stimuli infos not matching")
+    expect_identical(colnames(stimuli), expected_column_names, "stimuli infos not matching")
     expect_identical(stimuli$name, c("AntiSmoking40Sec", "CHAMONIX_Living_on_the_edge", "IAAF", "IAAF_Scene[1]",
                                      "NiceElementTypes"), "wrong stimuli selected")
 })

@@ -281,16 +281,44 @@ getStimuli <- function(study, respondent = NULL, relevant = TRUE) {
     }
 
     stimuli$relevant <- !unlist(grepl("non-relevant", stimuli$tags, fixed = T))
-    stimuli[, c("respondentData", "tags")] <- NULL
+    stimuli$parentId <- stimuli$parentStimuli
+
+    stimuli[, c("respondentData", "tags", "parentStimuli")] <- NULL
 
     # Make sure stimuli attached to another stimulus don't have a parent id
-    stimuli$parentStimuli[!stimuli$type %like% "_SCENE"] <- NA_character_
+    stimuli$parentId[!stimuli$type %like% "_SCENE"] <- NA_character_
+    stimuli$parentName <- getParentStimulusNames(stimuli$parentId, stimuli)
 
     stimuli <- createImObject(stimuli, "Stimulus")
 
     if (relevant) stimuli <- stimuli[relevant == TRUE, ]
     return(stimuli)
 }
+
+
+
+#' Get parent stimulus names from a vector of parent ids and a stimuli data.table.
+#'
+#' The parent name is set to "" if a stimulus has no parent and to "N/A" if the stimulus parent was not found in the
+#' stimuli table (e.g. if the parent stimulus was not included in an analysis).
+#'
+#' @param parentIds A vector of parent stimulus ids.
+#' @param stimuli An imStimulusList object as returned from \code{\link{getStimuli}}.
+#'
+#' @return The parent stimulus names corresponding to the given ids.
+#' @keywords internal
+getParentStimulusNames <- function(parentIds, stimuli) {
+    # detect if some stimuli have no parent at all to set their names later to ""
+    hasParent <- !is.na(parentIds)
+
+    # try to match each id to a stimulus, if none is found "N/A" is returned
+    parentNames <- stimuli[match(parentIds, stimuli$id), ]$name
+    parentNames[is.na(parentNames)] <- "N/A"
+
+    parentNames[!hasParent] <- ""
+    return(parentNames)
+}
+
 
 
 #' Get a specific stimulus from a study.
@@ -903,7 +931,8 @@ privateGetIntervalsForStimuli <- function(study, respondent) {
     name <- slideEvents[slideEvents$SlideEvent == "StartMedia", ]$SourceStimuliName
 
     intervals <- data.table::data.table("fragments" = data.frame(start, end, duration), "name" = name,
-                                        "type" = "Stimulus", "parentStim" = NA_character_, "text" = NA_character_)
+                                        "type" = "Stimulus", "parentId" = NA_character_, "parentName" = "",
+                                        "text" = NA_character_)
 
     intervals$id <- stimuli[intervals, "id", on = "name"]$id
 
@@ -913,13 +942,13 @@ privateGetIntervalsForStimuli <- function(study, respondent) {
 
 #' Get time intervals for scenes.
 #'
-#' Return the start, end, duration, parent stimulus, id and name of each scene.
+#' Return the start, end, duration, parent stimulus id/name, id and name of each scene.
 #' Scene with multiple fragments will be return as multiple intervals (start, end, duration) with same id and name.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
 #'
-#' @return A data.table composed of the start, end, duration, parent stimulus, id and name of each scene.
+#' @return A data.table composed of the start, end, duration, parent stimulus id/name, id and name of each scene.
 #' @keywords internal
 privateGetIntervalsForScenes <- function(study, respondent) {
     stimuli <- getStimuli(study)
@@ -934,10 +963,14 @@ privateGetIntervalsForScenes <- function(study, respondent) {
     start <- scenes$fragmentStart
     end <- scenes$fragmentEnd
     duration <- end - start
-    name <- stimuli[match(scenes$sceneId, stimuli$id), ]$name
-    parentStim <- stimuli[match(scenes$sceneId, stimuli$id), ]$parentStimuli
-    intervals <- data.table::data.table("fragments" = data.frame(start, end, duration), "name" = name, "type" = "Scene",
-                                        "parentStim" = parentStim, "text" = NA_character_, "id" = scenes$sceneId)
+
+    # Find and merge more informations about the scenes
+    scenesInfos <- stimuli[match(scenes$sceneId, id), ]
+
+    intervals <- data.table::data.table("fragments" = data.frame(start, end, duration), "name" = scenesInfos$name,
+                                        "type" = "Scene", "parentId" = scenesInfos$parentId,
+                                        "parentName" = scenesInfos$parentName, "text" = NA_character_,
+                                        "id" = scenes$sceneId)
 
     return(intervals)
 }
@@ -945,15 +978,18 @@ privateGetIntervalsForScenes <- function(study, respondent) {
 
 #' Get time intervals for annotations.
 #'
-#' Return the start, end, duration, parent stimulus, id, name and comment of each annotation.
+#' Return the start, end, duration, parent stimulus id/name, id, name and comment of each annotation.
 #' Annotation with multiple fragments will be return as multiple intervals (start, end, duration) with same id and name.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
 #'
-#' @return A data.table composed of the start, end, duration, parent stimulus, id, name and comment of each annotation.
+#' @return A data.table composed of the start, end, duration, parent stimulus id/name, id, name and comment of each
+#'         annotation.
+#'
 #' @keywords internal
 privateGetIntervalsForAnnotations <- function(study, respondent) {
+    stimuli <- getStimuli(study)
     annotations <- getJSON(study$connection, getRespondentAnnotationsUrl(study, respondent),
                            message = paste("Retrieving annotations for respondent", respondent$name))
 
@@ -970,13 +1006,19 @@ privateGetIntervalsForAnnotations <- function(study, respondent) {
     end <- annotations$rangeEnd
     duration <- end - start
     name <- annotations$name
-    parentStim <- annotations$stimuli
+    parentIds <- annotations$stimuli
+
+    # Store the parent name of an annotation. In case of annotations placed on scene, we concatenate the two names.
+    parentInfos <- stimuli[match(parentIds, id), ]
+    fullName <- paste0(parentInfos$parentName, ifelse(parentInfos$parentName == "", "", "|"), parentInfos$name)
+
     text <- annotations$text
     intervals <- data.table::data.table("fragments" = data.frame(start, end, duration), "name" = name,
-                                        "type" = "Annotation", "parentStim" = parentStim, "text" = text)
+                                        "type" = "Annotation", "parentId" = parentIds, "parentName" = fullName,
+                                        "text" = text)
 
     # Annotation have no id so we only do a sequence by parent stimulus and name of annotation
-    intervals[, "id" := as.character(.GRP), by = c("parentStim", "name")]
+    intervals[, "id" := as.character(.GRP), by = c("parentId", "name")]
 
     return(intervals)
 }
@@ -1280,8 +1322,9 @@ getAOIRespondentData <- function(study, AOI, respondent) {
     }
 
     intervals <- intervals[, `:=`(fragments.duration = intervals$fragments.end - intervals$fragments.start,
-                                  name = AOI$name, type = "AOI", parentStim = AOI$stimulusId, id = AOI$id,
-                                  text = NA_character_, respondent = list(respondent))]
+                                  name = AOI$name, type = "AOI", parentId = AOI$stimulusId,
+                                  parentName = AOI$stimulusName, id = AOI$id, text = NA_character_,
+                                  respondent = list(respondent))]
 
     intervals[is.na(intervals$fragments.duration), ]$fragments.duration <- 0
     intervals <- createImObject(intervals, "Interval")
@@ -2289,7 +2332,6 @@ formatGender <- function(gender) {
 
     return(gender)
 }
-
 
 
 ## Unit test mocking functions ========================================================================================

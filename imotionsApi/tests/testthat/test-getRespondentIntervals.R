@@ -14,6 +14,7 @@ annotationsEvents <- jsonlite::fromJSON("../data/annotations.json")
 # Load sensors
 sensors <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorList.json")))
 
+# privateGetIntervalsForStimuli =======================================================================================
 context("privateGetIntervalsForStimuli()");
 
 mockedPrivateGetIntervalsForStimuli <- function(study, respondent, slideEvents, sensors) {
@@ -34,9 +35,11 @@ test_that("should return a data.table of the good format", {
     # Retrieve stimulus intervals
     stimIntervals <- mockedPrivateGetIntervalsForStimuli(study, respondent, slideEvents, sensors)
 
-    expect_equal(ncol(stimIntervals), 8, info = "stimulus intervals should have 7 columns")
+    expect_equal(ncol(stimIntervals), 9, info = "stimulus intervals should have 9 columns")
     expect_identical(unique(stimIntervals$type), "Stimulus", "intervals should all be of stimulus type")
-    expect_identical(unique(stimIntervals$parentStim), NA_character_, "stimulus intervals should have no parent")
+    expect_identical(unique(stimIntervals$parentId), NA_character_, "stimulus intervals should have no parent")
+    expect_identical(unique(stimIntervals$parentName), "", "stimulus intervals should have no parent")
+
     expect_identical(stimIntervals$name,
                      c("IAAF", "NiceElementTypes", "CHAMONIX_Living_on_the_edge", "AntiSmoking40Sec"),
                      "wrong stimuli name")
@@ -68,7 +71,7 @@ test_that("should return NULL with a warning is no slideEvents sensors available
 
 })
 
-
+# privateGetIntervalsForScenes ========================================================================================
 context("privateGetIntervalsForScenes()");
 
 mockedPrivateGetIntervalsForScenes <- function(study, respondent, scenesEvents) {
@@ -84,9 +87,11 @@ test_that("should return a data.table of the good format", {
     # Retrieve scenes intervals
     scenesIntervals <- mockedPrivateGetIntervalsForScenes(study, respondent, scenesEvents)
 
-    expect_equal(ncol(scenesIntervals), 8, info = "scene intervals should have 8 columns")
+    expect_equal(ncol(scenesIntervals), 9, info = "scene intervals should have 9 columns")
     expect_identical(unique(scenesIntervals$type), "Scene", "intervals should all be of scene type")
-    expect_identical(scenesIntervals$parentStim, c("1000", "1002", "1002"), "scene intervals should have a parent")
+    expect_identical(scenesIntervals$parentId, c("1000", "1002", "1002"), "scene intervals should have a parent")
+    expect_identical(scenesIntervals$parentName, c("AntiSmoking40Sec", "IAAF", "IAAF"),
+                     "scene intervals should have a parent")
 
     expect_identical(scenesIntervals$name, c("AntiSmoking40Sec_Scene[1]", "IAAF_Scene[1]", "IAAF_Scene[1]"),
                      "wrong scenes name")
@@ -114,7 +119,7 @@ test_that("should return NULL with a warning is no scenes available", {
                      "missing scenes events not handled properly")
 })
 
-
+# privateGetIntervalsForAnnotations ===================================================================================
 context("privateGetIntervalsForAnnotations()");
 
 mockedPrivateGetIntervalsForAnnotations <- function(study, respondent, annotationsEvents) {
@@ -130,11 +135,15 @@ test_that("should return a data.table of the good format", {
     # Retrieve annotations intervals
     annotationsIntervals <- mockedPrivateGetIntervalsForAnnotations(study, respondent, annotationsEvents)
 
-    expect_equal(ncol(annotationsIntervals), 8, info = "annotations intervals should have 8 columns")
+    expect_equal(ncol(annotationsIntervals), 9, info = "annotations intervals should have 9 columns")
     expect_identical(unique(annotationsIntervals$type), "Annotation", "intervals should all be of annotation type")
 
-    expect_identical(annotationsIntervals$parentStim, c("1001", "1000", "1004", "1000", "1000"),
+    expect_identical(annotationsIntervals$parentId, c("1001", "1000", "1004", "1000", "1000"),
                      "annotation intervals should have a parent")
+
+    expect_identical(annotationsIntervals$parentName,
+                     c("CHAMONIX_Living_on_the_edge", "AntiSmoking40Sec", "AntiSmoking40Sec|AntiSmoking40Sec_Scene[1]",
+                       "AntiSmoking40Sec", "AntiSmoking40Sec"), "annotation intervals should have a parent")
 
     expect_identical(annotationsIntervals$name, c("Test", "Test", "Test", "New annotation", "New annotation"),
                      "wrong annotations name")
@@ -166,7 +175,7 @@ test_that("should return NULL with a warning is no annotations available", {
                      "missing annotations events not handled properly")
 })
 
-
+# getRespondentIntervals ==============================================================================================
 context("getRespondentIntervals()");
 
 mockedGetRespondentIntervals <- function(study, respondent, type = c("Stimulus", "Annotation", "Scene"),
@@ -222,7 +231,7 @@ test_that("should throw errors if arguments are missing or not from the good cla
 checkImIntervalList <- function(intervals, respondent, expectNIntervals) {
     # Checking dimensions and class
     expect_identical(intervals$respondent[[1]], respondent, "should have the correct respondent information")
-    expect_equal(ncol(intervals), 9, info = "`intervals` should have 9 columns")
+    expect_equal(ncol(intervals), 10, info = "`intervals` should have 10 columns")
     expect_equal(nrow(intervals), expectNIntervals, info = paste("should have", expectNIntervals, "intervals"))
     expect_true(inherits(intervals, "imIntervalList"), "`intervals` should be an imIntervalList object")
 
@@ -275,6 +284,6 @@ test_that("getRespondentIntervals() in case of only one interval should return a
 
     expect_true(inherits(intervals, "imInterval"), "`intervals` should be an imInterval object")
     expect(nrow(intervals) == 1, "intervals should only contain a single interval")
-    expect(ncol(intervals) == 9, "intervals should contain 9 columns")
+    expect(ncol(intervals) == 10, "intervals should contain 10 columns")
     expect_identical(intervals$name, c("IAAF"), "interval name is not matching")
 })
