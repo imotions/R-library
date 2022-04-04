@@ -66,14 +66,18 @@ test_that("should return a warning if the AOI is not found for the specific resp
     privateGetAOIDetails_Stub$returns(jsonlite::fromJSON("../data/no_scenes_annotations_aoidetails.json"))
 
     warning <- capture_warning(mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub$f,
-                                                uploadAOIRespondentMetrics(study, AOI, respondent, metrics)))
+                                                {
+                                                    uploadAOIRespondentMetrics(study, AOI, respondent, metrics)
+                                                }))
 
     expect_equal(privateGetAOIDetails_Stub$calledTimes(), 1, info = "privateGetAOIDetails() should be called")
     expect_identical(warning$message, "AOI New Aoi was not found for respondent Wendy",
                      "no AOI defined for this respondent should throw an error")
 
     expect_null(suppressWarnings(mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub$f,
-                                                  uploadAOIRespondentMetrics(study, AOI, respondent, metrics))),
+                                                  {
+                                                      uploadAOIRespondentMetrics(study, AOI, respondent, metrics)
+                                                  })),
                 "result should be null")
 })
 
@@ -86,8 +90,9 @@ test_that("should not call write.csv if metrics is of wrong format", {
     warning <- capture_warning(mockr::with_mock(
         privateGetAOIDetails = privateGetAOIDetails_Stub$f,
         write.csv = writecsv_Stub$f,
-        uploadAOIRespondentMetrics(study, AOI, respondent, wrongData)
-    ))
+        {
+            uploadAOIRespondentMetrics(study, AOI, respondent, wrongData)
+        }))
 
     expect_equal(writecsv_Stub$calledTimes(), 0, info = "writecsv_Stub() should not be called")
     expect_identical(warning$message, "Metrics should be a data.frame/data.table composed of only one row")
@@ -104,8 +109,9 @@ test_that("should call write.csv if metrics are of good format", {
     mockr::with_mock(
         privateGetAOIDetails = privateGetAOIDetails_Stub$f,
         write.csv = writecsv_Stub$f,
-        uploadAOIRespondentMetrics(study, AOI, respondent, metrics)
-    )
+        {
+            uploadAOIRespondentMetrics(study, AOI, respondent, metrics)
+        })
 
     expect_equal(writecsv_Stub$calledTimes(), 1, info = "writecsv_Stub() should be called")
 })

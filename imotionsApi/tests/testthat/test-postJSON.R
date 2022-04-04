@@ -21,7 +21,9 @@ mockedPostJSON <- function(connection, url, postData, response) {
                      getHttrStatusCode = getHttrStatusCode_Stub$f,
                      content = content_Stub$f,
                      fromJSON = fromJSON_Stub$f,
-                     postJSON(connection, url, postData, "Test Upload API"))
+                     {
+                         postJSON(connection, url, postData, "Test Upload API")
+                     })
 }
 
 

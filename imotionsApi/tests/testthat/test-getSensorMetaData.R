@@ -35,8 +35,9 @@ mockedGetRespondentSensors <- function(study, respondent, stimulus = NULL) {
     sensors <- mockr::with_mock(
         getSensorsUrl = getSensorsUrl_Stub$f,
         getJSON = getJSON_Stub$f,
-        getRespondentSensors(study, respondent, stimulus)
-    )
+        {
+            getRespondentSensors(study, respondent, stimulus)
+        })
 
     return(sensors)
 }

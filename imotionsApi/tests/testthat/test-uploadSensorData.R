@@ -109,8 +109,9 @@ test_that("should call privateUploadSignals with the good parameters", {
 
     mockr::with_mock(
         privateUploadSignals = privateUploadSignals_Stub$f,
-        uploadSensorData(params, study, data, respondent, sensorName, scriptName)
-    )
+        {
+            uploadSensorData(params, study, data, respondent, sensorName, scriptName)
+        })
 
     expect_equal(privateUploadSignals_Stub$calledTimes(), 1, info = "privateUploadSignals() should be called")
 })
@@ -122,8 +123,9 @@ test_that("should not call privateUploadSignals if data is of wrong format", {
 
     error <- capture_error(mockr::with_mock(
         privateUploadSignals = privateUploadSignals_Stub$f,
-        uploadSensorData(params, study, wrongData, respondent, sensorName = sensorName, scriptName = scriptName)
-    ))
+        {
+            uploadSensorData(params, study, wrongData, respondent, sensorName = sensorName, scriptName = scriptName)
+        }))
 
     expect_equal(privateUploadSignals_Stub$calledTimes(), 0, info = "privateUploadSignals() should not be called")
     expect_identical(error$message, "Wrong data format for upload (must be imSignals or imMetrics)",
@@ -170,8 +172,10 @@ mockedPrivateUploadSignals <- function(params, study, data, respondent, sensorNa
     res <- mockr::with_mock(privateSaveSignalsToFile = privateSaveSignalsToFile_Stub$f,
                             getUploadSensorsUrl = getUploadSensorsUrl_Stub$f,
                             postJSON = postJSON_Stub$f,
-                            privateUploadSignals(params, study, data, respondent, sensorName, scriptName, metadata,
-                                                 stimulus))
+                            {
+                                privateUploadSignals(params, study, data, respondent, sensorName, scriptName, metadata,
+                                                     stimulus)
+                            })
 
     return(res)
 }

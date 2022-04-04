@@ -28,7 +28,9 @@ mockedPrivateGetIntervalsForStimuli <- function(study, respondent, slideEvents, 
 
     stimIntervals <- mockr::with_mock(getRespondentSensors = getRespondentSensors_Stub$f,
                                       getSensorData = getSensorData_Stub$f,
-                                      privateGetIntervalsForStimuli(study, respondent))
+                                      {
+                                          privateGetIntervalsForStimuli(study, respondent)
+                                      })
 }
 
 test_that("should return a data.table of the good format", {
@@ -80,7 +82,9 @@ mockedPrivateGetIntervalsForScenes <- function(study, respondent, scenesEvents) 
     getJSON_Stub$returns(scenesEvents)
 
     stimIntervals <- mockr::with_mock(getJSON = getJSON_Stub$f,
-                                      privateGetIntervalsForScenes(study, respondent))
+                                      {
+                                          privateGetIntervalsForScenes(study, respondent)
+                                      })
 }
 
 test_that("should return a data.table of the good format", {
@@ -128,7 +132,9 @@ mockedPrivateGetIntervalsForAnnotations <- function(study, respondent, annotatio
     getJSON_Stub$returns(annotationsEvents)
 
     stimIntervals <- mockr::with_mock(getJSON = getJSON_Stub$f,
-                                      privateGetIntervalsForAnnotations(study, respondent))
+                                      {
+                                          privateGetIntervalsForAnnotations(study, respondent)
+                                      })
 }
 
 test_that("should return a data.table of the good format", {
@@ -196,7 +202,9 @@ mockedGetRespondentIntervals <- function(study, respondent, type = c("Stimulus",
     intervals <- mockr::with_mock(privateGetIntervalsForStimuli = privateGetIntervalsForStimuli_Stub$f,
                                   privateGetIntervalsForScenes = privateGetIntervalsForScenes_Stub$f,
                                   privateGetIntervalsForAnnotations = privateGetIntervalsForAnnotations_Stub$f,
-                                  getRespondentIntervals(study, respondent, type))
+                                  {
+                                      getRespondentIntervals(study, respondent, type)
+                                  })
 
     return(intervals)
 }
