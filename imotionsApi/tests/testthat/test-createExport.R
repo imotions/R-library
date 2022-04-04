@@ -57,8 +57,7 @@ mockedCreateExport <- function(study, data, outputDirectory, fileName, expectedD
     mockr::with_mock(
         fwrite = fwrite_Stub$f,
         writeLines = writeLines_Stub$f,
-        dir.create = dir.create_Stub$f,
-        {
+        dir.create = dir.create_Stub$f, {
             createExport(study, data, outputDirectory, fileName, metadata)
         }
     )
