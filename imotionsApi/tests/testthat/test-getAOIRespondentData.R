@@ -167,7 +167,8 @@ test_that("should return the correct intervals for this AOI/respondent pair", {
 
     # Check AOI intervals
     expect_identical(unique(AOIintervals$type), "AOI", "intervals should all be of AOI type")
-    expect_identical(unique(AOIintervals$parentStim), "1002", "AOI intervals should have the same parent")
+    expect_identical(unique(AOIintervals$parentId), "1002", "AOI intervals should have the same parent")
+    expect_identical(unique(AOIintervals$parentName), "IAAF", "AOI intervals should have the same parent")
     expect_identical(unique(AOIintervals$name), "New Aoi", "AOI intervals should have the same name")
     expect_equal(AOIintervals$fragments.start, c(9181.255, 16015.560, 21810.115), 1e-2, info = "wrong fragments start")
     expect_equal(AOIintervals$fragments.end, c(11400.94, 18352.07, 25887.33), 1e-2, info = "wrong fragments end")
@@ -182,7 +183,7 @@ test_that("should return the correct intervals for this AOI/respondent pair", {
 
     # Checking dimensions and class
     expect_identical(AOIintervals$respondent[[1]], respondent, "should have the correct respondent information")
-    expect_equal(ncol(AOIintervals), 9, info = "`intervals` should have 9 columns")
+    expect_equal(ncol(AOIintervals), 10, info = "`intervals` should have 10 columns")
     expect_equal(nrow(AOIintervals), 3, info = "should have 3 intervals")
     expect_true(inherits(AOIintervals, "imIntervalList"), "`intervals` should be an imIntervalList object")
 
@@ -246,7 +247,8 @@ test_that("should work as expected if no AOI exposure", {
 
     # Check interval
     expect_identical(resultList$intervals$type, "AOI", "interval should be of AOI type")
-    expect_identical(resultList$intervals$parentStim, "1002", "AOI interval should have the good parent")
+    expect_identical(resultList$intervals$parentId, "1002", "AOI interval should have the good parent")
+    expect_identical(resultList$intervals$parentName, "IAAF", "AOI intervals should have the same parent")
     expect_identical(resultList$intervals$name, "New Aoi", "AOI interval should have the good name")
     expect_true(is.na(resultList$intervals$fragments.start), NA, info = "wrong fragment start")
     expect_true(is.na(resultList$intervals$fragments.end), NA, info = "wrong fragment end")
@@ -258,6 +260,6 @@ test_that("should work as expected if no AOI exposure", {
 
     # Checking dimensions and class
     expect_identical(resultList$intervals$respondent[[1]], respondent, "should have the correct respondent information")
-    expect_equal(ncol(resultList$intervals), 9, info = "`intervals` should have 9 columns")
+    expect_equal(ncol(resultList$intervals), 10, info = "`intervals` should have 10 columns")
     expect_equal(nrow(resultList$intervals), 1, info = "should have 1 interval")
 })
