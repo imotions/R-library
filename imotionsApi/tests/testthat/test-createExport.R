@@ -57,8 +57,9 @@ mockedCreateExport <- function(study, data, outputDirectory, fileName, expectedD
     mockr::with_mock(
         fwrite = fwrite_Stub$f,
         writeLines = writeLines_Stub$f,
-        dir.create = dir.create_Stub$f,
-        createExport(study, data, outputDirectory, fileName, metadata)
+        dir.create = dir.create_Stub$f, {
+            createExport(study, data, outputDirectory, fileName, metadata)
+        }
     )
 
     expect_equal(dir.create_Stub$calledTimes(), expectCall, info = "dir.create() wrong number of call")

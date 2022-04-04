@@ -20,8 +20,9 @@ mockedGetAOIRespondentMetrics <- function(study, AOI, respondent, AOIDetailsFile
     privateGetAOIDetails_Stub$expects(study = study, imObject = AOI, respondent = respondent)
     privateGetAOIDetails_Stub$returns(AOIDetailsFile)
 
-    metrics <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub$f,
-                                getAOIRespondentMetrics(study, AOI, respondent))
+    metrics <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub$f, {
+                                    getAOIRespondentMetrics(study, AOI, respondent)
+                                })
 
     return(metrics)
 }

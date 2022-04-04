@@ -23,9 +23,9 @@ mockedGetStudy <- function(connection, studyId, studyJSON, expectedJSONcall = 1)
 
     study <- mockr::with_mock(
         getJSON = getJSON_Stub$f,
-        getStudyUrlById = getStudyUrlById_Stub$f,
-        imStudy(connection, studyId)
-    )
+        getStudyUrlById = getStudyUrlById_Stub$f, {
+            imStudy(connection, studyId)
+        })
 
     expect_equal(getJSON_Stub$calledTimes(), expectedJSONcall,
                  info = paste("getJSON should have been called", expectedJSONcall, "times"))
@@ -117,9 +117,9 @@ test_that("listing studies available should return two studies", {
 
     studies <- mockr::with_mock(
         getJSON = getJSON_Stub$f,
-        getStudiesUrl = getStudiesUrl_Stub$f,
-        listStudies(connection)
-    )
+        getStudiesUrl = getStudiesUrl_Stub$f, {
+            listStudies(connection)
+        })
 
     expect_equal(getJSON_Stub$calledTimes(), 1, info = paste("getJSON should have been called 1 times"))
 

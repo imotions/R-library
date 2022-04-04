@@ -41,9 +41,9 @@ mockedGetAOIs <- function(study, stimulus = NULL, respondent = NULL, generateInO
     AOIs <- mockr::with_mock(
         getAOIsUrl = getAOIsUrl_Stub$f,
         getJSON = getJSON_Stub$f,
-        privateGetAOIDetails = privateGetAOIDetails_Stub$f,
-        getAOIs(study, stimulus, respondent, generateInOutFiles)
-    )
+        privateGetAOIDetails = privateGetAOIDetails_Stub$f, {
+            getAOIs(study, stimulus, respondent, generateInOutFiles)
+        })
 
     return(AOIs)
 }
@@ -220,9 +220,9 @@ AOIId <- "a966ada8-2428-4748-91d8-884f7b31eebf"
 
 mockedGetAOI <- function(study, AOIId) {
   mockr::with_mock(
-    getAOIs = mockedGetAOIs,
-    getAOI(study, AOIId)
-  )
+    getAOIs = mockedGetAOIs, {
+        getAOI(study, AOIId)
+    })
 }
 
 test_that("should throw error/warnings if arguments are missing or if no AOIs in the study", {

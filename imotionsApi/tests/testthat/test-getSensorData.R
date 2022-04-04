@@ -19,8 +19,9 @@ mockedPrivateDownloadData <- function(study, sensor, signals, filesPath) {
     getJSON_Stub$returns(filesPath)
 
     signals <- mockr::with_mock(getJSON = getJSON_Stub$f,
-                                getSensorDataUrl = getSensorDataUrl_Stub$f,
-                                privateDownloadData(study, sensor, signals))
+                                getSensorDataUrl = getSensorDataUrl_Stub$f, {
+                                    privateDownloadData(study, sensor, signals)
+                                })
 
     return(signals)
 }
@@ -63,8 +64,9 @@ mockedGetSensorData <- function(study, sensor, signalsName = NULL, intervals = N
     privateDownloadData_Stub$expects(study = study, sensor = sensor, signalsName = signalsName)
     privateDownloadData_Stub$returns(signals)
 
-    signals <- mockr::with_mock(privateDownloadData = privateDownloadData_Stub$f,
-                                getSensorData(study, sensor, signalsName, intervals))
+    signals <- mockr::with_mock(privateDownloadData = privateDownloadData_Stub$f, {
+                                    getSensorData(study, sensor, signalsName, intervals)
+                                })
 
     return(signals)
 }

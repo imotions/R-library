@@ -17,8 +17,9 @@ mockedGetJSON <- function(connection, url, response) {
     mockr::with_mock(getHttr = getHttr_Stub$f,
                      getHttrStatusCode = getHttrStatusCode_Stub$f,
                      content = content_Stub$f,
-                     fromJSON = fromJSON_Stub$f,
-                     getJSON(connection, url, "Test API"))
+                     fromJSON = fromJSON_Stub$f, {
+                        getJSON(connection, url, "Test API")
+                     })
 }
 
 test_that("should throw an error when token is not authorized", {

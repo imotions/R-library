@@ -20,8 +20,9 @@ mockedPostJSON <- function(connection, url, postData, response) {
     mockr::with_mock(postHttr = postHttr_Stub$f,
                      getHttrStatusCode = getHttrStatusCode_Stub$f,
                      content = content_Stub$f,
-                     fromJSON = fromJSON_Stub$f,
-                     postJSON(connection, url, postData, "Test Upload API"))
+                     fromJSON = fromJSON_Stub$f, {
+                         postJSON(connection, url, postData, "Test Upload API")
+                     })
 }
 
 
