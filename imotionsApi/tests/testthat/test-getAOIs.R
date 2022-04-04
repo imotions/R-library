@@ -41,8 +41,7 @@ mockedGetAOIs <- function(study, stimulus = NULL, respondent = NULL, generateInO
     AOIs <- mockr::with_mock(
         getAOIsUrl = getAOIsUrl_Stub$f,
         getJSON = getJSON_Stub$f,
-        privateGetAOIDetails = privateGetAOIDetails_Stub$f,
-        {
+        privateGetAOIDetails = privateGetAOIDetails_Stub$f, {
             getAOIs(study, stimulus, respondent, generateInOutFiles)
         })
 
@@ -221,8 +220,7 @@ AOIId <- "a966ada8-2428-4748-91d8-884f7b31eebf"
 
 mockedGetAOI <- function(study, AOIId) {
   mockr::with_mock(
-    getAOIs = mockedGetAOIs,
-    {
+    getAOIs = mockedGetAOIs, {
         getAOI(study, AOIId)
     })
 }

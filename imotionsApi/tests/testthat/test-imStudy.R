@@ -23,8 +23,7 @@ mockedGetStudy <- function(connection, studyId, studyJSON, expectedJSONcall = 1)
 
     study <- mockr::with_mock(
         getJSON = getJSON_Stub$f,
-        getStudyUrlById = getStudyUrlById_Stub$f,
-        {
+        getStudyUrlById = getStudyUrlById_Stub$f, {
             imStudy(connection, studyId)
         })
 
@@ -118,8 +117,7 @@ test_that("listing studies available should return two studies", {
 
     studies <- mockr::with_mock(
         getJSON = getJSON_Stub$f,
-        getStudiesUrl = getStudiesUrl_Stub$f,
-        {
+        getStudiesUrl = getStudiesUrl_Stub$f, {
             listStudies(connection)
         })
 

@@ -87,8 +87,7 @@ privateGetAOIDetails_Stub$returns(AOIDetails)
 
 test_that("getRespondents() by AOI", {
     # Case where only two respondents (out of 3) have an AOI defined
-    respondents <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub$f,
-                                    {
+    respondents <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub$f, {
                                         getRespondents(study, AOI = AOI)
                                     })
 
@@ -119,8 +118,7 @@ test_that("getRespondents() by segment and AOI", {
     # Only 1 respondent (out of 2) from the segment has the AOI defined
     segments <- getSegments(study)
 
-    respondents <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub$f,
-                                    {
+    respondents <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub$f, {
                                         getRespondents(study, AOI = AOI, segment = segments[1, ])
                                     })
 

@@ -17,8 +17,7 @@ mockedGetJSON <- function(connection, url, response) {
     mockr::with_mock(getHttr = getHttr_Stub$f,
                      getHttrStatusCode = getHttrStatusCode_Stub$f,
                      content = content_Stub$f,
-                     fromJSON = fromJSON_Stub$f,
-                     {
+                     fromJSON = fromJSON_Stub$f, {
                         getJSON(connection, url, "Test API")
                      })
 }

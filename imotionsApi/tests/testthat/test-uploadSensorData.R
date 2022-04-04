@@ -108,8 +108,7 @@ test_that("should call privateUploadSignals with the good parameters", {
                                       metadata = NULL, stimulus = NULL)
 
     mockr::with_mock(
-        privateUploadSignals = privateUploadSignals_Stub$f,
-        {
+        privateUploadSignals = privateUploadSignals_Stub$f, {
             uploadSensorData(params, study, data, respondent, sensorName, scriptName)
         })
 
@@ -122,8 +121,7 @@ test_that("should not call privateUploadSignals if data is of wrong format", {
     privateUploadSignals_Stub <- stub(privateUploadSignals)
 
     error <- capture_error(mockr::with_mock(
-        privateUploadSignals = privateUploadSignals_Stub$f,
-        {
+        privateUploadSignals = privateUploadSignals_Stub$f, {
             uploadSensorData(params, study, wrongData, respondent, sensorName = sensorName, scriptName = scriptName)
         }))
 
@@ -171,8 +169,7 @@ mockedPrivateUploadSignals <- function(params, study, data, respondent, sensorNa
 
     res <- mockr::with_mock(privateSaveSignalsToFile = privateSaveSignalsToFile_Stub$f,
                             getUploadSensorsUrl = getUploadSensorsUrl_Stub$f,
-                            postJSON = postJSON_Stub$f,
-                            {
+                            postJSON = postJSON_Stub$f, {
                                 privateUploadSignals(params, study, data, respondent, sensorName, scriptName, metadata,
                                                      stimulus)
                             })
