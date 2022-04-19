@@ -36,7 +36,7 @@ and there must be a row corresponding to each data column.}
 this stimulus.}
 }
 \description{
-Either signals (with a Timestamp column) or metrics (single values, with no Timestamp) can be uploaded.
+Signals data.table (with a Timestamp column) can be uploaded.
 After processing, the sensor can then be viewed and exported locally through the iMotions Desktop.
 }
 \details{

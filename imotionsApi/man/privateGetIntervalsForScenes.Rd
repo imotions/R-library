@@ -12,10 +12,10 @@ privateGetIntervalsForScenes(study, respondent)
 \item{respondent}{An imRespondent object as returned from \code{\link{getRespondents}}.}
 }
 \value{
-A data.table composed of the start, end, duration, parent stimulus, id and name of each scene.
+A data.table composed of the start, end, duration, parent stimulus id/name, id and name of each scene.
 }
 \description{
-Return the start, end, duration, parent stimulus, id and name of each scene.
+Return the start, end, duration, parent stimulus id/name, id and name of each scene.
 Scene with multiple fragments will be return as multiple intervals (start, end, duration) with same id and name.
 }
 \keyword{internal}

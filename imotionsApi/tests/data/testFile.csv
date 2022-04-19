@@ -1,16 +1,16 @@
-iMotionsVersion
-#HEADER
-iMotions.RAPIData
-flowName
-ET_RExtAPI
-
-%7B%22sampleName%22%3A%22TestSensor%22%2C%22script%22%3A%22TestScript%22%2C%22fileDependency%22%3A%7B%7D%2C%22parameters%22%3A%7B%22extraParam%22%3A%22fixationFilter%22%7D%7D
-#METADATA
+iMotionsVersion,,
+#HEADER,,
+iMotions.RAPIData,,
+flowName,,
+ET_RExtAPI,,
+,,
+%7B%22sampleName%22%3A%22TestSensor%22%2C%22script%22%3A%22TestScript%22%2C%22fileDependency%22%3A%7B%7D%2C%22parameters%22%3A%7B%22extraParam%22%3A%22fixationFilter%22%7D%7D,,
+#METADATA,,
 FieldName,Timestamp,Thresholded value
 DataType,Double,Double
 Group,,Thresholded
 Units,ms,binary
-#DATA
+#DATA,,
 RowNumber,Timestamp,Thresholded value
 0,1,0
 1,2,0

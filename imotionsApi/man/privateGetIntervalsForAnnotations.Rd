@@ -12,10 +12,11 @@ privateGetIntervalsForAnnotations(study, respondent)
 \item{respondent}{An imRespondent object as returned from \code{\link{getRespondents}}.}
 }
 \value{
-A data.table composed of the start, end, duration, parent stimulus, id, name and comment of each annotation.
+A data.table composed of the start, end, duration, parent stimulus id/name, id, name and comment of each
+        annotation.
 }
 \description{
-Return the start, end, duration, parent stimulus, id, name and comment of each annotation.
+Return the start, end, duration, parent stimulus id/name, id, name and comment of each annotation.
 Annotation with multiple fragments will be return as multiple intervals (start, end, duration) with same id and name.
 }
 \keyword{internal}
