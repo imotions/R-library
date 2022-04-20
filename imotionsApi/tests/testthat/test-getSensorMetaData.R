@@ -1,8 +1,8 @@
-library("imotionsApi");
-library("stubthat");
-library("arrow");
+context("getSensorMetaData()")
 
-context("getSensorMetaData()");
+library("imotionsApi")
+library("stubthat")
+library("arrow")
 
 # Load study and respondent
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))

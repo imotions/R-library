@@ -1,7 +1,7 @@
-library("imotionsApi");
-library("stubthat");
+context("imStudy()")
 
-context("imStudy()");
+library("imotionsApi")
+library("stubthat")
 
 # Dummy connection
 connection <- jsonlite::unserializeJSON(readLines("../data/imConnection.json"))

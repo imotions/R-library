@@ -1,8 +1,8 @@
-library("imotionsApi");
-library("stubthat");
-library("arrow");
+context("uploadAOIRespondentMetrics()")
 
-context("uploadAOIRespondentMetrics()");
+library("imotionsApi")
+library("stubthat")
+library("arrow")
 
 # Load study, respondent and AOI
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))

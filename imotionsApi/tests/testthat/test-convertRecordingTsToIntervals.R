@@ -1,7 +1,7 @@
-library("imotionsApi");
-library("stubthat");
+context("convertRecordingTsToIntervals()")
 
-context("convertRecordingTsToIntervals()");
+library("imotionsApi")
+library("stubthat")
 
 # Load signals and intervals
 signals <- arrow::read_parquet("../data/ET_Eyetracker.csv.pbin")

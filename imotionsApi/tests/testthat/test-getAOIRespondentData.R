@@ -1,8 +1,8 @@
-library("imotionsApi");
-library("stubthat");
-library("arrow");
+context("privateGetAOIDetails()")
 
-context("privateGetAOIDetails()");
+library("imotionsApi")
+library("stubthat")
+library("arrow")
 
 # Load study
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))

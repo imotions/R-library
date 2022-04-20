@@ -1,8 +1,8 @@
-library("imotionsApi");
-library("stubthat");
-library("arrow");
+context("uploadSensorData()")
 
-context("uploadSensorData()");
+library("imotionsApi")
+library("stubthat")
+library("arrow")
 
 # Params
 params <- list(token = "token", iMotionsVersion = "iMotionsVersion", flowName = "flowName",

@@ -1,6 +1,9 @@
-library("imotionsApi");
-library("stubthat");
-library("data.table");
+# privateGetIntervalsForStimuli =======================================================================================
+context("privateGetIntervalsForStimuli()")
+
+library("imotionsApi")
+library("stubthat")
+library("data.table")
 
 # Load study and respondent
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
@@ -13,9 +16,6 @@ annotationsEvents <- jsonlite::fromJSON("../data/annotations.json")
 
 # Load sensors
 sensors <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorList.json")))
-
-# privateGetIntervalsForStimuli =======================================================================================
-context("privateGetIntervalsForStimuli()");
 
 mockedPrivateGetIntervalsForStimuli <- function(study, respondent, slideEvents, sensors) {
     getRespondentSensors_Stub <- stub(getRespondentSensors)

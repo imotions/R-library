@@ -1,7 +1,7 @@
-library("imotionsApi");
-library("stubthat");
+context("checkDataFormat()")
 
-context("checkDataFormat()");
+library("imotionsApi")
+library("stubthat")
 
 test_that("should throw errors if data is of wrong format", {
     data <- "string"

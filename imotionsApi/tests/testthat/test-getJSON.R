@@ -1,7 +1,7 @@
-library("imotionsApi");
-library("stubthat");
+context("getJSON()")
 
-context("getJSON()");
+library("imotionsApi")
+library("stubthat")
 
 connection <- list(token = "whatever", baseUrl = "nonsense")
 class(connection) <- c("imConnection", "list")

@@ -1,7 +1,7 @@
-library("imotionsApi");
-library("stubthat");
+context("getAOIs()")
 
-context("getAOIs()");
+library("imotionsApi")
+library("stubthat")
 
 # Load study and stimuli
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))

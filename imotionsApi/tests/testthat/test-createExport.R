@@ -1,7 +1,7 @@
-library("imotionsApi");
-library("stubthat");
+context("createExport()")
 
-context("createExport()");
+library("imotionsApi")
+library("stubthat")
 
 # Load study
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
