@@ -831,6 +831,7 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
 
     signalsMetaData <- list()
     signals <- list()
+
     for (i in seq_along(sensors)) {
         rawSignalsMetaData <- sensors[[i]]$signalsMetaData
         suppressWarnings(signalsMetaData[[i]] <- rbindlist(rawSignalsMetaData, fill = TRUE))
@@ -838,6 +839,7 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
         signals[[i]] <- sensors[[i]]$signals
         sensors[[i]]$signals <- NULL
     }
+
     suppressWarnings(sensors <- rbindlist(sensors, fill = TRUE))
 
     sensors$signals <- signals

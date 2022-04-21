@@ -1,7 +1,7 @@
 context("imStudy()")
 
 library("imotionsApi")
-library("stubthat")
+library("mockery")
 
 # Dummy connection
 connection <- jsonlite::unserializeJSON(readLines("../data/imConnection.json"))
@@ -15,20 +15,20 @@ studyId2 <- "2f8d3175-1234-4cc3-8b1e-b2d3a4bd8be1"
 studyJSON2 <- jsonlite::read_json("../data/study_oneofeach.json", simplifyVector = TRUE)
 
 mockedGetStudy <- function(connection, studyId, studyJSON, expectedJSONcall = 1) {
-    getStudyUrlById_Stub <- stub(getStudyUrlById)
-    getStudyUrlById_Stub$expects(studyId = studyId)
-
-    getJSON_Stub <- stub(getJSON)
-    getJSON_Stub$returns(studyJSON)
+    getJSON_Stub <- mock(studyJSON)
+    expectedUrl <- getStudyUrlById(connection, studyId)
 
     study <- mockr::with_mock(
-        getJSON = getJSON_Stub$f,
-        getStudyUrlById = getStudyUrlById_Stub$f, {
+        getJSON = getJSON_Stub, {
             imStudy(connection, studyId)
         })
 
-    expect_equal(getJSON_Stub$calledTimes(), expectedJSONcall,
-                 info = paste("getJSON should have been called", expectedJSONcall, "times"))
+    expect_called(getJSON_Stub, expectedJSONcall)
+
+    if (expectedJSONcall > 0) {
+        expect_args(getJSON_Stub, 1, connection, expectedUrl,
+                    paste("Retrieving study with ID:", studyId))
+    }
 
     return(study)
 }
@@ -109,19 +109,15 @@ test_that("should throw errors if arguments are missing or not from the good cla
 })
 
 test_that("listing studies available should return two studies", {
-    getStudiesUrl_Stub <- stub(getStudiesUrl)
-    getStudiesUrl_Stub$expects(connection = connection)
-
-    getJSON_Stub <- stub(getJSON)
-    getJSON_Stub$returns(studiesJSON)
+    getJSON_Stub <- mock(studiesJSON)
+    expectedUrl <- getStudiesUrl(connection)
 
     studies <- mockr::with_mock(
-        getJSON = getJSON_Stub$f,
-        getStudiesUrl = getStudiesUrl_Stub$f, {
+        getJSON = getJSON_Stub, {
             listStudies(connection)
         })
 
-    expect_equal(getJSON_Stub$calledTimes(), 1, info = paste("getJSON should have been called 1 times"))
+    expect_args(getJSON_Stub, 1, connection, expectedUrl, "Retrieving study list")
 
     # Checking that 2 studies are returned
     expect(nrow(studies) == 2, "the data.frame should contain 2 studies")

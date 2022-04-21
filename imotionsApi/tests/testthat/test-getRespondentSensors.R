@@ -1,7 +1,7 @@
 context("getRespondentSensors()")
 
 library("imotionsApi")
-library("stubthat")
+library("mockery")
 
 # Load study and respondent
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
@@ -13,29 +13,32 @@ sensorsPath <- "../data/respondentSensors.json"
 sensorsStimulusPath <- "../data/respondentSensorsStimulus.json"
 
 mockedGetRespondentSensors <- function(study, respondent, stimulus = NULL) {
-    getSensorsUrl_Stub <- stub(getSensorsUrl)
-    getSensorsUrl_Stub$expects(study = study, imObject = respondent, stimulus = stimulus)
+    # Get expected endpoint
+    endpoint <- paste("respondent:", respondent$name)
 
     if (!is.null(stimulus)) {
-        endpoint <- paste("respondent:", respondent$name, "stimulus:", stimulus$name)
-    } else {
-        endpoint <- paste("respondent:", respondent$name)
+        endpoint <- paste(endpoint, "stimulus:", stimulus$name)
     }
 
-    getSensorsUrl_Stub$withArgs(stimulus = stimulus)$returns(sensorsStimulusPath)
-    getSensorsUrl_Stub$withArgs(stimulus = NULL)$returns(sensorsPath)
+    # Replace url to load test data
+    mockUrl <- function(url) {
+        if (grepl("stimuli", url)) {
+            return(sensorsStimulusPath)
+        } else {
+            return(sensorsPath)
+        }
+    }
 
-    getJSON_Stub <- stub(getJSON)
-    getJSON_Stub$expects(connection = study$connection, message = paste("Retrieving sensors for", endpoint))
-    getJSON_Stub$withArgs(url = sensorsStimulusPath)$returns(jsonlite::fromJSON(sensorsStimulusPath,
-                                                                                simplifyDataFrame = FALSE))
-    getJSON_Stub$withArgs(url = sensorsPath)$returns(jsonlite::fromJSON(sensorsPath, simplifyDataFrame = FALSE))
+    expectedUrl <- getSensorsUrl(study, respondent, stimulus)
+    getJSON_Stub <- mock(jsonlite::fromJSON(mockUrl(expectedUrl), simplifyDataFrame = FALSE))
 
     sensors <- mockr::with_mock(
-        getSensorsUrl = getSensorsUrl_Stub$f,
-        getJSON = getJSON_Stub$f, {
+        getJSON = getJSON_Stub, {
             getRespondentSensors(study, respondent, stimulus)
         })
+
+    expect_args(getJSON_Stub, 1, connection = study$connection, url = expectedUrl,
+                message = paste("Retrieving sensors for", endpoint), simplifyDataFrame = FALSE)
 
     return(sensors)
 }
@@ -71,7 +74,6 @@ test_that("should throw errors if arguments are missing or not from the good cla
 
 test_that("should return a imSensorList object", {
     # Load sensors
-
     sensors <- mockedGetRespondentSensors(study, respondent)
 
     expect_true(inherits(sensors, "imSensorList"), "`sensors` should be an imSensorList object")

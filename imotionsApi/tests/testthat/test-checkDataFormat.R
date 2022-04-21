@@ -1,7 +1,7 @@
 context("checkDataFormat()")
 
 library("imotionsApi")
-library("stubthat")
+library("mockery")
 
 test_that("should throw errors if data is of wrong format", {
     data <- "string"

@@ -1,7 +1,7 @@
 context("uploadSensorData()")
 
 library("imotionsApi")
-library("stubthat")
+library("mockery")
 library("arrow")
 
 # Params
@@ -100,42 +100,42 @@ test_that("should throw errors if arguments are missing or not from the good cla
 test_that("should call privateUpload with the good parameters", {
     data <- checkDataFormat(data)
     additionalMetadata <- data.frame("Group" = c("", "Thresholded"), "Units" = c("ms", "binary"))
-    privateUpload_Stub <- stub(privateUpload)
-
-    privateUpload_Stub$expects(params = params, study = study, data = data, target = respondent,
-                               sensorName = sensorName, scriptName = scriptName, metadata = additionalMetadata,
-                               stimulus = NULL)
+    privateUpload_Stub <- mock()
 
     mockr::with_mock(
-        privateUpload = privateUpload_Stub$f, {
+        privateUpload = privateUpload_Stub, {
             uploadSensorData(params, study, data, respondent, sensorName, scriptName, metadata = additionalMetadata)
         })
 
-    expect_equal(privateUpload_Stub$calledTimes(), 1, info = "privateUpload() should be called")
+    expect_called(privateUpload_Stub, 1)
+    expect_args(privateUpload_Stub, 1, params = params, study = study, data = data, target = respondent,
+                sensorName = sensorName, scriptName = scriptName, metadata = additionalMetadata,
+                stimulus = NULL)
+
 })
 
 
 test_that("should not call privateUpload if data is of wrong format", {
     wrongData <- data.frame("NotTimestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
-    privateUpload_Stub <- stub(privateUpload)
+    privateUpload_Stub <- mock()
 
     error <- capture_error(mockr::with_mock(
-        privateUpload = privateUpload_Stub$f, {
+        privateUpload = privateUpload_Stub, {
             uploadSensorData(params, study, wrongData, respondent, sensorName = sensorName, scriptName = scriptName)
         }))
 
-    expect_equal(privateUpload_Stub$calledTimes(), 0, info = "privateUpload() should not be called")
+    expect_called(privateUpload_Stub, 0)
     expect_identical(error$message, "Wrong data format for upload (must be imSignals, imMetrics or imEvents)",
                      "Timestamp column should be present")
 
     # in case data is actually an event table
     wrongData <- data.frame("Timestamp" = seq(1:100), "EventName" = "Event 1", "Description" = "Description 1")
     warning <- capture_warning(mockr::with_mock(
-        privateUpload = privateUpload_Stub$f, {
+        privateUpload = privateUpload_Stub, {
             uploadSensorData(params, study, wrongData, respondent, sensorName = sensorName, scriptName = scriptName)
         }))
 
-    expect_equal(privateUpload_Stub$calledTimes(), 0, info = "privateUpload() should not be called")
+    expect_called(privateUpload_Stub, 0)
     expect_identical(warning$message, "Data to upload should be a data.frame/data.table containing a Timestamp column",
                      "wrong data type detected")
 })
@@ -212,30 +212,29 @@ test_that("should throw errors if arguments are missing or not from the good cla
 test_that("should call privateUpload with the good parameters", {
     dataEvents <- checkDataFormat(dataEvents)
     additionalMetadata <- data.table("Units" = c("ms", "", ""), "Show" = c("FALSE", "TRUE", "TRUE"))
-    privateUpload_Stub <- stub(privateUpload)
-
-    privateUpload_Stub$expects(params = params, study = study, data = dataEvents, target = respondent,
-                               sensorName = NULL, scriptName = NULL, metadata = additionalMetadata, stimulus = NULL)
+    privateUpload_Stub <- mock()
 
     mockr::with_mock(
-        privateUpload = privateUpload_Stub$f, {
+        privateUpload = privateUpload_Stub, {
             uploadEvents(params, study, dataEvents, respondent, metadata = additionalMetadata)
         })
 
-    expect_equal(privateUpload_Stub$calledTimes(), 1, info = "privateUpload() should be called")
+    expect_called(privateUpload_Stub, 1)
+    expect_args(privateUpload_Stub, 1, params = params, study = study, data = dataEvents, target = respondent,
+                metadata = additionalMetadata)
 })
 
 
 test_that("should not call privateUpload if data is of wrong format", {
     wrongData <- data.frame("NotTimestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
-    privateUpload_Stub <- stub(privateUpload)
+    privateUpload_Stub <- mock()
 
     error <- capture_error(mockr::with_mock(
-        privateUpload = privateUpload_Stub$f, {
+        privateUpload = privateUpload_Stub, {
             uploadEvents(params, study, wrongData, respondent)
         }))
 
-    expect_equal(privateUpload_Stub$calledTimes(), 0, info = "privateUpload() should not be called")
+    expect_called(privateUpload_Stub, 0)
     expect_identical(error$message, "Wrong data format for upload (must be imSignals, imMetrics or imEvents)",
                      "Timestamp column should be present")
 
@@ -243,11 +242,11 @@ test_that("should not call privateUpload if data is of wrong format", {
     wrongData <- data.frame("Timestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
 
     warning <- capture_warning(mockr::with_mock(
-        privateUpload = privateUpload_Stub$f, {
+        privateUpload = privateUpload_Stub, {
             uploadEvents(params, study, wrongData, respondent)
         }))
 
-    expect_equal(privateUpload_Stub$calledTimes(), 0, info = "privateUpload() should not be called")
+    expect_called(privateUpload_Stub, 0)
     expect_identical(warning$message,
                      "Events should be a data.frame/data.table containing EventName, Timestamp and Description columns",
                      "wrong data type detected")
@@ -266,35 +265,46 @@ mockedPrivateUpload <- function(params, study, data, respondent, expectedBody, e
 
     class(expectedBody) <- "json"
 
-    privateSaveToFile_Stub <- stub(privateSaveToFile)
-    privateSaveToFile_Stub$expects(params = params, data = data, sensorName = sensorName, scriptName = scriptName,
-                                   metadata = metadata)
+    privateSaveToFile_Stub <- mock("../data/testFile.csv")
 
-    privateSaveToFile_Stub$return("../data/testFile.csv")
+    # Replace url to load test data
+    mockUrl <- function(url) {
+         if (grepl("stimuli", url)) {
+            return(uploadUrlStimulusPath)
+        } else {
+            return(uploadUrlStudyPath)
+        }
+    }
 
-    getUploadSensorsUrl_Stub <- stub(getUploadSensorsUrl)
-    getUploadSensorsUrl_Stub$expects(study = study, imObject = respondent, stimulus = stimulus)
-    getUploadSensorsUrl_Stub$withArgs(stimulus = stimulus)$returns(uploadUrlStimulusPath)
-    getUploadSensorsUrl_Stub$withArgs(stimulus = NULL)$returns(uploadUrlStudyPath)
+    if (inherits(data, "imSignals")) {
+        expectedUrl <- mockUrl(getUploadSensorsUrl(study = study, imObject = respondent, stimulus = stimulus))
+    } else {
+        expectedUrl <- uploadUrlEventPath
+    }
 
-    getUploadEventsUrl_Stub <- stub(getUploadEventsUrl)
-    getUploadEventsUrl_Stub$expects(study = study, imObject = respondent)
-    getUploadEventsUrl_Stub$returns(uploadUrlEventPath)
+    getUploadSensorsUrl_Stub <- mock(expectedUrl)
+    getUploadEventsUrl_Stub <- mock(expectedUrl)
+    postJSON_Stub <- mock(list(filePath = expectedUrl))
 
-    postJSON_Stub <- stub(postJSON)
-    postJSON_Stub$expects(connection = study$connection, postData = expectedBody, message = expectedEndpoint)
-
-    postJSON_Stub$withArgs(url = uploadUrlStimulusPath)$returns(list(filePath = uploadUrlStimulusPath))
-    postJSON_Stub$withArgs(url = uploadUrlStudyPath)$returns(list(filePath = uploadUrlStudyPath))
-    postJSON_Stub$withArgs(url = uploadUrlEventPath)$returns(list(filePath = uploadUrlEventPath))
-
-    res <- mockr::with_mock(privateSaveToFile = privateSaveToFile_Stub$f,
-                            getUploadSensorsUrl = getUploadSensorsUrl_Stub$f,
-                            getUploadEventsUrl = getUploadEventsUrl_Stub$f,
-                            postJSON = postJSON_Stub$f, {
+    res <- mockr::with_mock(privateSaveToFile = privateSaveToFile_Stub,
+                            getUploadSensorsUrl = getUploadSensorsUrl_Stub,
+                            getUploadEventsUrl = getUploadEventsUrl_Stub,
+                            postJSON = postJSON_Stub, {
                                 privateUpload(params, study, data, respondent, sensorName, scriptName, metadata,
                                               stimulus)
                             })
+
+    if (inherits(data, "imSignals")) {
+        expect_args(getUploadSensorsUrl_Stub, 1, study = study, imObject = respondent, stimulus = stimulus)
+    } else {
+        expect_args(getUploadEventsUrl_Stub, 1, study = study, imObject = respondent)
+    }
+
+    expect_args(privateSaveToFile_Stub, 1, params = params, data = data, sensorName = sensorName,
+                scriptName = scriptName, metadata = metadata)
+
+    expect_args(postJSON_Stub, 1, connection = study$connection, expectedUrl, postData = expectedBody,
+                message = expectedEndpoint)
 
     return(res)
 }

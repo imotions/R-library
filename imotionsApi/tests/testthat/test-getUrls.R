@@ -1,7 +1,7 @@
 context("Testing `getUrls` functions")
 
 library("imotionsApi")
-library("stubthat")
+library("mockery")
 
 # Load study and respondent
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))

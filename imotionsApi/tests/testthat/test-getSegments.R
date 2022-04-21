@@ -1,7 +1,7 @@
 context("getSegments()")
 
 library("imotionsApi")
-library("stubthat")
+library("mockery")
 
 # Load first study
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
