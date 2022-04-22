@@ -51,7 +51,7 @@ test_that("should upload a JSON file if a good request has been sent", {
 
     #in case of good request - send back the url
     expectedReturn <- list(filePath = "C:\\Users\\exampleUrls")
-    filePath <- mockedPostJSON(connection, 'C:\\Users\\exampleUrls', body, response = 200, mockResponse)
+    filePath <- mockedPostJSON(connection, "C:\\Users\\exampleUrls", body, response = 200, mockResponse)
 
     expect_identical(filePath, expectedReturn, info = "wrong object returned")
 })
