@@ -96,11 +96,12 @@ imStudy <- function(connection, studyId) {
 
         message(paste0("Loading the study ", study$name, " (id = ", studyId, ") from the server..."))
 
-        study$connection <- connection
         attr(study, "class") <- c("imStudy", "list")
         imotionsApiEnvironment$loadedStudies[[studyId]] <- study
     }
 
+    # Add connection to the study object
+    study$connection <- connection
     return(study)
 }
 
