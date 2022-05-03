@@ -42,7 +42,7 @@ jobs:
 
       - name: Install R dependencies
         run: |
-          install.packages(c('rcmdcheck', 'devtools', 'mockery'))
+          install.packages(c('rcmdcheck', 'devtools'))
           remotes::install_deps("imotionsApi", dependencies = TRUE)
         shell: Rscript {0}
       
