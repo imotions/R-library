@@ -48,12 +48,19 @@ jobs:
       
       - name: Run tests
         run: |
-          options(testthat.output_file = 'test-results-tests.xml')
+          options(testthat.output_file = 'test-results-tests.txt')
           result <- as.data.frame(devtools::test("imotionsApi", reporter='junit'))
           if (sum(result$failed) > 0 || any(result$error)) {
             q(status = 1)
           }
         shell: Rscript {0}
+
+      - name: Save test log
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test_log
+          path: test-results-tests.txt
 
       - name: Run linter
         id: linter
