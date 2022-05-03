@@ -95,6 +95,7 @@ test_that("should not call dir.create, writeLines and fwrite if wrong data forma
 test_that("Adding custom metadata should work as expected", {
     data <- checkDataFormat(data)
     expectedMetadata <- readLines("../data/exportMetadata.csv", encoding = "UTF-8")
+    expectedMetadata[1] <- "\ufeff#METADATA,,,"
     expectedfilePath <- "outputDirectoryPath/export.csv"
 
     mockedCreateExport(study, data, outputDirectory, fileName, expectedData, expectedMetadata, expectedfilePath,
