@@ -56,13 +56,12 @@ jobs:
       - name: R debugging
         run: |
           f <- "imotionsApi/tests/data/exportMetadata.csv"
-          a <- readLines(f, encoding = "UTF-8")
-          print(charToRaw(a[1]))
-
-          b <- readLines(f)
-          print(charToRaw(b[1]))
-
+          print(readLines(f, encoding = "UTF-8"))
+          print(readLines(f))
+          
           print(options()$encoding)
+
+          print(Sys.getlocale('LC_CTYPE'))
 
         shell: Rscript {0}
       - name: Run tests
