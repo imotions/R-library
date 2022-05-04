@@ -58,7 +58,7 @@ jobs:
           f <- "imotionsApi/tests/data/exportMetadata.csv"
           print(readLines(f, encoding = "UTF-8"))
           print(readLines(f))
-          
+          l10n_info()
           print(options()$encoding)
 
           print(Sys.getlocale('LC_CTYPE'))
