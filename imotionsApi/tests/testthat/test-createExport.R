@@ -47,6 +47,7 @@ expectedData <- fread("../data/exportData.csv", skip = 2)
 mockedCreateExport <- function(study, data, outputDirectory, fileName, expectedData, expectedMetadata, expectedfilePath,
                                expectCall, metadata = NULL) {
 
+    print("mockedCreateExport START")
     writeLines_Stub <- mock()
     fwrite_Stub <- mock()
     dir.create_Stub <- mock()
@@ -59,6 +60,7 @@ mockedCreateExport <- function(study, data, outputDirectory, fileName, expectedD
         }
     )
 
+    print(sprintf("expected value: %s", paste0(charToRaw(expectedMetadata[1]), collapse = ",")))
     expect_args(writeLines_Stub, 1, text = expectedMetadata, con = expectedfilePath, useBytes = TRUE)
     expect_args(fwrite_Stub, 1, x = expectedData, file = expectedfilePath, append = TRUE, col.names = TRUE, na = "NA")
     expect_args(dir.create_Stub, 1, path = outputDirectory)
@@ -66,6 +68,7 @@ mockedCreateExport <- function(study, data, outputDirectory, fileName, expectedD
     expect_called(writeLines_Stub, expectCall)
     expect_called(fwrite_Stub, expectCall)
     expect_called(dir.create_Stub, expectCall)
+
 }
 
 
@@ -73,7 +76,7 @@ test_that("should call writeLines and fwrite with the good parameters", {
     data <- checkDataFormat(data)
     expectedMetadata <- c("\ufeff#METADATA,,,", NULL, "#DATA,,,")
     expectedfilePath <- "outputDirectoryPath/export.csv"
-
+    # browser()
     mockedCreateExport(study, data, outputDirectory, fileName, expectedData, expectedMetadata, expectedfilePath,
                        expectCall = 1)
 })
@@ -96,6 +99,8 @@ test_that("Adding custom metadata should work as expected", {
     data <- checkDataFormat(data)
     expectedMetadata <- readLines("../data/exportMetadata.csv", encoding = "UTF-8")
     expectedfilePath <- "outputDirectoryPath/export.csv"
+
+    # browser()
 
     mockedCreateExport(study, data, outputDirectory, fileName, expectedData, expectedMetadata, expectedfilePath,
                        expectCall = 1, metadata = additionalMetadata)
