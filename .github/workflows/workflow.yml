@@ -56,7 +56,7 @@ jobs:
       - name: R debugging
         run: |
           f <- "imotionsApi/tests/data/exportMetadata.csv"
-          print(charToRaw(readLines(f, encoding = "UTF-8")[1]))
+          print(charToRaw(readLines(f, encoding = "ascii")[1]))
           print(charToRaw(readLines(f)[1]))
           print(charToRaw(scan(f, what = "character")[1]))
           l10n_info()
