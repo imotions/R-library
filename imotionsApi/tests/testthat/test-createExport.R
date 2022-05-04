@@ -99,8 +99,8 @@ test_that("Adding custom metadata should work as expected", {
     data <- checkDataFormat(data)
     expectedMetadata <- readLines("../data/exportMetadata.csv", encoding = "UTF-8")
     expectedfilePath <- "outputDirectoryPath/export.csv"
+    print(sprintf("as read from file: %s", paste0(charToRaw(expectedMetadata[1]), collapse = ",")))
 
-    # browser()
 
     mockedCreateExport(study, data, outputDirectory, fileName, expectedData, expectedMetadata, expectedfilePath,
                        expectCall = 1, metadata = additionalMetadata)
