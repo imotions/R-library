@@ -56,12 +56,12 @@ jobs:
           }
         shell: Rscript {0}
 
-      - name: Save test log
+      - name: Save file
         uses: actions/upload-artifact@v3
         if: always()
         with:
-          name: test_log
-          path: test-results-tests.txt
+          name: exportMetadata.csv
+          path: ../data/exportMetadata.csv
 
       - name: Run linter
         id: linter
