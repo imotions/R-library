@@ -61,7 +61,7 @@ jobs:
         if: always()
         with:
           name: exportMetadata.csv
-          path: ../data/exportMetadata.csv
+          path: tests/data/exportMetadata.csv
 
       - name: Run linter
         id: linter
