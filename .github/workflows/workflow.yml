@@ -59,7 +59,7 @@ jobs:
           print(charToRaw(readLines(f, encoding = "ascii")[1]))
           print(charToRaw(readLines(f)[1]))
           print(charToRaw(scan(f, what = "character", encoding = "latin1")[1]))
-          print(charToRaw(readLines(file(f, encoding = "C"))[1]))
+          print(charToRaw(readLines(file(f, encoding = "utf-8"))[1]))
           l10n_info()
           print(options()$encoding)
 
