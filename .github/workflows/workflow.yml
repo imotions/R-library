@@ -10,7 +10,6 @@ on:
   release:
     types:
       - created
-  workflow_dispatch:
 
 name: R test, lint & check, build, release
 
@@ -43,25 +42,18 @@ jobs:
 
       - name: Install R dependencies
         run: |
-          install.packages(c('rcmdcheck', 'devtools'))
+          install.packages(c('rcmdcheck', 'devtools', 'stubthat'))
           remotes::install_deps("imotionsApi", dependencies = TRUE)
         shell: Rscript {0}
       
       - name: Run tests
         run: |
-          options(testthat.output_file = 'test-results-tests.txt')
+          options(testthat.output_file = 'test-results-tests.xml')
           result <- as.data.frame(devtools::test("imotionsApi", reporter='junit'))
           if (sum(result$failed) > 0 || any(result$error)) {
             q(status = 1)
           }
         shell: Rscript {0}
-
-      - name: Save file
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: exportMetadata.csv
-          path: tests/data/exportMetadata.csv
 
       - name: Run linter
         id: linter
