@@ -58,7 +58,7 @@ jobs:
           f <- "imotionsApi/tests/data/exportMetadata.csv"
           print(charToRaw(readLines(f, encoding = "ascii")[1]))
           print(charToRaw(readLines(f)[1]))
-          print(charToRaw(scan(f, what = "character")[1]))
+          print(charToRaw(scan(f, what = "character", encoding = "latin1")[1]))
           l10n_info()
           print(options()$encoding)
 
