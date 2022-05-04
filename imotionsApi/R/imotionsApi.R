@@ -1782,8 +1782,6 @@ privateCreateMetadata <- function(data, metadata = NULL) {
     } else {
         metadata <- c("#METADATA", purrr::map_chr(metadata, paste, collapse = ","))
     }
-    print(sprintf("value in privateCreateMetadata: %s", paste0(charToRaw(metadata[1]), collapse = ",")))
-
 
     return(unname(metadata))
 }
@@ -1834,7 +1832,6 @@ createExport <- function(study, data, outputDirectory, fileName, metadata = NULL
     headers <- c(metadata, "#DATA")
     headers <- paste0(headers, strrep(",", pmax(0, ncol(data) - str_count(headers, ",") - 1)))
 
-    invisible(print(sprintf("value in createExport: %s", paste0(charToRaw(headers[1]), collapse = ","))))
     writeLines(text = headers, con = dataFileName, useBytes = TRUE)
     fwrite(x = data, file = dataFileName, append = TRUE, col.names = TRUE, na = "NA")
 }

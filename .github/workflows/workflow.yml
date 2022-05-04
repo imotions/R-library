@@ -46,6 +46,13 @@ jobs:
           remotes::install_deps("imotionsApi", dependencies = TRUE)
         shell: Rscript {0}
       
+      - name: Print debugging info
+        run: |
+          pwd
+          od -ta imotionsApi/tests/data/exportMetadata.csv
+          md5 imotionsApi/tests/data/exportMetadata.csv
+        shell: bash
+
       - name: Run tests
         run: |
           options(testthat.output_file = 'test-results-tests.xml')
