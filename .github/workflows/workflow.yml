@@ -61,6 +61,7 @@ jobs:
           print(charToRaw(scan(f, what = "character", encoding = "latin1")[1]))
           print(charToRaw(readLines(file(f, encoding = "utf-8"))[1]))
           l10n_info()
+          iconvlist()
           print(options()$encoding)
 
           print(Sys.getlocale('LC_CTYPE'))
