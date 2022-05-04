@@ -62,6 +62,8 @@ jobs:
           b <- readLines(f)
           print(charToRaw(b[1]))
 
+          print(options()$encoding)
+
         shell: Rscript {0}
       - name: Run tests
         run: |
