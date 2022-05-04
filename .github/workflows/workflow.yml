@@ -52,7 +52,17 @@ jobs:
           od -ta imotionsApi/tests/data/exportMetadata.csv
           md5sum imotionsApi/tests/data/exportMetadata.csv
         shell: bash
+      
+      - name: R debugging
+        run: |
+          f <- "imotionsApi/tests/data/exportMetadata.csv"
+          a <- readLines(f, encoding = "UTF-8")
+          print(charToRaw(a[1]))
 
+          b <- readLines(f)
+          print(charToRaw(b[1]))
+
+        shell: Rscript {0}
       - name: Run tests
         run: |
           options(testthat.output_file = 'test-results-tests.xml')
