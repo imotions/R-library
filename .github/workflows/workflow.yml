@@ -50,7 +50,7 @@ jobs:
         run: |
           pwd
           od -ta imotionsApi/tests/data/exportMetadata.csv
-          md5 imotionsApi/tests/data/exportMetadata.csv
+          md5sum imotionsApi/tests/data/exportMetadata.csv
         shell: bash
 
       - name: Run tests
