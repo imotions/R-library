@@ -338,7 +338,6 @@ test_that("should upload events to a given respondent/segment if a good request 
 
 
 
-
 context("privateSaveToFile()");
 
 test_that("Data should get stored as a temporary file", {
@@ -350,15 +349,15 @@ test_that("Data should get stored as a temporary file", {
     # Check that file exists at the good location
     expect_true(file.exists(dataFileName), "temporary data file should have been created")
     expect_identical(dataFileName, file.path(tmpDir, "result.csv"), "wrong file path")
-    dataWritten <- read.csv(dataFileName)
-    testData <- read.csv("../data/testFile.csv")
+    dataWritten <- fread(dataFileName)
+    testData <- fread("../data/testFile.csv")
     expect_identical(dataWritten, testData, "files should be identical")
 
     # Re-calling the function should overwrite the file (not append it below)
     dataFileName2 <- suppressWarnings(privateSaveToFile(params, data, sensorName, scriptName, additionalMetadata))
 
     expect_identical(dataFileName, dataFileName2, "same file should be used")
-    dataWritten <- read.csv(dataFileName)
+    dataWritten <- fread(dataFileName)
     expect_identical(dataWritten, testData, "files should still be identical")
 
     # params without "scratchFolder" path provided should throw a warning
@@ -369,13 +368,60 @@ test_that("Data should get stored as a temporary file", {
     # params with a "scratchFolder" path provided should use this path directly without warnings
     params <- append(params, list("scratchFolder" = tmpDir))
     dataFileName <- privateSaveToFile(params, data, sensorName, scriptName, additionalMetadata)
-    dataWritten <- read.csv(dataFileName)
+    dataWritten <- fread(dataFileName)
     expect_identical(dataWritten, testData, "files should still be identical")
 
     # Cleaning file created for testing
     file.remove(dataFileName)
 })
 
+context("privateGetFileHeader()");
+
+test_that("General file header should be as expected", {
+    # Signal data
+    data <- checkDataFormat(data)
+    headers <- privateGetFileHeader(data, params, sensorName, scriptName)
+
+    expect_equal(length(headers), 11, info = "should be composed of 11 lines")
+    expect_identical(headers[1], paste0("\ufeff", params$iMotionsVersion, ",,"), "BOM should be added")
+    expect_identical(headers[8], "#METADATA,,", "wrong number of comma added")
+    expect_identical(headers[9], "FieldName,Timestamp,Thresholded value", "wrong FieldName")
+    expect_identical(headers[10], "DataType,Double,Double", "wrong DataType")
+    expect_identical(headers[11], "#DATA,,", "data line should be added")
+
+    # Event data
+    dataEvents <- checkDataFormat(dataEvents)
+    headers <- privateGetFileHeader(dataEvents, params)
+
+    expect_equal(length(headers), 11, info = "should be composed of 11 lines")
+    expect_identical(headers[1], paste0("\ufeff", params$iMotionsVersion, ",,,"), "BOM should be added")
+    expect_identical(headers[8], "#METADATA,,,", "wrong number of comma added")
+    expect_identical(headers[9], "FieldName,Timestamp,EventName,Description", "wrong FieldName")
+    expect_identical(headers[10], "DataType,Double,Character,Character", "wrong DataType")
+    expect_identical(headers[11], "#DATA,,,", "data line should be added")
+
+    # Metrics data no metadata
+    dataMetrics <- data.table("Respondent Name" = "Respondent 1", "Metrics1" = seq(1:100),
+                              "Thresholded value" = rep(0, 100), check.names = FALSE)
+
+    dataMetrics <- checkDataFormat(dataMetrics)
+    headers <- privateGetFileHeader(dataMetrics)
+
+    expect_equal(length(headers), 2, info = "should be composed of 2 lines")
+    expect_identical(headers[1], "\ufeff#METADATA,,,", "BOM should be added")
+    expect_identical(headers[2], "#DATA,,,", "wrong number of comma added")
+
+    # Metrics data with metadata
+    additionalMetadata <- data.table("Group" = c("", "numeric", "Thresholded"), "Units" = c("", "ms", "binary"))
+
+    headers <- privateGetFileHeader(dataMetrics, metadata = additionalMetadata)
+
+    expect_equal(length(headers), 4, info = "should be composed of 2 lines")
+    expect_identical(headers[1], "\ufeff#METADATA,,,", "BOM should be added")
+    expect_identical(headers[2], "#Group,,numeric,Thresholded", "should start correctly")
+    expect_identical(headers[3], "#Units,,ms,binary", "should start correctly")
+    expect_identical(headers[4], "#DATA,,,", "wrong number of comma added")
+})
 
 context("privateCreateHeader()");
 

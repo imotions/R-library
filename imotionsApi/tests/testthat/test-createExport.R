@@ -60,7 +60,9 @@ mockedCreateExport <- function(study, data, outputDirectory, fileName, expectedD
     )
 
     expect_args(writeLines_Stub, 1, text = expectedMetadata, con = expectedfilePath, useBytes = TRUE)
-    expect_args(fwrite_Stub, 1, x = expectedData, file = expectedfilePath, append = TRUE, col.names = TRUE, na = "NA")
+    expect_args(fwrite_Stub, 1, x = expectedData, file = expectedfilePath, append = TRUE, col.names = TRUE, na = "NA",
+                scipen = 999)
+
     expect_args(dir.create_Stub, 1, path = outputDirectory)
 
     expect_called(writeLines_Stub, expectCall)

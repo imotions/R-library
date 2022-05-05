@@ -1685,13 +1685,6 @@ privateUpload <- function(params, study, data, target, sensorName = NULL, script
 #' @import stringr
 #' @keywords internal
 privateSaveToFile <- function(params, data, sensorName = NULL, scriptName = NULL, metadata = NULL) {
-    # Create script specific data header
-    dataHeader <- privateCreateHeader(params, data, sensorName, scriptName)
-
-    # Create basic metadata (FieldName / DataType) for each signal column. If additional metadata are provided,
-    #  we also add these ones
-    signalsMetadata <- privateCreateMetadata(data, metadata)
-
     # Create the temporary file
     if (exists("scratchFolder", params)) {
         # AttentionTool will always give this scratchFolder path
@@ -1702,16 +1695,44 @@ privateSaveToFile <- function(params, data, sensorName = NULL, scriptName = NULL
         dataFileName <- file.path(tempdir(check = TRUE), "result.csv")
     }
 
-    header <- c(dataHeader, signalsMetadata, "#DATA")
-    header <- paste0(header, strrep(",", pmax(0, ncol(data) - str_count(header, ","))))
-    cat(header, file = dataFileName, sep = "\n")
+    # Create and write headers specific to the data format
+    headers <- privateGetFileHeader(data, params, sensorName, scriptName, metadata)
+    writeLines(text = headers, con = dataFileName, useBytes = TRUE)
 
     # Format data for upload (need to add a RowNumber column)
     data <- cbind(RowNumber = seq(0, nrow(data) - 1), data)
-    data.table::fwrite(data, file = dataFileName, append = TRUE, col.names = TRUE)
-
+    fwrite(data, file = dataFileName, append = TRUE, col.names = TRUE, scipen = 999)
     return(dataFileName)
 }
+
+
+
+
+#' Create headers specific to the data format (signals, events, exports).
+#'
+#' @inheritParams uploadSensorData
+#'
+#' @keywords internal
+privateGetFileHeader <- function(data, params = NULL, sensorName = NULL, scriptName = NULL, metadata = NULL) {
+    if (!inherits(data, "imExport")) {
+        # Create script specific data header
+        dataHeader <- privateCreateHeader(params, data, sensorName, scriptName)
+    }   else {
+        dataHeader <- list()
+    }
+
+    # Create basic metadata (FieldName / DataType) for each signal column.
+    # If additional metadata are provided, we also add these ones
+    signalsMetadata <- privateCreateMetadata(data, metadata)
+
+    headers <- c(dataHeader, signalsMetadata, "#DATA")
+    headers <- paste0(headers, strrep(",", pmax(0, ncol(data) - str_count(headers, ","))))
+
+    # Append BOM to file to handle utf-8 char
+    headers[1] <- paste0("\ufeff", headers[1])
+    return(headers)
+}
+
 
 
 
@@ -1776,13 +1797,13 @@ privateCreateMetadata <- function(data, metadata = NULL) {
     }
 
     metadata <- append(mandatoryMetadata, signalsMetadata)
+    metadata_values <- purrr::map_chr(metadata, paste, collapse = ",")
 
     if (inherits(data, "imExport")) {
-        metadata <- c("\ufeff#METADATA", paste0("#", purrr::map_chr(metadata, paste, collapse = ","), recycle0 = T))
-    } else {
-        metadata <- c("#METADATA", purrr::map_chr(metadata, paste, collapse = ","))
+        metadata_values <- paste0("#", metadata_values, recycle0 = T)
     }
 
+    metadata <- c("#METADATA", metadata_values)
     return(unname(metadata))
 }
 
@@ -1822,18 +1843,16 @@ createExport <- function(study, data, outputDirectory, fileName, metadata = NULL
     data <- checkDataFormat(data)
     assertExportFormat(data)
 
-    metadata <- privateCreateMetadata(data, metadata)
-
     if (!dir.exists(outputDirectory)) dir.create(path = outputDirectory)
     dataFileName <- file.path(outputDirectory, fileName)
 
+    # Create and write headers specific to the data format
+    headers <- privateGetFileHeader(data, metadata = metadata)
+    writeLines(text = headers, con = dataFileName, useBytes = TRUE)
+
     # Appending study name to the export and adding comma to have a better file separation
     data <- cbind("Study Name" = study$name, data)
-    headers <- c(metadata, "#DATA")
-    headers <- paste0(headers, strrep(",", pmax(0, ncol(data) - str_count(headers, ",") - 1)))
-
-    writeLines(text = headers, con = dataFileName, useBytes = TRUE)
-    fwrite(x = data, file = dataFileName, append = TRUE, col.names = TRUE, na = "NA")
+    fwrite(x = data, file = dataFileName, append = TRUE, col.names = TRUE, na = "NA", scipen = 999)
 }
 
 
