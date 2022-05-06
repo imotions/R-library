@@ -156,7 +156,7 @@ listLoadedStudies <- function() {
 
     loadedStudies <- data.frame(name = info[1, ], id = info[2, ], stringsAsFactors = F)
     row.names(loadedStudies) <- NULL
-    loadedStudies
+    return(loadedStudies)
 }
 
 
@@ -236,7 +236,6 @@ getSegment <- function(study, segmentId) {
     segments <- getSegments(study)
     segment <- segments[segments$id == segmentId, ]
     assertValid(nrow(segment) == 1, paste("No segment found matching id:", segmentId))
-
     return(segment)
 }
 
@@ -346,7 +345,6 @@ getStimulus <- function(study, stimulusId) {
 
     stimulus <- stimuli[stimuli$id == stimulusId, ]
     assertValid(nrow(stimulus) == 1, paste("No stimulus found matching id:", stimulusId))
-
     return(stimulus)
 }
 
@@ -707,7 +705,6 @@ privateRespondentFiltering.imStudy <- function(study, ...) {
     names(respondents)[1] <- "name"
 
     respondents$gender <- formatGender(respondents$gender)
-
     return(respondents)
 }
 
@@ -729,7 +726,6 @@ privateRespondentFiltering.imStimulus <- function(study, obj) {
     assertValid(nrow(stimulus) == 1, paste("No stimulus found matching id:", obj$id))
     respondentIds <- unlist(lapply(stimulus$respondentData, function(data) data$respondent$id))
     respondents <- respondents[respondents$id %in% respondentIds, ]
-
     return(respondents)
 }
 
@@ -750,7 +746,6 @@ privateRespondentFiltering.imAOI <- function(study, obj) {
     AOIRespondents <- privateGetAOIDetails(study, obj)
     AOIRespondentsIds <- intersect(respondents$id, AOIRespondents$respId)
     AOIRespondents <- respondents[respondents$id %in% AOIRespondentsIds, ]
-
     return(AOIRespondents)
 }
 
@@ -780,7 +775,6 @@ getRespondent <- function(study, respondentId) {
 
     respondent <- respondents[respondents$id == respondentId, ]
     assertValid(nrow(respondent) == 1, paste("No respondent found matching id:", respondentId))
-
     return(respondent)
 }
 
@@ -902,7 +896,6 @@ getRespondentIntervals <- function(study, respondent, type = c("Stimulus", "Scen
 
     intervals <- cbind(intervals, "respondent" = list(respondent))
     intervals <- createImObject(intervals, "Interval")
-
     return(intervals)
 }
 
@@ -938,7 +931,6 @@ privateGetIntervalsForStimuli <- function(study, respondent) {
                                         "text" = NA_character_)
 
     intervals$id <- stimuli[intervals, "id", on = "name"]$id
-
     return(intervals)
 }
 
@@ -1026,7 +1018,6 @@ privateGetIntervalsForAnnotations <- function(study, respondent) {
 
     # Annotation have no id so we only do a sequence by parent stimulus and name of annotation
     intervals[, "id" := as.character(.GRP), by = c("parentId", "name")]
-
     return(intervals)
 }
 
@@ -1683,6 +1674,7 @@ privateUpload <- function(params, study, data, target, sensorName = NULL, script
 #' @inheritParams uploadSensorData
 #'
 #' @import stringr
+#' @importFrom dplyr mutate_if %>%
 #' @keywords internal
 privateSaveToFile <- function(params, data, sensorName = NULL, scriptName = NULL, metadata = NULL) {
     # Create the temporary file
@@ -1701,6 +1693,9 @@ privateSaveToFile <- function(params, data, sensorName = NULL, scriptName = NULL
 
     # Format data for upload (need to add a RowNumber column)
     data <- cbind(RowNumber = seq(0, nrow(data) - 1), data)
+
+    # Make sure column containing characters are correctly encoded
+    data <- data %>% mutate_if(is.character, .funs = function(x) iconv(x, to = "utf-8"))
     fwrite(data, file = dataFileName, append = TRUE, col.names = TRUE, scipen = 999)
     return(dataFileName)
 }
@@ -1759,10 +1754,9 @@ privateCreateHeader <- function(params, data, sensorName, scriptName) {
         file_type <- ""
     }
 
-    # script specific parameters needs to be URL encoded
+    # Script specific parameters needs to be URL encoded
     metadata <- utils::URLencode(toJSON(metadata), reserved = TRUE)
     dataHeader <- c(params$iMotionsVersion, "#HEADER", signal_type, params$flowName, file_type, "", metadata)
-
     return(dataHeader)
 }
 
@@ -2049,7 +2043,6 @@ getSensorsUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
     }
 
     url <- file.path(url, "samples")
-
     return(url)
 }
 
@@ -2444,7 +2437,7 @@ checkDataFormat <- function(data) {
 reorderColnames <- function(data, explicitlyOrdered) {
     explicitlyOrdered <- explicitlyOrdered[explicitlyOrdered %in% names(data)]
     setcolorder(data, explicitlyOrdered)
-    data
+    return(data)
 }
 
 #' Make sensors columns order a bit more intuitive, and reliable.
@@ -2471,7 +2464,6 @@ formatGender <- function(gender) {
     # in case the gender is coded as "0" or "1" we update them to Male/Female
     gender[which(gender == "0")] <- "MALE"
     gender[which(gender == "1")] <- "FEMALE"
-
     return(gender)
 }
 
