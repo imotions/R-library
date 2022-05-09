@@ -2454,16 +2454,17 @@ reorderSensorColumns <- function(sensors) {
 
 #' Reformat the gender column.
 #'
-#' Converts 0/1 values into MALE/FEMALE values.
+#' Converts 0/1/4 values into MALE/FEMALE/OTHER values.
 #'
 #' @param gender The gender column to reformat.
 #'
-#' @return The gender column coded as Male/Female
+#' @return The gender column coded as Male/Female/Other
 #' @keywords internal
 formatGender <- function(gender) {
-    # in case the gender is coded as "0" or "1" we update them to Male/Female
+    # in case the gender is coded as "0", "1" or "4" we update them to Male/Female/Other respectively
     gender[which(gender == "0")] <- "MALE"
     gender[which(gender == "1")] <- "FEMALE"
+    gender[which(gender == "4")] <- "OTHER"
     return(gender)
 }
 
