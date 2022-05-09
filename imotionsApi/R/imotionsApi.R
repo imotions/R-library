@@ -287,7 +287,7 @@ getStimuli <- function(study, respondent = NULL, relevant = TRUE) {
 
     # Make sure stimuli attached to another stimulus don't have a parent id
     stimuli$parentId[!stimuli$type %like% "_SCENE"] <- NA_character_
-    stimuli$parentName <- getParentStimulusNames(stimuli$parentId, stimuli)
+    stimuli$parentName <- privateGetParentStimulusNames(stimuli$parentId, stimuli)
 
     stimuli <- createImObject(stimuli, "Stimulus")
 
@@ -297,7 +297,7 @@ getStimuli <- function(study, respondent = NULL, relevant = TRUE) {
 
 
 
-#' Get parent stimulus names from a vector of parent ids and a stimuli data.table.
+#' Private function to get parent stimulus names from a vector of parent ids and a stimuli data.table.
 #'
 #' The parent name is set to "" if a stimulus has no parent and to "N/A" if the stimulus parent was not found in the
 #' stimuli table (e.g. if the parent stimulus was not included in an analysis).
@@ -307,7 +307,7 @@ getStimuli <- function(study, respondent = NULL, relevant = TRUE) {
 #'
 #' @return The parent stimulus names corresponding to the given ids.
 #' @keywords internal
-getParentStimulusNames <- function(parentIds, stimuli) {
+privateGetParentStimulusNames <- function(parentIds, stimuli) {
     # detect if some stimuli have no parent at all to set their names later to ""
     hasParent <- !is.na(parentIds)
 
@@ -515,7 +515,7 @@ privateAOIFiltering.imStimulus <- function(study, stimulus, ...) {
 #'                   AOIs.
 #'
 #' @return A data.table with all AOIs defined for a specific respondent.
-#' @export
+#' @keywords internal
 privateAOIFiltering.imRespondent <- function(study, stimulus = NULL, respondent) {
     endpoint <- paste("respondent:", respondent$name)
 
