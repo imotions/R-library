@@ -38,6 +38,10 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
           restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
 
+      - name: Install Pandoc
+        run: |
+          choco install pandoc
+
       - name: Install R dependencies
         run: |
           install.packages(c('rcmdcheck', 'devtools'))
