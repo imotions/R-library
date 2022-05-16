@@ -1,7 +1,7 @@
-library("imotionsApi");
-library("stubthat");
+context("truncateSignalsByIntervals()")
 
-context("truncateSignalsByIntervals()");
+library("imotionsApi")
+library("mockery")
 
 # Load signals and intervals
 signals <- arrow::read_parquet("../data/ET_Eyetracker.csv.pbin")
@@ -22,7 +22,7 @@ test_that("should throw errors if arguments are missing or not from the good cla
 
     # in case of signals that is not of the good format
     error <- capture_error(truncateSignalsByIntervals(signals = "whatever", intervals))
-    expect_identical(error$message, "Signals / metrics object should be data.frame or data.table",
+    expect_identical(error$message, "Signals / metrics / events object should be data.frame or data.table",
                      "signals not being of the good format should throw an error")
 
     # in case of signals that is a metric instead

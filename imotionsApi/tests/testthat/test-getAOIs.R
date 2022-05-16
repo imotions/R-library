@@ -1,7 +1,7 @@
-library("imotionsApi");
-library("stubthat");
+context("privateAOIFiltering()")
 
-context("getAOIs()");
+library("imotionsApi")
+library("mockery")
 
 # Load study and stimuli
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
@@ -9,41 +9,123 @@ study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
 stimuli <- getStimuli(study)
 respondents <- getRespondents(study)
 
+studyAOIsPath <- "../data/noAOIs.json"
+stimulusAOIsPath <- "../data/noAOIs.json"
+respondentAOIsPath <- "../data/noAOIs.json"
+
+mockedPrivateAOIFiltering <- function(study, stimulus = NULL, respondent = NULL) {
+    # Get expected endpoint
+    if (is.null(stimulus) && is.null(respondent)) {
+        expectedEndpoint <- paste("study:", study$name)
+    } else if (!is.null(stimulus) && is.null(respondent)) {
+        expectedEndpoint <- paste("stimulus:", stimulus$name)
+    } else if (!is.null(respondent)) {
+        expectedEndpoint <- paste("respondent:", respondent$name)
+    }
+
+    # Replace url to load test data
+    mockUrl <- function(url) {
+        if (grepl("respondent", url)) {
+            return(respondentAOIsPath)
+        } else if (grepl("stimuli", url)) {
+            return(stimulusAOIsPath)
+        } else {
+            return(studyAOIsPath)
+        }
+    }
+
+    if (!is.null(stimulus) && !is.null(respondent)) {
+        expectedUrl <- getAOIsUrl(study, NULL, respondent$id)
+    } else {
+        expectedUrl <- getAOIsUrl(study, stimulus$id, respondent$id)
+    }
+
+    getJSON_Stub <- mock(jsonlite::fromJSON(mockUrl(expectedUrl)))
+
+    AOIs <- mockr::with_mock(
+      getJSON = getJSON_Stub, {
+          privateAOIFiltering(study, stimulus, respondent)
+      })
+
+    expect_args(getJSON_Stub, 1, connection = study$connection, url = expectedUrl,
+                message = paste("Retrieving AOIs for", expectedEndpoint))
+
+    return(AOIs)
+}
+
+
+test_that("getAOIs() in case of no AOI defined should throw a warning as expected", {
+    # Should return a warning when no AOI have been defined at the study level
+    warning <- capture_warning(mockedPrivateAOIFiltering(study))
+    expect_identical(warning$message, "No AOI defined for study: 2 GSR 81",
+                     "no AOI warning should have been thrown for this study")
+    expect_null(suppressWarnings(mockedPrivateAOIFiltering(study)), "AOI should be null")
+
+    # Should return a warning when no AOI have been defined at the stimulus level
+    warning <- capture_warning(mockedPrivateAOIFiltering(study, stimuli[1, ]))
+    expect_identical(warning$message, "No AOI defined for stimulus: AntiSmoking40Sec",
+                     "no AOI warning should have been thrown for this stimulus")
+    expect_null(suppressWarnings(mockedPrivateAOIFiltering(study, stimuli[1, ])), "AOI should be null")
+
+    # Should return a warning when no AOI have been defined at the respondent level
+    warning <- capture_warning(mockedPrivateAOIFiltering(study, respondent = respondents[1, ]))
+    expect_identical(warning$message, "No AOI defined for respondent: Wendy",
+                     "no AOI warning should have been thrown for this respondent")
+    expect_null(suppressWarnings(mockedPrivateAOIFiltering(study, respondent = respondents[1, ])), "AOI should be null")
+})
+
 studyAOIsPath <- "../data/studyAOIs.json"
 stimulusAOIsPath <- "../data/stimulusAOIs.json"
 respondentAOIsPath <- "../data/respondentAOIs.json"
 
-mockedGetAOIs <- function(study, stimulus = NULL, respondent = NULL, generateInOutFiles = FALSE) {
-    getAOIsUrl_Stub <- stub(getAOIsUrl)
+test_that("no AOIs is present for a specific respondent/stimulus pair, should return the correct warning", {
+    # if no AOIs is present for a specific respondent/stimulus pair, should return the correct warning
+    warning <- capture_warning(mockedPrivateAOIFiltering(study, respondent = respondents[1, ], stimulus = stimuli[1, ]))
+    expect_identical(warning$message, "No AOI defined for respondent: Wendy, stimulus: AntiSmoking40Sec",
+                     "no AOI warning should have been thrown for this respondent/stimulus")
+    expect_null(suppressWarnings(mockedPrivateAOIFiltering(study, respondent = respondents[1, ],
+                                                           stimulus = stimuli[1, ])), "AOI should be null")
+})
 
-    if (is.null(stimulus) && is.null(respondent)) {
-        endpoint <- paste("study:", study$name)
-    } else if (!is.null(stimulus) && is.null(respondent)) {
-        endpoint <- paste("stimulus:", stimulus$name)
-    } else if (!is.null(respondent)) {
-        endpoint <- paste("respondent:", respondent$name)
-    }
+test_that("should return a imAOIList object with AOIs info", {
+    # Should return all AOIs from this study if no stimulus is provided
+    AOIs <- mockedPrivateAOIFiltering(study)
+    expect(sum(sapply(AOIs$aois, NROW)) == 68, "study should contain 68 AOIs")
 
-    getAOIsUrl_Stub$withArgs(stimulusId = NULL, respondentId = respondent$id)$returns(respondentAOIsPath)
-    getAOIsUrl_Stub$withArgs(stimulusId = stimulus$id, respondentId = NULL)$returns(stimulusAOIsPath)
-    getAOIsUrl_Stub$withArgs(stimulusId = NULL, respondentId = NULL)$returns(studyAOIsPath)
+    # Should return all AOIs from this study for a specific stimulus
+    AOIs <- mockedPrivateAOIFiltering(study, stimulus = stimuli[1, ])
+    expect(sum(sapply(AOIs$aois, NROW)) == 3, "stimulus should contain 3 AOIs")
 
-    getJSON_Stub <- stub(getJSON)
-    getJSON_Stub$expects(connection = study$connection, message = paste("Retrieving AOIs for", endpoint))
-    getJSON_Stub$withArgs(url = studyAOIsPath)$returns(jsonlite::fromJSON(studyAOIsPath))
-    getJSON_Stub$withArgs(url = stimulusAOIsPath)$returns(jsonlite::fromJSON(stimulusAOIsPath))
-    getJSON_Stub$withArgs(url = respondentAOIsPath)$returns(jsonlite::fromJSON(respondentAOIsPath))
+    # Should return all AOIs from this study for a specific respondent
+    AOIs <- mockedPrivateAOIFiltering(study, respondent = respondents[1, ])
+    expect(sum(sapply(AOIs$aois, NROW)) == 4, "study for this respondent should contain 4 AOIs")
 
-    privateGetAOIDetails_Stub <- stub(privateGetAOIDetails)
-    privateGetAOIDetails_Stub$returns(jsonlite::fromJSON("../data/AOIDetailsForStimulusRespondent.json"))
-    privateGetAOIDetails_Stub$expects(study = study, imObject = stimulus, respondent = respondent)
+    # Should return all AOIs from this study for a specific respondent and stimulus
+    AOIs <- mockedPrivateAOIFiltering(study, stimulus = stimuli[4, ], respondent = respondents[1, ])
+    expect(sum(sapply(AOIs$aois, NROW)) == 4, "combination should contain 4 AOIs")
+})
+
+
+context("getAOIs()")
+
+mockedGetAOIs <- function(study, stimulus = NULL, respondent = NULL, generateInOutFiles = FALSE,
+                          expectedCallAoiDetails = 0) {
+
+    privateAOIFiltering_Stub <- mock(mockedPrivateAOIFiltering(study, stimulus, respondent))
+    privateGetAOIDetails_Stub <- mock(jsonlite::fromJSON("../data/AOIDetailsForStimulusRespondent.json"))
 
     AOIs <- mockr::with_mock(
-        getAOIsUrl = getAOIsUrl_Stub$f,
-        getJSON = getJSON_Stub$f,
-        privateGetAOIDetails = privateGetAOIDetails_Stub$f, {
+        privateAOIFiltering = privateAOIFiltering_Stub,
+        privateGetAOIDetails = privateGetAOIDetails_Stub, {
             getAOIs(study, stimulus, respondent, generateInOutFiles)
         })
+
+    expect_args(privateAOIFiltering_Stub, 1, study, stimulus, respondent)
+    expect_called(privateGetAOIDetails_Stub, expectedCallAoiDetails)
+
+    if (expectedCallAoiDetails > 0) {
+        expect_args(privateGetAOIDetails_Stub, 1, study = study, imObject = stimulus, respondent = respondent)
+    }
 
     return(AOIs)
 }
@@ -107,46 +189,10 @@ test_that("should return a imAOIList object with AOIs info", {
 
 })
 
-test_that("should return a imAOIList object for a stimulus of interest if provided", {
-    # Should return all AOIs from this study for a specific stimulus
-    AOIs <- mockedGetAOIs(study, stimulus = stimuli[1, ])
-
-    expect_true(inherits(AOIs, "imAOIList"), "`AOIs` should be an imAOIList object")
-    expect(nrow(AOIs) == 3, "stimulus should contain 3 AOIs")
-    expect_identical(colnames(AOIs), c("stimulusId", "stimulusName", "id", "name", "type", "group", "area"),
-                     "AOIs infos not matching")
-})
-
-test_that("should return a imAOIList object for a respondent of interest if provided", {
-  # Should return all AOIs from this study for a specific respondent
-  AOIs <- mockedGetAOIs(study, respondent = respondents[1, ])
-
-  expect_true(inherits(AOIs, "imAOIList"), "`AOIs` should be an imAOIList object")
-  expect(nrow(AOIs) == 4, "study for this respondent should contain 4 AOIs")
-  expect_identical(colnames(AOIs), c("stimulusId", "stimulusName", "id", "name", "type", "group", "area"),
-                   "AOIs infos not matching")
-})
-
-test_that("should return a imAOIList object for a respondent and stimulus of interest if provided", {
-  # Should return all AOIs from this study for a specific respondent and stimulus
-  AOIs <- mockedGetAOIs(study, stimulus = stimuli[4, ], respondent = respondents[1, ])
-
-  expect_true(inherits(AOIs, "imAOIList"), "`AOIs` should be an imAOIList object")
-  expect(nrow(AOIs) == 4, "combination should contain 4 AOIs")
-  expect_identical(colnames(AOIs), c("stimulusId", "stimulusName", "id", "name", "type", "group", "area"),
-                   "AOIs infos not matching")
-
-  # if no AOIs is present for a specific respondent/stimulus pair, should return the correct warning
-  warning <- capture_warning(mockedGetAOIs(study, respondent = respondents[1, ], stimulus = stimuli[1, ]))
-  expect_identical(warning$message, "No AOI defined for respondent: Wendy, stimulus: AntiSmoking40Sec",
-                   "no AOI warning should have been thrown for this respondent/stimulus")
-  expect_null(suppressWarnings(mockedGetAOIs(study, respondent = respondents[1, ], stimulus = stimuli[1, ])),
-              "AOI should be null")
-})
 
 test_that("generateInOutFiles should works as expected", {
   # Should return all AOIs from this study for a specific respondent and stimulus
-  AOIs <- mockedGetAOIs(study, stimulus = stimuli[4, ], respondent = respondents[1, ], generateInOutFiles = T)
+  AOIs <- mockedGetAOIs(study, stimulus = stimuli[4, ], respondent = respondents[1, ], generateInOutFiles = T, 1)
 
   expect_true(inherits(AOIs, "imAOIList"), "`AOIs` should be an imAOIList object")
   expect(nrow(AOIs) == 4, "combination should contain 4 AOIs")
@@ -187,32 +233,6 @@ test_that("getAOIs() in case of only one AOI should return an imAOI object", {
     expect_identical(AOIs$area, 20.534, "AOI area is not matching")
 })
 
-studyAOIsPath <- "../data/noAOIs.json"
-stimulusAOIsPath <- "../data/noAOIs.json"
-respondentAOIsPath <- "../data/noAOIs.json"
-
-test_that("getAOIs() in case of no AOI defined should throw a warning as expected", {
-    # Should return a warning when no AOI have been defined at the study level
-    warning <- capture_warning(mockedGetAOIs(study))
-    expect_identical(warning$message, "No AOI defined for study: 2 GSR 81",
-                     "no AOI warning should have been thrown for this study")
-    expect_null(suppressWarnings(mockedGetAOIs(study)), "AOI should be null")
-
-    # Should return a warning when no AOI have been defined at the stimulus level
-    warning <- capture_warning(mockedGetAOIs(study, stimuli[1, ]))
-    expect_identical(warning$message, "No AOI defined for stimulus: AntiSmoking40Sec",
-                     "no AOI warning should have been thrown for this stimulus")
-    expect_null(suppressWarnings(mockedGetAOIs(study, stimuli[1, ])), "AOI should be null")
-
-    # Should return a warning when no AOI have been defined at the respondent level
-    warning <- capture_warning(mockedGetAOIs(study, respondent = respondents[1, ]))
-    expect_identical(warning$message, "No AOI defined for respondent: Wendy",
-                     "no AOI warning should have been thrown for this respondent")
-    expect_null(suppressWarnings(mockedGetAOIs(study, respondent = respondents[1, ])), "AOI should be null")
-})
-
-
-
 
 context("getAOI()")
 
@@ -224,6 +244,8 @@ mockedGetAOI <- function(study, AOIId) {
         getAOI(study, AOIId)
     })
 }
+
+studyAOIsPath <- "../data/noAOIs.json"
 
 test_that("should throw error/warnings if arguments are missing or if no AOIs in the study", {
     # in case of missing AOI id

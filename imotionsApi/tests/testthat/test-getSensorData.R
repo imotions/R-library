@@ -1,8 +1,8 @@
-library("imotionsApi");
-library("stubthat");
-library("arrow");
+context("privateDownloadData()")
 
-context("privateDownloadData()");
+library("imotionsApi")
+library("mockery")
+library("arrow")
 
 # Load study
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
@@ -11,17 +11,16 @@ study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
 sensors <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorList.json")))
 sensor <- sensors[1, ]
 
-
 mockedPrivateDownloadData <- function(study, sensor, signals, filesPath) {
-    getSensorDataUrl_Stub <- stub(getSensorDataUrl)
-    getSensorDataUrl_Stub$expects(study = study, sensor = sensor)
-    getJSON_Stub <- stub(getJSON)
-    getJSON_Stub$returns(filesPath)
+    expectedUrl <- getSensorDataUrl(study = study, sensor = sensor)
+    getJSON_Stub <- mock(filesPath)
 
-    signals <- mockr::with_mock(getJSON = getJSON_Stub$f,
-                                getSensorDataUrl = getSensorDataUrl_Stub$f, {
+    signals <- mockr::with_mock(getJSON = getJSON_Stub, {
                                     privateDownloadData(study, sensor, signals)
                                 })
+
+    expect_args(getJSON_Stub, 1, study$connection, expectedUrl,
+                message = paste("Retrieving data for sensor: SlideEvents"))
 
     return(signals)
 }
@@ -60,14 +59,13 @@ context("getSensorData()");
 signals <- arrow::read_parquet("../data/ET_Eyetracker.csv.pbin")
 
 mockedGetSensorData <- function(study, sensor, signalsName = NULL, intervals = NULL, signals) {
-    privateDownloadData_Stub <- stub(privateDownloadData)
-    privateDownloadData_Stub$expects(study = study, sensor = sensor, signalsName = signalsName)
-    privateDownloadData_Stub$returns(signals)
+    privateDownloadData_Stub <- mock(signals)
 
-    signals <- mockr::with_mock(privateDownloadData = privateDownloadData_Stub$f, {
+    signals <- mockr::with_mock(privateDownloadData = privateDownloadData_Stub, {
                                     getSensorData(study, sensor, signalsName, intervals)
                                 })
 
+    expect_args(privateDownloadData_Stub, 1, study = study, sensor = sensor, signalsName = signalsName)
     return(signals)
 }
 

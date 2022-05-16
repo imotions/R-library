@@ -1,6 +1,9 @@
-library("imotionsApi");
-library("stubthat");
-library("data.table");
+# privateGetIntervalsForStimuli =======================================================================================
+context("privateGetIntervalsForStimuli()")
+
+library("imotionsApi")
+library("mockery")
+library("data.table")
 
 # Load study and respondent
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
@@ -14,22 +17,22 @@ annotationsEvents <- jsonlite::fromJSON("../data/annotations.json")
 # Load sensors
 sensors <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorList.json")))
 
-# privateGetIntervalsForStimuli =======================================================================================
-context("privateGetIntervalsForStimuli()");
+mockedPrivateGetIntervalsForStimuli <- function(study, respondent, slideEvents, sensors, expectedDataCall = 1) {
+    getRespondentSensors_Stub <- mock(sensors)
+    getSensorData_Stub <- mock(slideEvents)
 
-mockedPrivateGetIntervalsForStimuli <- function(study, respondent, slideEvents, sensors) {
-    getRespondentSensors_Stub <- stub(getRespondentSensors)
-    getRespondentSensors_Stub$expects(study = study, respondent = respondent)
-    getRespondentSensors_Stub$returns(sensors)
-
-    getSensorData_Stub <- stub(getSensorData)
-    getSensorData_Stub$expects(study = study, sensor = sensors[1, ])
-    getSensorData_Stub$returns(slideEvents)
-
-    stimIntervals <- mockr::with_mock(getRespondentSensors = getRespondentSensors_Stub$f,
-                                      getSensorData = getSensorData_Stub$f, {
+    stimIntervals <- mockr::with_mock(getRespondentSensors = getRespondentSensors_Stub,
+                                      getSensorData = getSensorData_Stub, {
                                           privateGetIntervalsForStimuli(study, respondent)
                                       })
+
+    expect_args(getRespondentSensors_Stub, 1, study = study, respondent = respondent)
+
+    if (expectedDataCall > 0) {
+        expect_args(getSensorData_Stub, 1, study = study, sensor = sensors[1, ])
+    }
+
+    return(stimIntervals)
 }
 
 test_that("should return a data.table of the good format", {
@@ -62,11 +65,11 @@ test_that("should return NULL with a warning is no slideEvents sensors available
     sensors <- sensors[2, ]
 
     # Retrieve stimulus intervals and check returned value
-    stimIntervals <- suppressWarnings(mockedPrivateGetIntervalsForStimuli(study, respondent, slideEvents, sensors))
+    stimIntervals <- suppressWarnings(mockedPrivateGetIntervalsForStimuli(study, respondent, slideEvents, sensors, 0))
     expect_null(stimIntervals, "no intervals should have been found")
 
     # Verify warning message
-    warning <- capture_warning(mockedPrivateGetIntervalsForStimuli(study, respondent, slideEvents, sensors))
+    warning <- capture_warning(mockedPrivateGetIntervalsForStimuli(study, respondent, slideEvents, sensors, 0))
     expect_identical(warning$message, "No stimulus events found for this respondent.",
                      "missing stimulus events not handled properly")
 
@@ -76,13 +79,16 @@ test_that("should return NULL with a warning is no slideEvents sensors available
 context("privateGetIntervalsForScenes()");
 
 mockedPrivateGetIntervalsForScenes <- function(study, respondent, scenesEvents) {
-    getJSON_Stub <- stub(getJSON)
-    getJSON_Stub$expects(connection = study$connection, message = "Retrieving scenes for respondent Wendy")
-    getJSON_Stub$returns(scenesEvents)
+    getJSON_Stub <- mock(scenesEvents)
 
-    stimIntervals <- mockr::with_mock(getJSON = getJSON_Stub$f, {
-                                          privateGetIntervalsForScenes(study, respondent)
-                                      })
+    sceneIntervals <- mockr::with_mock(getJSON = getJSON_Stub, {
+        privateGetIntervalsForScenes(study, respondent)
+    })
+
+    expect_args(getJSON_Stub, 1, connection = study$connection, url = getRespondentScenesUrl(study, respondent),
+                message = "Retrieving scenes for respondent Wendy")
+
+    return(sceneIntervals)
 }
 
 test_that("should return a data.table of the good format", {
@@ -125,13 +131,16 @@ test_that("should return NULL with a warning is no scenes available", {
 context("privateGetIntervalsForAnnotations()");
 
 mockedPrivateGetIntervalsForAnnotations <- function(study, respondent, annotationsEvents) {
-    getJSON_Stub <- stub(getJSON)
-    getJSON_Stub$expects(connection = study$connection, message = "Retrieving annotations for respondent Wendy")
-    getJSON_Stub$returns(annotationsEvents)
+    getJSON_Stub <- mock(annotationsEvents)
 
-    stimIntervals <- mockr::with_mock(getJSON = getJSON_Stub$f, {
-                                          privateGetIntervalsForAnnotations(study, respondent)
-                                      })
+    annotationsIntervals <- mockr::with_mock(getJSON = getJSON_Stub, {
+        privateGetIntervalsForAnnotations(study, respondent)
+    })
+
+    expect_args(getJSON_Stub, 1, connection = study$connection, url = getRespondentAnnotationsUrl(study, respondent),
+                message = "Retrieving annotations for respondent Wendy")
+
+    return(annotationsIntervals)
 }
 
 test_that("should return a data.table of the good format", {
@@ -184,21 +193,13 @@ context("getRespondentIntervals()");
 mockedGetRespondentIntervals <- function(study, respondent, type = c("Stimulus", "Annotation", "Scene"),
                                          stimIntervals = NULL, sceneIntervals = NULL, annotationIntervals = NULL) {
 
-    privateGetIntervalsForStimuli_Stub <- stub(privateGetIntervalsForStimuli)
-    privateGetIntervalsForStimuli_Stub$expects(study = study, respondent = respondent)
-    privateGetIntervalsForStimuli_Stub$returns(stimIntervals)
+    privateGetIntervalsForStimuli_Stub <- mock(stimIntervals)
+    privateGetIntervalsForScenes_Stub <- mock(sceneIntervals)
+    privateGetIntervalsForAnnotations_Stub <- mock(annotationIntervals)
 
-    privateGetIntervalsForScenes_Stub <- stub(privateGetIntervalsForScenes)
-    privateGetIntervalsForScenes_Stub$expects(study = study, respondent = respondent)
-    privateGetIntervalsForScenes_Stub$returns(sceneIntervals)
-
-    privateGetIntervalsForAnnotations_Stub <- stub(privateGetIntervalsForAnnotations)
-    privateGetIntervalsForAnnotations_Stub$expects(study = study, respondent = respondent)
-    privateGetIntervalsForAnnotations_Stub$returns(annotationIntervals)
-
-    intervals <- mockr::with_mock(privateGetIntervalsForStimuli = privateGetIntervalsForStimuli_Stub$f,
-                                  privateGetIntervalsForScenes = privateGetIntervalsForScenes_Stub$f,
-                                  privateGetIntervalsForAnnotations = privateGetIntervalsForAnnotations_Stub$f, {
+    intervals <- mockr::with_mock(privateGetIntervalsForStimuli = privateGetIntervalsForStimuli_Stub,
+                                  privateGetIntervalsForScenes = privateGetIntervalsForScenes_Stub,
+                                  privateGetIntervalsForAnnotations = privateGetIntervalsForAnnotations_Stub, {
                                       getRespondentIntervals(study, respondent, type)
                                   })
 

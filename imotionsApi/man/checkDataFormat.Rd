@@ -2,17 +2,17 @@
 % Please edit documentation in R/imotionsApi.R
 \name{checkDataFormat}
 \alias{checkDataFormat}
-\title{Check the format of a data.table and classify it as an imMetrics, imSignal or, imExport object.}
+\title{Check the format of a data.table and classify it as an imSignals, imMetrics, imEvents or imExport object.}
 \usage{
 checkDataFormat(data)
 }
 \arguments{
-\item{data}{A data.table containing the signals/metrics.}
+\item{data}{A data.table containing the signals/metrics/events.}
 }
 \value{
-An imSignals, imMetrics or imExport object if data was well formatted.
+An imSignals, imMetrics, imEvents or imExport object if data was well formatted.
 }
 \description{
-Check the format of a data.table and classify it as an imMetrics, imSignal or, imExport object.
+Check the format of a data.table and classify it as an imSignals, imMetrics, imEvents or imExport object.
 }
 \keyword{internal}

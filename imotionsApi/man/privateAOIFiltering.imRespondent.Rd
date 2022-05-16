@@ -20,3 +20,4 @@ A data.table with all AOIs defined for a specific respondent.
 \description{
 S3 method to get all AOIs for a specific respondent.
 }
+\keyword{internal}

@@ -10,9 +10,9 @@ formatGender(gender)
 \item{gender}{The gender column to reformat.}
 }
 \value{
-The gender column coded as Male/Female
+The gender column coded as Male/Female/Other
 }
 \description{
-Converts 0/1 values into MALE/FEMALE values.
+Converts 0/1/4 values into MALE/FEMALE/OTHER values.
 }
 \keyword{internal}

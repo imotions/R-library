@@ -1,7 +1,7 @@
-library("imotionsApi");
-library("stubthat");
+context("createExport()")
 
-context("createExport()");
+library("imotionsApi")
+library("mockery")
 
 # Load study
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
@@ -47,24 +47,27 @@ expectedData <- fread("../data/exportData.csv", skip = 2)
 mockedCreateExport <- function(study, data, outputDirectory, fileName, expectedData, expectedMetadata, expectedfilePath,
                                expectCall, metadata = NULL) {
 
-    writeLines_Stub <- stub(writeLines)
-    writeLines_Stub$expects(text = expectedMetadata, con = expectedfilePath)
-    fwrite_Stub <- stub(fwrite)
-    fwrite_Stub$expects(x = expectedData, file = expectedfilePath)
-    dir.create_Stub <- stub(dir.create)
-    dir.create_Stub$expects(path = outputDirectory)
+    writeLines_Stub <- mock()
+    fwrite_Stub <- mock()
+    dir.create_Stub <- mock()
 
     mockr::with_mock(
-        fwrite = fwrite_Stub$f,
-        writeLines = writeLines_Stub$f,
-        dir.create = dir.create_Stub$f, {
+        fwrite = fwrite_Stub,
+        writeLines = writeLines_Stub,
+        dir.create = dir.create_Stub, {
             createExport(study, data, outputDirectory, fileName, metadata)
         }
     )
 
-    expect_equal(dir.create_Stub$calledTimes(), expectCall, info = "dir.create() wrong number of call")
-    expect_equal(writeLines_Stub$calledTimes(), expectCall, info = "writeLines() wrong number of call")
-    expect_equal(fwrite_Stub$calledTimes(), expectCall, info = "fwrite() wrong number of call")
+    expect_args(writeLines_Stub, 1, text = expectedMetadata, con = expectedfilePath, useBytes = TRUE)
+    expect_args(fwrite_Stub, 1, x = expectedData, file = expectedfilePath, append = TRUE, col.names = TRUE, na = "NA",
+                scipen = 999)
+
+    expect_args(dir.create_Stub, 1, path = outputDirectory)
+
+    expect_called(writeLines_Stub, expectCall)
+    expect_called(fwrite_Stub, expectCall)
+    expect_called(dir.create_Stub, expectCall)
 }
 
 
@@ -84,8 +87,7 @@ test_that("should not call dir.create, writeLines and fwrite if wrong data forma
     expectedfilePath <- "outputDirectoryPath/export.csv"
 
     error <- capture_error(mockedCreateExport(study, wrongData, outputDirectory, fileName, expectedData,
-                                              expectedMetadata, expectedfilePath, expectCall = 0)
-    )
+                                              expectedMetadata, expectedfilePath, expectCall = 0))
 
     expect_identical(error$message, "Wrong data format for export (must be imMetrics or imExport)",
                      "Timestamp column should not be present")

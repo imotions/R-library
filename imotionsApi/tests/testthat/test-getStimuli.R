@@ -1,7 +1,7 @@
-library("imotionsApi");
-library("stubthat");
+context("getStimuli()")
 
-context("getStimuli()");
+library("imotionsApi")
+library("mockery")
 
 # Load first study
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))

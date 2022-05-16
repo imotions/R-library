@@ -1,8 +1,8 @@
-library("imotionsApi");
-library("stubthat");
-library("arrow");
+context("getAOIRespondentMetrics()")
 
-context("getAOIRespondentMetrics()");
+library("imotionsApi")
+library("mockery")
+library("arrow")
 
 # Load study
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
@@ -16,14 +16,13 @@ AOIDetailsFile <- jsonlite::fromJSON(AOIDetailsRespondentPath)
 respondent <- getRespondents(study)[1, ]
 
 mockedGetAOIRespondentMetrics <- function(study, AOI, respondent, AOIDetailsFile) {
-    privateGetAOIDetails_Stub <- stub(privateGetAOIDetails)
-    privateGetAOIDetails_Stub$expects(study = study, imObject = AOI, respondent = respondent)
-    privateGetAOIDetails_Stub$returns(AOIDetailsFile)
+    privateGetAOIDetails_Stub <- mock(AOIDetailsFile)
 
-    metrics <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub$f, {
+    metrics <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub, {
                                     getAOIRespondentMetrics(study, AOI, respondent)
                                 })
 
+    expect_args(privateGetAOIDetails_Stub, 1, study = study, imObject = AOI, respondent = respondent)
     return(metrics)
 }
 

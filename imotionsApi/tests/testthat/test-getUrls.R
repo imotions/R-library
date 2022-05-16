@@ -1,7 +1,7 @@
-library("imotionsApi");
-library("stubthat");
+context("Testing `getUrls` functions")
 
-context("Testing `getUrls` functions");
+library("imotionsApi")
+library("mockery")
 
 # Load study and respondent
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
@@ -62,6 +62,11 @@ test_that("all getUrl function should work as expected", {
     error <- capture_error(getAOIsUrl(study, stimulusId, respondentId))
     expect_identical(error$message, "Please provide either stimulusId or respondentId, not both.",
                      "too many params not handled properly")
+
+    #getUploadEventsUrl
+    eventUrl <- "https://my.imotions.com/testcustom/revents/af8c2165-4389-4cc3-8b1e-b2d3a4bd8be1"
+    expect_identical(getUploadEventsUrl(study, respondent),
+                     paste0(eventUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63/data"))
 
     #getAOIDetailsForStimulusUrl
     expect_identical(getAOIDetailsUrl(study, stimulus), paste0(AOIUrl, "/stimuli/", stimulusId, "/*"))

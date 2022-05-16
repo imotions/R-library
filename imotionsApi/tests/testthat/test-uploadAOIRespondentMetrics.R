@@ -1,8 +1,8 @@
-library("imotionsApi");
-library("stubthat");
-library("arrow");
+context("uploadAOIRespondentMetrics()")
 
-context("uploadAOIRespondentMetrics()");
+library("imotionsApi")
+library("mockery")
+library("arrow")
 
 # Load study, respondent and AOI
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
@@ -15,8 +15,6 @@ AOIDetailsFile <- jsonlite::fromJSON(AOIDetailsRespondentPath)
 # Create metrics to upload
 metrics <- data.frame("metric1" = 2, "metric2" = 234, "metric3" = 1234)
 
-privateGetAOIDetails_Stub <- stub(privateGetAOIDetails)
-privateGetAOIDetails_Stub$expects(study = study, imObject = AOI, respondent = respondent)
 
 test_that("should throw errors if arguments are missing or not from the good class", {
     # in case of missing study
@@ -63,51 +61,51 @@ test_that("should throw errors if arguments are missing or not from the good cla
 
 test_that("should return a warning if the AOI is not found for the specific respondent", {
     metrics <- checkDataFormat(metrics)
-    privateGetAOIDetails_Stub$returns(jsonlite::fromJSON("../data/no_scenes_annotations_aoidetails.json"))
+    privateGetAOIDetails_Stub <- mock(jsonlite::fromJSON("../data/no_scenes_annotations_aoidetails.json"), cycle = T)
 
-    warning <- capture_warning(mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub$f, {
+    warning <- capture_warning(mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub, {
                                                     uploadAOIRespondentMetrics(study, AOI, respondent, metrics)
                                                 }))
 
-    expect_equal(privateGetAOIDetails_Stub$calledTimes(), 1, info = "privateGetAOIDetails() should be called")
+    expect_called(privateGetAOIDetails_Stub, 1)
+    expect_args(privateGetAOIDetails_Stub, 1, study = study, imObject = AOI, respondent = respondent)
     expect_identical(warning$message, "AOI New Aoi was not found for respondent Wendy",
                      "no AOI defined for this respondent should throw an error")
 
-    expect_null(suppressWarnings(mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub$f, {
+    expect_null(suppressWarnings(mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub, {
                                                       uploadAOIRespondentMetrics(study, AOI, respondent, metrics)
-                                                  })),
-                "result should be null")
+                                                  })), "result should be null")
 })
 
 test_that("should not call write.csv if metrics is of wrong format", {
     wrongData <- data.frame("Timestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
-    privateGetAOIDetails_Stub$returns(AOIDetailsFile)
+    privateGetAOIDetails_Stub <- mock(AOIDetailsFile)
 
-    writecsv_Stub <- stub(write.csv)
+    writecsv_Stub <- mock()
 
     warning <- capture_warning(mockr::with_mock(
-        privateGetAOIDetails = privateGetAOIDetails_Stub$f,
-        write.csv = writecsv_Stub$f, {
+        privateGetAOIDetails = privateGetAOIDetails_Stub,
+        write.csv = writecsv_Stub, {
             uploadAOIRespondentMetrics(study, AOI, respondent, wrongData)
         }))
 
-    expect_equal(writecsv_Stub$calledTimes(), 0, info = "writecsv_Stub() should not be called")
+    expect_called(writecsv_Stub, 0)
     expect_identical(warning$message, "Metrics should be a data.frame/data.table composed of only one row")
 })
 
 test_that("should call write.csv if metrics are of good format", {
     metrics <- checkDataFormat(metrics)
-    privateGetAOIDetails_Stub$returns(AOIDetailsFile)
+    privateGetAOIDetails_Stub <- mock(AOIDetailsFile)
 
-    writecsv_Stub <- stub(write.csv)
+    writecsv_Stub <- mock()
     filepath <- paste0(tools::file_path_sans_ext(AOIDetailsFile$fileId), "metrics.csv")
-    writecsv_Stub$expect(x = metrics, file = filepath)
 
     mockr::with_mock(
-        privateGetAOIDetails = privateGetAOIDetails_Stub$f,
-        write.csv = writecsv_Stub$f, {
+        privateGetAOIDetails = privateGetAOIDetails_Stub,
+        write.csv = writecsv_Stub, {
             uploadAOIRespondentMetrics(study, AOI, respondent, metrics)
         })
 
-    expect_equal(writecsv_Stub$calledTimes(), 1, info = "writecsv_Stub() should be called")
+    expect_called(writecsv_Stub, 1)
+    expect_args(writecsv_Stub, 1, x = metrics, file = filepath, col.names = TRUE, row.names = FALSE)
 })

@@ -4,7 +4,7 @@
 
 With the iMotions R library `imotionsApi`, it is possible to edit or write notebooks that can be used to generate metrics, signals, or HTML reports for studies.
 
-Notebooks are combine R code and markdown and can be knitted (compiled) to a document that contains text, R code and graphics output. To access study data you can use the new iMotions R library. You can run existing and custom notebooks on your own computer with RStudio.
+Notebooks combine R code and markdown and can be knitted (compiled) to a document that contains text, R code and graphics output. To access study data you can use the new iMotions R library. You can run existing and custom notebooks on your own computer with RStudio.
 
 ## Getting started
 

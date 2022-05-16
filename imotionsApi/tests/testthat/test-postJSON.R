@@ -1,28 +1,25 @@
-library("imotionsApi");
-library("stubthat");
+context("postJSON()")
 
-context("postJSON()");
+library("imotionsApi")
+library("mockery")
 
 connection <- list(token = "whatever", baseUrl = "nonsense")
 class(connection) <- c("imConnection", "list")
 
-content_Stub <- stub(content)
-fromJSON_Stub <- stub(fromJSON)
-postHttr_Stub <- stub(postHttr)
-
 body <- '{"flowName":"flowName","sampleName":"TestSensor","fileName":"../data/testFile.csv"}'
 class(body) <- "json"
 
-mockedPostJSON <- function(connection, url, postData, response) {
-    getHttrStatusCode_Stub <- stub(getHttrStatusCode)
-    getHttrStatusCode_Stub$returns(eval(response))
+mockedPostJSON <- function(connection, url, postData, response, mockResponse = NULL) {
+    postHttr_Stub <- mock(mockResponse)
+    getHttrStatusCode_Stub <- mock(eval(response), cycle = T)
 
-    mockr::with_mock(postHttr = postHttr_Stub$f,
-                     getHttrStatusCode = getHttrStatusCode_Stub$f,
-                     content = content_Stub$f,
-                     fromJSON = fromJSON_Stub$f, {
+    filePath <- mockr::with_mock(postHttr = postHttr_Stub,
+                     getHttrStatusCode = getHttrStatusCode_Stub, {
                          postJSON(connection, url, postData, "Test Upload API")
                      })
+
+    expect_args(postHttr_Stub, 1, connection, url, postData)
+    return(filePath)
 }
 
 
@@ -31,17 +28,12 @@ test_that("should throw an error when token is not authorized", {
 
     expect_identical(error$message, "Test Upload API - Token not authorized to access requested resource",
                      "error 401 is not handled properly")
-
-    expect_equal(content_Stub$calledTimes(), 0, info = "content function should not be called")
-    expect_equal(fromJSON_Stub$calledTimes(), 0, info = "fromJSON function should not be called")
 })
 
 test_that("should throw an error when resource is not found", {
     error <- capture_error(mockedPostJSON(connection, "url", body, response = 404))
 
     expect_identical(error$message, "Test Upload API - Resource not found", "error 404 is not handled properly")
-    expect_equal(content_Stub$calledTimes(), 0, info = "content function should not be called")
-    expect_equal(fromJSON_Stub$calledTimes(), 0, info = "fromJSON function should not be called")
 })
 
 test_that("should throw an error if something unexpected happens", {
@@ -49,29 +41,17 @@ test_that("should throw an error if something unexpected happens", {
 
     expect_identical(error$message, "Test Upload API - unexpected response status (135)",
                      "unexpected error is not handled properly")
-
-    expect_equal(content_Stub$calledTimes(), 0, info = "content function should not be called")
-    expect_equal(fromJSON_Stub$calledTimes(), 0, info = "fromJSON function should not be called")
 })
 
 test_that("should upload a JSON file if a good request has been sent", {
     # prepare mock results
-    mockData <- paste0('{"filePath":"C:\\Users\\exampleUrls"}')
-    expectedReturn <- list(filePath = "C:\\Users\\exampleUrls")
-
-    #in case of good request - send back a JSON file
+    mockData <- '{"filePath":"C:\\\\Users\\\\exampleUrls"}'
     mockResponse <- list(status_code = 200, content = charToRaw(mockData))
-    postHttr_Stub$returns(mockResponse)
+    class(mockResponse) <- "response"
 
-    content_Stub$expects(x = mockResponse)
-    content_Stub$returns(mockData)
-
-    fromJSON_Stub$expects(txt = mockData)
-    fromJSON_Stub$returns(expectedReturn)
-
-    filePath <- mockedPostJSON(connection, "C:\\Users\\exampleUrls", body, response = 200)
+    #in case of good request - send back the url
+    expectedReturn <- list(filePath = "C:\\Users\\exampleUrls")
+    filePath <- mockedPostJSON(connection, "C:\\Users\\exampleUrls", body, response = 200, mockResponse)
 
     expect_identical(filePath, expectedReturn, info = "wrong object returned")
-    expect_equal(content_Stub$calledTimes(), 1, info = "content function should be called once")
-    expect_equal(fromJSON_Stub$calledTimes(), 1, info = "fromJSON function should be called once")
 })

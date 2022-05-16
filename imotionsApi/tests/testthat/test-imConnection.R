@@ -1,7 +1,7 @@
-library("imotionsApi");
-library("stubthat");
+context("imConnection()")
 
-context("imConnection()");
+library("imotionsApi")
+library("mockery")
 
 test_that("should throw errors if token missing", {
     # in case of missing token

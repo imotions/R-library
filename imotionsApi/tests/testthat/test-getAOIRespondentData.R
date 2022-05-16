@@ -1,8 +1,8 @@
-library("imotionsApi");
-library("stubthat");
-library("arrow");
+context("privateGetAOIDetails()")
 
-context("privateGetAOIDetails()");
+library("imotionsApi")
+library("mockery")
+library("arrow")
 
 # Load study
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
@@ -19,41 +19,49 @@ AOIDetailForStimulusRPath <- "../data/AOIDetailsForStimulusRespondent.json"
 respondent <- getRespondents(study)[1, ]
 stimulus <- getStimuli(study)[4, ]
 
-mockedPrivateGetAOIDetails <- function(study, imObject, respondent = NULL) {
-    getAOIDetailsUrl_Stub <- stub(getAOIDetailsUrl)
-    getAOIDetailsUrl_Stub$expects(study = study, imObject = imObject, respondent = respondent)
-
+mockedPrivateGetAOIDetails <- function(study, imObject, respondent = NULL, expectedAOICall = 1) {
+    # Get expected endpoint
     if (inherits(imObject, "imAOI")) {
-        getAOIDetailsUrl_Stub$withArgs(respondent = respondent)$returns(AOIDetailsRespondentPath)
-        getAOIDetailsUrl_Stub$withArgs(respondent = NULL)$returns(AOIDetailsPath)
-
-        if (is.null(respondent)) {
-            endpoint <- paste("AOI:", imObject$name)
-        } else {
-            endpoint <- paste0("AOI: ", imObject$name, ", Respondent:", respondent$name)
-        }
+        endpoint <- paste("AOI:", imObject$name)
     } else if (inherits(imObject, "imStimulus")) {
-        getAOIDetailsUrl_Stub$withArgs(respondent = respondent)$returns(AOIDetailForStimulusRPath)
-        getAOIDetailsUrl_Stub$withArgs(respondent = NULL)$returns(AOIDetailForStimulusPath)
+        endpoint <- paste("Stimulus:", imObject$name)
+    }
 
-        if (is.null(respondent)) {
-            endpoint <- paste("Stimulus:", imObject$name)
+    if (!is.null(respondent)) {
+        endpoint <- paste0(endpoint, ", Respondent:", respondent$name)
+    }
+
+    # Replace url to load test data
+    mockUrl <- function(url) {
+        if (grepl("*", url, fixed = T)) {
+            if (grepl("respondent", url)) {
+                return(AOIDetailForStimulusRPath)
+            } else {
+                return(AOIDetailForStimulusPath)
+            }
         } else {
-            endpoint <- paste0("Stimulus: ", imObject$name, ", Respondent:", respondent$name)
+            if (grepl("respondent", url)) {
+                return(AOIDetailsRespondentPath)
+            } else {
+                return(AOIDetailsPath)
+            }
         }
     }
 
-    getJSON_Stub <- stub(getJSON)
-    getJSON_Stub$expects(connection = study$connection, message = paste("Retrieving details for", endpoint))
-    getJSON_Stub$withArgs(url = AOIDetailsPath)$returns(jsonlite::fromJSON(AOIDetailsPath))
-    getJSON_Stub$withArgs(url = AOIDetailsRespondentPath)$returns(jsonlite::fromJSON(AOIDetailsRespondentPath))
-    getJSON_Stub$withArgs(url = AOIDetailForStimulusPath)$returns(jsonlite::fromJSON(AOIDetailForStimulusPath))
-    getJSON_Stub$withArgs(url = AOIDetailForStimulusRPath)$returns(jsonlite::fromJSON(AOIDetailForStimulusRPath))
+    expectedUrl <- getAOIDetailsUrl(study, imObject, respondent)
+    getJSON_Stub <- mock(jsonlite::fromJSON(mockUrl(expectedUrl)))
 
-    AOIdetails <- mockr::with_mock(getAOIDetailsUrl = getAOIDetailsUrl_Stub$f,
-                                   getJSON = getJSON_Stub$f, {
-                                        privateGetAOIDetails(study, imObject, respondent)
-                                   })
+    AOIdetails <- mockr::with_mock(
+        getJSON = getJSON_Stub, {
+            privateGetAOIDetails(study, imObject, respondent)
+        })
+
+    expect_called(getJSON_Stub, expectedAOICall)
+
+    if (expectedAOICall > 0) {
+        expect_args(getJSON_Stub, 1, connection = study$connection, url = expectedUrl,
+                    message = paste("Retrieving details for", endpoint))
+    }
 
     return(AOIdetails)
 }
@@ -77,7 +85,7 @@ test_that("privateGetAOIDetails() should return the correct AOI details for a re
     # in case a fileId is present, there is no need to call the getAOIDetails function
     AOI$fileId <- "fileId"
     AOI$resultId <- "resultId"
-    aoiDetails <- mockedPrivateGetAOIDetails(study, AOI, respondent)
+    aoiDetails <- mockedPrivateGetAOIDetails(study, AOI, respondent, expectedAOICall = 0)
     expect_identical(aoiDetails$fileId, "fileId", "fileId stored in AOI should be retrieved directly")
     expect_identical(aoiDetails$resultId, "resultId", "resultId stored in AOI should be retrieved directly")
 })
@@ -107,14 +115,13 @@ context("getAOIRespondentData()");
 AOIDetailsFile <- jsonlite::fromJSON(AOIDetailsRespondentPath)
 
 mockedGetAOIRespondentData  <- function(study, AOI, respondent, AOIDetailsFile) {
-    privateGetAOIDetails_Stub <- stub(privateGetAOIDetails)
-    privateGetAOIDetails_Stub$expects(study = study, imObject = AOI, respondent = respondent)
-    privateGetAOIDetails_Stub$returns(AOIDetailsFile)
+    privateGetAOIDetails_Stub <- mock(AOIDetailsFile)
 
-    listResult <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub$f, {
+    listResult <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub, {
                                         getAOIRespondentData(study, AOI, respondent)
                                    })
 
+    expect_args(privateGetAOIDetails_Stub, 1, study = study, imObject = AOI, respondent = respondent)
     return(listResult)
 }
 

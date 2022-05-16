@@ -1,12 +1,12 @@
-library("imotionsApi");
-library("stubthat");
+context("checkDataFormat()")
 
-context("checkDataFormat()");
+library("imotionsApi")
+library("mockery")
 
 test_that("should throw errors if data is of wrong format", {
     data <- "string"
     error <- capture_error(checkDataFormat(data))
-    expect_identical(error$message, "Signals / metrics object should be data.frame or data.table",
+    expect_identical(error$message, "Signals / metrics / events object should be data.frame or data.table",
                      "data should be data.frame or data.table")
 })
 
@@ -19,6 +19,11 @@ test_that("should convert to imObject if from the good format", {
     data <- data.table::data.table("Timestamp" = seq(1:100), "Thresholded value" = rep(0, 100), check.names = FALSE)
     data <- checkDataFormat(data)
     assertClass(data, "imSignals", "should be of class imSignals")
+
+    # imEvents if Timestamps, EventName and Description are found
+    events <- data.frame("Timestamp" = seq(1:100), "EventName" = "event 1", "Description" = "blah", check.names = FALSE)
+    events <- checkDataFormat(events)
+    assertClass(events, "imEvents", "should be of class imMetrics")
 
     # imMetrics if only composed of 1 row and no Timestamp columns
     metrics <- data.frame("Metric1" = 2, "Metric3" = 4)
@@ -83,7 +88,7 @@ test_that("should throw errors if data is of wrong format", {
     # neither imSignals or imMetrics have more than one row
     notAnObject <- data.table("Metric1" = c(2, 3), "Metric3" = c(4, 5))
     error <- capture_error(assertUploadFormat(notAnObject))
-    expect_identical(error$message, "Wrong data format for upload (must be imSignals or imMetrics)",
+    expect_identical(error$message, "Wrong data format for upload (must be imSignals, imMetrics or imEvents)",
                      "Neither metrics nor signals should throw an error.")
 })
 
