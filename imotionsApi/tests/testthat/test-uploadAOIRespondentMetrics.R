@@ -90,7 +90,7 @@ test_that("should not call write.csv if metrics is of wrong format", {
         }))
 
     expect_called(writecsv_Stub, 0)
-    expect_identical(warning$message, "Metrics should be a data.frame/data.table composed of only one row")
+    expect_identical(warning$message, "AOI metrics should be a data.frame/data.table composed of only one row")
 })
 
 test_that("should call write.csv if metrics are of good format", {

@@ -2,7 +2,7 @@
 % Please edit documentation in R/imotionsApi.R
 \name{getUploadEventsUrl.imRespondent}
 \alias{getUploadEventsUrl.imRespondent}
-\title{getUploadSensorsUrl method to get the path/url to upload a sensor to this respondent object.}
+\title{getUploadSensorsUrl method to get the path/url to upload events to this respondent object.}
 \usage{
 \method{getUploadEventsUrl}{imRespondent}(study, imObject)
 }
@@ -12,6 +12,6 @@
 \item{imObject}{An imRespondent or imSegment object of interest.}
 }
 \description{
-getUploadSensorsUrl method to get the path/url to upload a sensor to this respondent object.
+getUploadSensorsUrl method to get the path/url to upload events to this respondent object.
 }
 \keyword{internal}

@@ -68,6 +68,11 @@ test_that("all getUrl function should work as expected", {
     expect_identical(getUploadEventsUrl(study, respondent),
                      paste0(eventUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63/data"))
 
+    #getUploadMetricsUrl
+    metricsUrl <- "https://my.imotions.com/testcustom/rmetrics/af8c2165-4389-4cc3-8b1e-b2d3a4bd8be1"
+    expect_identical(getUploadMetricsUrl(study, respondent),
+                     paste0(metricsUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63/data"))
+
     #getAOIDetailsForStimulusUrl
     expect_identical(getAOIDetailsUrl(study, stimulus), paste0(AOIUrl, "/stimuli/", stimulusId, "/*"))
     expect_identical(getAOIDetailsUrl(study, stimulus, respondent),

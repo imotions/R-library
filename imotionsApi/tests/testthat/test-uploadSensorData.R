@@ -254,11 +254,125 @@ test_that("should not call privateUpload if data is of wrong format", {
 
 
 
+context("uploadMetrics()");
+
+# Create data to upload
+dataMetrics <- data.table("StimulusId" = c("1000", "1001", "1002"), "Metrics1" = c(1, 2, 3),
+                          "Metrics2" = c(23, 45, 46))
+
+test_that("should throw errors if arguments are missing or not from the good class", {
+    # in case of missing params
+    error <- capture_error(uploadMetrics())
+    expect_identical(error$message, "Please specify parameters used for your script",
+                     "missing `params` param not handled properly")
+
+    # in case of missing study
+    error <- capture_error(uploadMetrics(params))
+    expect_identical(error$message, "Please specify a study loaded with `imStudy()`",
+                     "missing `study` param not handled properly")
+
+    # in case of missing data
+    error <- capture_error(uploadMetrics(params, study))
+    expect_identical(error$message, "Please specify a data.table with signals/metrics to upload",
+                     "missing `data` param not handled properly")
+
+    # in case of missing target
+    error <- capture_error(uploadMetrics(params, study, dataMetrics))
+    expect_identical(error$message, "Please specify a target respondent loaded with `getRespondents()`",
+                     "missing `target` param not handled properly")
+
+
+    # in case of study that is not an imStudy object
+    error <- capture_error(uploadMetrics(params, study = "whatever", dataMetrics, respondent))
+
+    expect_identical(error$message, "`study` argument is not an imStudy object",
+                     "study not being an imStudy object should throw an error")
+
+    # in case of target that is not an imRespondent object
+    error <- capture_error(uploadMetrics(params, study, dataMetrics, target = "whatever"))
+
+    expect_identical(error$message, "`target` argument is not an imRespondent object",
+                     "target not being an imRespondent object should throw an error")
+
+    # in case of params required field not provided
+    wrongParams <- list("FirstParam" = "blah")
+    error <- capture_error(uploadMetrics(wrongParams, study, dataMetrics, respondent))
+    expect_identical(error$message, "Required `iMotionsVersion` field in params",
+                     "missing `iMotionsVersion` field in params not handled properly")
+
+    wrongParams <- list("iMotionsVersion" = "blah")
+    error <- capture_error(uploadMetrics(wrongParams, study, dataMetrics, respondent))
+    expect_identical(error$message, "Required `flowName` field in params",
+                     "missing `flowName` field in params not handled properly")
+
+    # in case of wrong data format
+    wrongData <- data.table(Timestamp = integer(), variableTest = numeric())
+    error <- capture_error(uploadMetrics(params, study, wrongData, respondent))
+    expect_identical(error$message, "Do not upload an empty dataset", "zero row dataset should not be uploaded")
+
+    wrongData <- data[, 1, drop = FALSE]
+    error <- capture_error(uploadMetrics(params, study, wrongData, respondent))
+    expect_identical(error$message, "Dataset must contain at least two columns (Timestamp included)",
+                     "Can't upload without data columns")
+
+    wrongData <- data[, 2, drop = FALSE]
+    error <- capture_error(uploadMetrics(params, study, wrongData, respondent))
+    expect_identical(error$message, "Wrong data format for upload (must be imSignals, imMetrics or imEvents)",
+                     "Timestamp column should be present")
+})
+
+
+test_that("should call privateUpload with the good parameters", {
+    dataMetrics <- checkDataFormat(dataMetrics)
+    additionalMetadata <- data.table("Units" = c("ms", "", ""), "Show" = c("FALSE", "TRUE", "TRUE"))
+    privateUpload_Stub <- mock()
+
+    mockr::with_mock(
+        privateUpload = privateUpload_Stub, {
+            uploadMetrics(params, study, dataMetrics, respondent, metadata = additionalMetadata)
+        })
+
+    expect_called(privateUpload_Stub, 1)
+    expect_args(privateUpload_Stub, 1, params = params, study = study, data = dataMetrics, target = respondent,
+                metadata = additionalMetadata)
+})
+
+
+test_that("should not call privateUpload if data is of wrong format", {
+    wrongData <- data.frame("NotTimestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
+    privateUpload_Stub <- mock()
+
+    error <- capture_error(mockr::with_mock(
+        privateUpload = privateUpload_Stub, {
+            uploadMetrics(params, study, wrongData, respondent)
+        }))
+
+    expect_called(privateUpload_Stub, 0)
+    expect_identical(error$message, "Wrong data format for upload (must be imSignals, imMetrics or imEvents)",
+                     "Timestamp column should be present")
+
+    # in case data is actually a signal table
+    wrongData <- data.frame("Timestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
+
+    warning <- capture_warning(mockr::with_mock(
+        privateUpload = privateUpload_Stub, {
+            uploadMetrics(params, study, wrongData, respondent)
+        }))
+
+    expect_called(privateUpload_Stub, 0)
+    expect_identical(warning$message,
+                     paste("Metrics should be a data.frame/data.table containing a StimulusId column and at least",
+                     "one other column containing metrics"), "wrong data type detected")
+})
+
+
+
 context("privateUpload()");
 
 uploadUrlStudyPath <- "uploadUrlStudy"
 uploadUrlStimulusPath <- "uploadUrlStimulus"
 uploadUrlEventPath <- "uploadUrlEvent"
+uploadUrlMetricsPath <- "uploadUrlMetrics"
 
 mockedPrivateUpload <- function(params, study, data, respondent, expectedBody, expectedEndpoint, sensorName = NULL,
                                 scriptName = NULL, metadata = NULL, stimulus = NULL) {
@@ -278,17 +392,21 @@ mockedPrivateUpload <- function(params, study, data, respondent, expectedBody, e
 
     if (inherits(data, "imSignals")) {
         expectedUrl <- mockUrl(getUploadSensorsUrl(study = study, imObject = respondent, stimulus = stimulus))
-    } else {
+    } else if (inherits(data, "imEvents")) {
         expectedUrl <- uploadUrlEventPath
+    } else if (inherits(data, "imMetrics")) {
+        expectedUrl <- uploadUrlMetricsPath
     }
 
     getUploadSensorsUrl_Stub <- mock(expectedUrl)
     getUploadEventsUrl_Stub <- mock(expectedUrl)
+    getUploadMetricsUrl_Stub <- mock(expectedUrl)
     postJSON_Stub <- mock(list(filePath = expectedUrl))
 
     res <- mockr::with_mock(privateSaveToFile = privateSaveToFile_Stub,
                             getUploadSensorsUrl = getUploadSensorsUrl_Stub,
                             getUploadEventsUrl = getUploadEventsUrl_Stub,
+                            getUploadMetricsUrl = getUploadMetricsUrl_Stub,
                             postJSON = postJSON_Stub, {
                                 privateUpload(params, study, data, respondent, sensorName, scriptName, metadata,
                                               stimulus)
@@ -296,8 +414,10 @@ mockedPrivateUpload <- function(params, study, data, respondent, expectedBody, e
 
     if (inherits(data, "imSignals")) {
         expect_args(getUploadSensorsUrl_Stub, 1, study = study, imObject = respondent, stimulus = stimulus)
-    } else {
+    } else if (inherits(data, "imEvents")) {
         expect_args(getUploadEventsUrl_Stub, 1, study = study, imObject = respondent)
+    } else if (inherits(data, "imMetrics")) {
+        expect_args(getUploadMetricsUrl_Stub, 1, study = study, imObject = respondent)
     }
 
     expect_args(privateSaveToFile_Stub, 1, params = params, data = data, sensorName = sensorName,
@@ -337,6 +457,15 @@ test_that("should upload events to a given respondent/segment if a good request 
 })
 
 
+test_that("should upload metrics to a given respondent/segment if a good request has been sent", {
+    dataMetrics <- checkDataFormat(dataMetrics)
+    expectedBody <- '{"flowName":"flowName","sampleName":"ET_RMetricsApi","fileName":"../data/testFile.csv"}'
+    expectedEndpoint <- "Uploading metrics for target: Wendy"
+
+    res <- mockedPrivateUpload(params, study, dataMetrics, respondent, expectedBody, expectedEndpoint)
+    expect_identical(res$filePath, uploadUrlMetricsPath, info = "wrong path returned")
+})
+
 
 context("privateSaveToFile()");
 
@@ -371,6 +500,15 @@ test_that("Data should get stored as a temporary file", {
     dataWritten <- fread(dataFileName)
     expect_identical(dataWritten, testData, "files should still be identical")
 
+    # NA in metrics should be output as "NA"
+    dataMetricsNA <- data.table("StimulusId" = c("1000", "1001", "1002"), "Metrics1" = c(1, NA_real_, 3), "Metrics2" = c(23, 45, NA_real_))
+    dataMetricsNA <- checkDataFormat(dataMetricsNA)
+    expectedFile <- fread("../data/metricsFile.csv")
+
+    dataFileName <- privateSaveToFile(params, dataMetricsNA, sensorName, scriptName)
+    dataWritten <- fread(dataFileName)
+    expect_identical(dataWritten, expectedFile, "files should still be identical")
+
     # Cleaning file created for testing
     file.remove(dataFileName)
 })
@@ -400,21 +538,32 @@ test_that("General file header should be as expected", {
     expect_identical(headers[10], "DataType,Double,Character,Character", "wrong DataType")
     expect_identical(headers[11], "#DATA,,,", "data line should be added")
 
-    # Metrics data no metadata
-    dataMetrics <- data.table("Respondent Name" = "Respondent 1", "Metrics1" = seq(1:100),
-                              "Thresholded value" = rep(0, 100), check.names = FALSE)
-
+    # Metrics data
     dataMetrics <- checkDataFormat(dataMetrics)
-    headers <- privateGetFileHeader(dataMetrics)
+    headers <- privateGetFileHeader(dataMetrics, params)
+
+    expect_equal(length(headers), 11, info = "should be composed of 11 lines")
+    expect_identical(headers[1], paste0("\ufeff", params$iMotionsVersion, ",,,"), "BOM should be added")
+    expect_identical(headers[8], "#METADATA,,,", "wrong number of comma added")
+    expect_identical(headers[9], "FieldName,StimulusId,Metrics1,Metrics2", "wrong FieldName")
+    expect_identical(headers[10], "DataType,Character,Double,Double", "wrong DataType")
+    expect_identical(headers[11], "#DATA,,,", "data line should be added")
+
+    # Export data no metadata
+    dataExport <- data.table("Respondent Name" = "Respondent 1", "Metrics1" = seq(1:100),
+                             "Thresholded value" = rep(0, 100), check.names = FALSE)
+
+    dataExport <- checkDataFormat(dataExport)
+    headers <- privateGetFileHeader(dataExport)
 
     expect_equal(length(headers), 2, info = "should be composed of 2 lines")
     expect_identical(headers[1], "\ufeff#METADATA,,,", "BOM should be added")
     expect_identical(headers[2], "#DATA,,,", "wrong number of comma added")
 
-    # Metrics data with metadata
+    # Export data with metadata
     additionalMetadata <- data.table("Group" = c("", "numeric", "Thresholded"), "Units" = c("", "ms", "binary"))
 
-    headers <- privateGetFileHeader(dataMetrics, metadata = additionalMetadata)
+    headers <- privateGetFileHeader(dataExport, metadata = additionalMetadata)
 
     expect_equal(length(headers), 4, info = "should be composed of 2 lines")
     expect_identical(headers[1], "\ufeff#METADATA,,,", "BOM should be added")
@@ -455,6 +604,23 @@ test_that("Data header should be as expected for events", {
     expect_identical(dataHeader[1], params$iMotionsVersion, "wrong imotions version")
     expect_identical(dataHeader[2], "#HEADER", "wrong #HEADER")
     expect_identical(dataHeader[3], "ET_REventAPI", "wrong ET_REventAPI")
+    expect_identical(dataHeader[4], params$flowName, "wrong flowName")
+    expect_identical(dataHeader[5], "", "should be empty")
+    expect_identical(dataHeader[6], "", "should be empty")
+    expect_identical(dataHeader[7], expectedMetadataUrl, "wrong metadata")
+})
+
+test_that("Data header should be as expected for metrics", {
+    dataMetrics <- checkDataFormat(dataMetrics)
+    dataHeader <- privateCreateHeader(params, dataMetrics, sensorName = NULL, scriptName = NULL)
+
+    # Most of the params should have been removed from metadata
+    expectedMetadataUrl <- paste0("%7B%22parameters%22%3A%7B%22extraParam%22%3A%22fixationFilter%22%7D%7D")
+
+    expect_equal(length(dataHeader), 7, info = "should be composed of 7 lines")
+    expect_identical(dataHeader[1], params$iMotionsVersion, "wrong imotions version")
+    expect_identical(dataHeader[2], "#HEADER", "wrong #HEADER")
+    expect_identical(dataHeader[3], "ET_RMetricsAPI", "wrong ET_RMetricsAPI")
     expect_identical(dataHeader[4], params$flowName, "wrong flowName")
     expect_identical(dataHeader[5], "", "should be empty")
     expect_identical(dataHeader[6], "", "should be empty")

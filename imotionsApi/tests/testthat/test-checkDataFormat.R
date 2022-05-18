@@ -25,25 +25,22 @@ test_that("should convert to imObject if from the good format", {
     events <- checkDataFormat(events)
     assertClass(events, "imEvents", "should be of class imMetrics")
 
-    # imMetrics if only composed of 1 row and no Timestamp columns
-    metrics <- data.frame("Metric1" = 2, "Metric3" = 4)
-    metrics <- checkDataFormat(metrics)
-    assertClass(metrics, "imMetrics", "should be of class imMetrics")
-
-    # imMetrics if only composed of 1 row of numeric values and no Timestamp columns
+    # imAOIMetrics if only composed of 1 row of numeric values and no Timestamp columns
     metrics <- data.table("Metric1" = 2, "Metric3" = 4)
     metrics <- checkDataFormat(metrics)
-    assertClass(metrics, "imMetrics", "should be of class imMetrics")
+    assertClass(metrics, "imAOIMetrics", "should be of class imMetrics")
 
-    # imMetrics if downloaded from the cloud (appended with a Timestamp column that has to be remove)
-    metrics <- data.table::data.table("Timestamp" = 0, "Metric1(METRIC_SUMMARY=true)" = 2,
-                                      "Metric3(METRIC_SUMMARY=true)" = 4)
-
+    # imMetrics if composed of multiple rows and a StimulusId column
+    metrics <- data.table("StimulusId" = c("1000", "1001"), "Metric3" = c(4, 5))
     metrics <- checkDataFormat(metrics)
     assertClass(metrics, "imMetrics", "should be of class imMetrics")
-    expect_identical(names(metrics), c("Metric1", "Metric3"), "wrong column names")
 
-    # imExport if a data.table not fitting any of the cases above (non numeric or more than one row)
+    # imMetrics if composed of one row and a StimuliId column
+    metrics <- data.table("StimulusId" = "1000", "Metric3" = 4)
+    metrics <- checkDataFormat(metrics)
+    assertClass(metrics, "imMetrics", "should be of class imMetrics")
+
+    # imExport if a data.table not fitting any of the cases above (non numeric, more than one row, no StimulusId)
     metrics <- data.table::data.table("Respondent Name" = "blah", "Metric1" = 2, "Metric" = 4)
     metrics <- checkDataFormat(metrics)
     assertClass(metrics, "imExport", "should be of class imExport")
@@ -51,6 +48,9 @@ test_that("should convert to imObject if from the good format", {
     metrics <- data.table::data.table("Metric2" = rep(2, 2), "Metric1" = 2, "Metric" = 4)
     metrics <- checkDataFormat(metrics)
     assertClass(metrics, "imExport", "should be of class imExport")
+
+    # Remove warnings thrown as no actual test was run (assertClass don't count as a test in itself)
+    expect_true(TRUE)
 })
 
 test_that("should not change the object class if already an imData object", {
@@ -78,12 +78,6 @@ test_that("should throw errors if data is of wrong format", {
     error <- capture_error(assertUploadFormat(data))
     expect_identical(error$message, "Dataset must contain at least two columns (Timestamp included)",
                      "signals should have 2 columns minimum")
-
-    # Metrics have more than one row
-    metrics <- data.table("Metric1" = c(2, 3), "Metric3" = c(4, 5))
-    class(metrics) <- append(class(metrics), c("imData", "imMetrics"))
-    error <- capture_error(assertUploadFormat(metrics))
-    expect_identical(error$message, "Metrics must have exactly one row",  "Metrics can have only one row")
 
     # neither imSignals or imMetrics have more than one row
     notAnObject <- data.table("Metric1" = c(2, 3), "Metric3" = c(4, 5))

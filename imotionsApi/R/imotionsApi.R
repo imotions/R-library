@@ -1460,12 +1460,12 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
 #'
 #' @param params The list of parameters provided to the script - specific parameters value will be stored as metadata.
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#' @param data A data.table containing the signals/metrics to upload (imData object are also accepted).
+#' @param data A data.table containing the signals to upload (imData object are also accepted).
 #' @param target The target respondent for the sensor (an imRespondent object as returned from
 #'               \code{\link{getRespondents}}).
 #'
 #' @param sensorName The name of the new sensor you would like to create.
-#' @param scriptName The name of the script used to produce these signals/metrics.
+#' @param scriptName The name of the script used to produce these signals.
 #' @param metadata Optional - a data.table with metadata information. Column names will be converted to metadata headers
 #'                 and there must be a row corresponding to each data column.
 #'
@@ -1562,11 +1562,11 @@ uploadAOIRespondentMetrics <- function(study, AOI, respondent, metrics) {
         return(NULL)
     }
 
-    if (inherits(metrics, "imMetrics")) {
+    if (inherits(metrics, "imAOIMetrics")) {
         dataFileName <- paste0(tools::file_path_sans_ext(AOIDetails$fileId), "metrics.csv")
         write.csv(x = metrics, file = dataFileName, col.names = TRUE, row.names = FALSE)
     } else {
-        warning("Metrics should be a data.frame/data.table composed of only one row")
+        warning("AOI metrics should be a data.frame/data.table composed of only one row")
     }
 }
 
@@ -1582,7 +1582,7 @@ uploadAOIRespondentMetrics <- function(study, AOI, respondent, metrics) {
 #'
 #' @param params The list of parameters provided to the script - specific parameters value will be stored as metadata.
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#' @param data A data.table containing the signals/metrics to upload (imData object are also accepted).
+#' @param data A data.table containing the events to upload (imData object are also accepted).
 #' @param target The target respondent for the sensor (an imRespondent object as returned from
 #'               \code{\link{getRespondents}}).
 #'
@@ -1634,6 +1634,66 @@ uploadEvents <- function(params, study, data, target, metadata = NULL) {
 
 
 
+#' Create metrics for a specific respondent in a study.
+#'
+#' Metrics data.table must be composed of a StimulusId column and at least one additional column with metrics.
+#'
+#' Params required field are "iMotionsVersion" and "flowName" (flow name will be used to link metrics to the original
+#' script)
+#'
+#' @param params The list of parameters provided to the script - specific parameters value will be stored as metadata.
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#' @param data A data.table containing the metrics to upload (imData object are also accepted).
+#' @param target The target respondent for the sensor (an imRespondent object as returned from
+#'               \code{\link{getRespondents}}).
+#'
+#' @param metadata Optional - a data.table with metadata information. Column names will be converted to metadata headers
+#'                 and there must be a row corresponding to each data column.
+#'
+#' @export
+#' @examples
+#' \dontrun{
+#' connection <- imotionsApi::imConnection("xxxxxxxx")
+#' studies <- imotionsApi::listStudies(connection)
+#' study <- imotionsApi::imStudy(connection, studies$id[1])
+#' respondents <- imotionsApi::getRespondents(study)
+#'
+#' data <- data.table("StimulusId" = c("1000", "1001"), "Metric1" = c(12, 25),
+#'                    "Metrics2" = c(NA_real_, 120))
+#'
+#' params <- list("iMotionsVersion" = 8, "flowName" = "Test")
+#' uploadMetrics(params, study, data, respondents[1, ])
+#'
+#'
+#' # Adding some metadata to the data
+#' metadata <- data.table("Units" = c("ms", "", "microSiemens"))
+#' uploadMetrics(params, study, data, respondents[1, ], metadata)
+#' }
+uploadMetrics <- function(params, study, data, target, metadata = NULL) {
+    assertValid(hasArg(params), "Please specify parameters used for your script")
+    assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
+    assertValid(hasArg(data), "Please specify a data.table with signals/metrics to upload")
+    assertValid(hasArg(target), "Please specify a target respondent loaded with `getRespondents()`")
+
+    assertClass(study, "imStudy", "`study` argument is not an imStudy object")
+    assertClass(target, "imRespondent", "`target` argument is not an imRespondent object")
+
+    assertValid(exists("iMotionsVersion", params), "Required `iMotionsVersion` field in params")
+    assertValid(exists("flowName", params), "Required `flowName` field in params")
+
+    # Verify that data is a data.table of the good format
+    data <- checkDataFormat(data)
+    assertUploadFormat(data)
+
+    if (inherits(data, "imMetrics")) {
+        privateUpload(params, study, data, target, metadata = metadata)
+    } else {
+        warning(paste("Metrics should be a data.frame/data.table containing a StimulusId column and at least",
+                      "one other column containing metrics"))
+    }
+
+}
+
 #' Upload signals/events to a given respondent/segment.
 #'
 #' @inheritParams uploadSensorData
@@ -1654,6 +1714,10 @@ privateUpload <- function(params, study, data, target, sensorName = NULL, script
         postData <- toJSON(list(flowName = params$flowName, sampleName = "ET_REventApi", fileName = tempFileName))
         uploadUrl <- getUploadEventsUrl(study, target)
         endpoint_data <- "events"
+    } else if (inherits(data, "imMetrics")) {
+        postData <- toJSON(list(flowName = params$flowName, sampleName = "ET_RMetricsApi", fileName = tempFileName))
+        uploadUrl <- getUploadMetricsUrl(study, target)
+        endpoint_data <- "metrics"
     }
 
     endpoint <- paste("target:", target$name)
@@ -1691,12 +1755,20 @@ privateSaveToFile <- function(params, data, sensorName = NULL, scriptName = NULL
     headers <- privateGetFileHeader(data, params, sensorName, scriptName, metadata)
     writeLines(text = headers, con = dataFileName, useBytes = TRUE)
 
+    # Make sure metrics are encoded as NA
+    if (inherits(data, "imMetrics")) {
+        na_option <- "NA"
+    } else {
+        na_option <- ""
+    }
+
     # Format data for upload (need to add a RowNumber column)
     data <- cbind(RowNumber = seq(0, nrow(data) - 1), data)
 
     # Make sure column containing characters are correctly encoded
     data <- data %>% mutate_if(is.character, .funs = function(x) iconv(x, to = "utf-8"))
-    fwrite(data, file = dataFileName, append = TRUE, col.names = TRUE, scipen = 999)
+
+    fwrite(data, file = dataFileName, append = TRUE, col.names = TRUE, scipen = 999, na = na_option)
     return(dataFileName)
 }
 
@@ -1748,9 +1820,13 @@ privateCreateHeader <- function(params, data, sensorName, scriptName) {
 
         signal_type <- "iMotions.RAPIData"
         file_type <- "ET_RExtAPI"
-    } else {
+    } else if (inherits(data, "imEvents")) {
         metadata <- list(parameters = params[!(names(params) %in% ignoreParams)])
         signal_type <- "ET_REventAPI"
+        file_type <- ""
+    } else {
+        metadata <- list(parameters = params[!(names(params) %in% ignoreParams)])
+        signal_type <- "ET_RMetricsAPI"
         file_type <- ""
     }
 
@@ -1768,7 +1844,7 @@ privateCreateHeader <- function(params, data, sensorName, scriptName) {
 #'
 #' @keywords internal
 privateCreateMetadata <- function(data, metadata = NULL) {
-    if (inherits(data, "imSignals") || inherits(data, "imEvents")) {
+    if (!inherits(data, "imExport")) {
         # Fieldname metadata is mandatory, otherwise we won't load the data
         mandatoryMetadata <- list(c("FieldName", names(data)))
 
@@ -2093,13 +2169,35 @@ getUploadEventsUrl <- function(study, imObject) {
 }
 
 
-#' getUploadSensorsUrl method to get the path/url to upload a sensor to this respondent object.
+#' getUploadSensorsUrl method to get the path/url to upload events to this respondent object.
 #'
-#' @inheritParams getUploadSensorsUrl
+#' @inheritParams getUploadEventsUrl
 #'
 #' @keywords internal
 getUploadEventsUrl.imRespondent <- function(study, imObject) {
     file.path(getStudyBaseUrl(study), "revents", study$id, "respondent", imObject$id, "data")
+}
+
+
+#' Generic getUploadMetricsUrl function that takes as parameter a study object and a respondent/segment object.
+#' Return the path/url to upload metrics to this respondent/segment object.
+#'
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#' @param imObject An imRespondent or imSegment object of interest.
+#'
+#' @keywords internal
+getUploadMetricsUrl <- function(study, imObject) {
+    UseMethod("getUploadMetricsUrl", object = imObject)
+}
+
+
+#' getUploadMetricsUrl method to get the path/url to upload metrics to this respondent object.
+#'
+#' @inheritParams getUploadMetricsUrl
+#'
+#' @keywords internal
+getUploadMetricsUrl.imRespondent <- function(study, imObject) {
+    file.path(getStudyBaseUrl(study), "rmetrics", study$id, "respondent", imObject$id, "data")
 }
 
 
@@ -2365,13 +2463,10 @@ assertClass <- function(object, className, message) {
 assertUploadFormat <- function(data) {
     assertValid(nrow(data) > 0, "Do not upload an empty dataset")
 
-    if (inherits(data, "imSignals") || inherits(data, "imEvents")) {
+    if (inherits(data, "imSignals")) {
         # Signals detected
         assertValid(ncol(data) > 1, "Dataset must contain at least two columns (Timestamp included)")
-    } else if (inherits(data, "imMetrics")) {
-        # Metrics detected
-        assertValid(nrow(data) == 1, "Metrics must have exactly one row")
-    } else {
+    } else if (!(inherits(data, "imEvents") || inherits(data, "imMetrics") || inherits(data, "imAOIMetrics"))) {
         stop("Wrong data format for upload (must be imSignals, imMetrics or imEvents)")
     }
 }
@@ -2402,11 +2497,6 @@ checkDataFormat <- function(data) {
 
     if (inherits(data, "imData")) {
         return(data)
-    } else if (grepl("METRIC_SUMMARY=true", names(data)[2], fixed = TRUE)) {
-        # Metrics from desktop detected
-        data[, "Timestamp"] <- NULL
-        names(data) <- sub("(METRIC_SUMMARY=true)", "", names(data), fixed = TRUE)
-        class(data) <- append(c("imMetrics", "imData"), class(data))
     } else if (ncol(data) == 3 && all(names(data) %in% c("Timestamp", "EventName", "Description"))) {
         # Events detected
         class(data) <- append(c("imEvents", "imData"), class(data))
@@ -2417,10 +2507,13 @@ checkDataFormat <- function(data) {
         # Signals detected
         class(data) <- append(c("imSignals", "imData"), class(data))
     } else if (nrow(data) == 1 & all(sapply(data, class) %like% "numeric|integer")) {
-        # data.table metrics detected
+        # AOI metrics data.table detected
+        class(data) <- append(c("imAOIMetrics", "imData"), class(data))
+    } else if ("StimulusId" %in% names(data)) {
+        # Metrics data.table detected
         class(data) <- append(c("imMetrics", "imData"), class(data))
     } else {
-        # data.table export detected
+        # Export data.table detected
         class(data) <- append(c("imExport", "imData"), class(data))
     }
 
