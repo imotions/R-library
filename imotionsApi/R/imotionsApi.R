@@ -1758,6 +1758,7 @@ privateSaveToFile <- function(params, data, sensorName = NULL, scriptName = NULL
     # Make sure metrics are encoded as NA
     if (inherits(data, "imMetrics")) {
         na_option <- "NA"
+        data$StimulusId <- as.numeric(data$StimulusId)
     } else {
         na_option <- ""
     }
