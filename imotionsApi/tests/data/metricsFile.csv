@@ -1,8 +1,8 @@
 ﻿iMotionsVersion,,,
 #HEADER,,,
-ET_RMetricsAPI,,,
+iMotions.RAPIData,,,
 flowName,,,
-,,,
+ET_RMetricsAPI,,,
 ,,,
 %7B%22parameters%22%3A%7B%22extraParam%22%3A%22fixationFilter%22%7D%7D,,,
 #METADATA,,,
@@ -10,6 +10,6 @@ FieldName,StimulusId,Metrics1,Metrics2
 DataType,Character,Double,Double
 #DATA,,,
 "RowNumber","StimulusId","Metrics1","Metrics2"
-0,"1000",1,23
-1,"1001",NA,45
-2,"1002",3,NA
+0,1000,1,23
+1,1001,NA,45
+2,1002,3,NA

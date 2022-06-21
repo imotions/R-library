@@ -1815,25 +1815,23 @@ privateCreateHeader <- function(params, data, sensorName, scriptName) {
                       "stimulusId")
 
     # Signals file metadata should contain script specific parameters, they will be used by the sensor data export
-    if (inherits(data, "imSignals")) {
-        metadata <- list(sampleName = sensorName, script = scriptName, fileDependency = attr(data, "fileDependency"),
-                         parameters = params[!(names(params) %in% ignoreParams)])
+    class_type <- "iMotions.RAPIData"
+    metadata <- list(parameters = params[!(names(params) %in% ignoreParams)])
 
-        signal_type <- "iMotions.RAPIData"
-        file_type <- "ET_RExtAPI"
+    if (inherits(data, "imSignals")) {
+        metadata <- append(metadata, list("sampleName" = sensorName, "script" = scriptName,
+                                          "fileDependency" = attr(data, "fileDependency")), after = 0)
+
+        signal_type <- "ET_RExtAPI"
     } else if (inherits(data, "imEvents")) {
-        metadata <- list(parameters = params[!(names(params) %in% ignoreParams)])
         signal_type <- "ET_REventAPI"
-        file_type <- ""
     } else {
-        metadata <- list(parameters = params[!(names(params) %in% ignoreParams)])
         signal_type <- "ET_RMetricsAPI"
-        file_type <- ""
     }
 
     # Script specific parameters needs to be URL encoded
     metadata <- utils::URLencode(toJSON(metadata), reserved = TRUE)
-    dataHeader <- c(params$iMotionsVersion, "#HEADER", signal_type, params$flowName, file_type, "", metadata)
+    dataHeader <- c(params$iMotionsVersion, "#HEADER", class_type, params$flowName, signal_type, "", metadata)
     return(dataHeader)
 }
 
