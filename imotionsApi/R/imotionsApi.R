@@ -1636,7 +1636,9 @@ uploadEvents <- function(params, study, data, target, metadata = NULL) {
 
 #' Create metrics for a specific respondent in a study.
 #'
-#' Metrics data.table must be composed of a StimulusId column and at least one additional column with metrics.
+#' Metrics data.table must be composed of a StimulusId column, a Timestamp column, and at least one additional column
+#' with metrics. The Timestamp column should be filled with recording timestamps falling during the stimulus of
+#' interest (i.e. the timestamp of the start of the stimulus it corresponds to).
 #'
 #' Params required field are "iMotionsVersion" and "flowName" (flow name will be used to link metrics to the original
 #' script)
@@ -1658,7 +1660,7 @@ uploadEvents <- function(params, study, data, target, metadata = NULL) {
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
 #' respondents <- imotionsApi::getRespondents(study)
 #'
-#' data <- data.table("StimulusId" = c("1000", "1001"), "Metric1" = c(12, 25),
+#' data <- data.table("StimulusId" = c("1000", "1001"), "Timestamp" = c(10, 20), "Metric1" = c(12, 25),
 #'                    "Metrics2" = c(NA_real_, 120))
 #'
 #' params <- list("iMotionsVersion" = 8, "flowName" = "Test")
@@ -1666,7 +1668,7 @@ uploadEvents <- function(params, study, data, target, metadata = NULL) {
 #'
 #'
 #' # Adding some metadata to the data
-#' metadata <- data.table("Units" = c("ms", "", "microSiemens"))
+#' metadata <- data.table("Units" = c("", "ms", "", "microSiemens"))
 #' uploadMetrics(params, study, data, respondents[1, ], metadata)
 #' }
 uploadMetrics <- function(params, study, data, target, metadata = NULL) {
@@ -1688,8 +1690,8 @@ uploadMetrics <- function(params, study, data, target, metadata = NULL) {
     if (inherits(data, "imMetrics")) {
         privateUpload(params, study, data, target, metadata = metadata)
     } else {
-        warning(paste("Metrics should be a data.frame/data.table containing a StimulusId column and at least",
-                      "one other column containing metrics"))
+        warning(paste("Metrics should be a data.frame/data.table containing a StimulusId column, a Timestamp column",
+                      "and at least one other column containing metrics"))
     }
 
 }
@@ -1755,7 +1757,7 @@ privateSaveToFile <- function(params, data, sensorName = NULL, scriptName = NULL
     if (inherits(data, "imMetrics")) {
         na_option <- NaN
         data$StimulusId <- as.numeric(data$StimulusId)
-        setcolorder(data, "StimulusId")
+        setcolorder(data, c("StimulusId", "Timestamp"))
     } else {
         na_option <- ""
     }
@@ -1853,7 +1855,8 @@ privateCreateMetadata <- function(data, metadata = NULL) {
         dataType <- sub("Integer", "Double", dataType)
 
         if (inherits(data, "imMetrics")) {
-            signalsMetadata <- list(dataType, c("ImotionsInternal", "NoGraphDisplay", rep("Metrics", ncol(data) - 1)))
+            imotionsInternal <- c("ImotionsInternal", "NoGraphDisplay", "", rep("Metrics", ncol(data) - 2))
+            signalsMetadata <- list(dataType, imotionsInternal)
         } else {
             signalsMetadata <- list(dataType)
         }
@@ -2504,6 +2507,9 @@ checkDataFormat <- function(data) {
     } else if (ncol(data) == 3 && all(names(data) %in% c("Timestamp", "EventName", "Description"))) {
         # Events detected
         class(data) <- append(c("imEvents", "imData"), class(data))
+    } else if (all(c("StimulusId", "Timestamp") %in% names(data)) && ncol(data) > 2) {
+        # Metrics detected
+        class(data) <- append(c("imMetrics", "imData"), class(data))
     } else if (any(names(data) == "Timestamp")) {
         # We should not have negative timestamps
         data <- data[data$Timestamp >= 0, , drop = FALSE]
@@ -2511,13 +2517,10 @@ checkDataFormat <- function(data) {
         # Signals detected
         class(data) <- append(c("imSignals", "imData"), class(data))
     } else if (nrow(data) == 1 & all(sapply(data, class) %like% "numeric|integer")) {
-        # AOI metrics data.table detected
+        # AOI metrics detected
         class(data) <- append(c("imAOIMetrics", "imData"), class(data))
-    } else if ("StimulusId" %in% names(data)) {
-        # Metrics data.table detected
-        class(data) <- append(c("imMetrics", "imData"), class(data))
     } else {
-        # Export data.table detected
+        # Export detected
         class(data) <- append(c("imExport", "imData"), class(data))
     }
 

@@ -257,7 +257,7 @@ test_that("should not call privateUpload if data is of wrong format", {
 context("uploadMetrics()");
 
 # Create data to upload
-dataMetrics <- data.table("StimulusId" = c("1000", "1001", "1002"), "Metrics1" = c(1, 2, 3),
+dataMetrics <- data.table("StimulusId" = c("1000", "1001", "1002"), "Timestamp" = c(1, 2, 3), "Metrics1" = c(1, 2, 3),
                           "Metrics2" = c(23, 45, 46))
 
 test_that("should throw errors if arguments are missing or not from the good class", {
@@ -324,7 +324,7 @@ test_that("should throw errors if arguments are missing or not from the good cla
 
 test_that("should call privateUpload with the good parameters", {
     dataMetrics <- checkDataFormat(dataMetrics)
-    additionalMetadata <- data.table("Units" = c("ms", "", ""), "Show" = c("FALSE", "TRUE", "TRUE"))
+    additionalMetadata <- data.table("Units" = c("", "ms", "", ""), "Show" = c("FALSE", "FALSE", "TRUE", "TRUE"))
     privateUpload_Stub <- mock()
 
     mockr::with_mock(
@@ -361,8 +361,8 @@ test_that("should not call privateUpload if data is of wrong format", {
 
     expect_called(privateUpload_Stub, 0)
     expect_identical(warning$message,
-                     paste("Metrics should be a data.frame/data.table containing a StimulusId column and at least",
-                     "one other column containing metrics"), "wrong data type detected")
+                     paste("Metrics should be a data.frame/data.table containing a StimulusId column, a Timestamp",
+                           "column and at least one other column containing metrics"), "wrong data type detected")
 })
 
 
@@ -501,7 +501,9 @@ test_that("Data should get stored as a temporary file", {
     expect_identical(dataWritten, testData, "files should still be identical")
 
     # NA in metrics should be output as "NA"
-    dataMetricsNA <- data.table("StimulusId" = c("1000", "1001", "1002"), "Metrics1" = c(1, NA_real_, 3), "Metrics2" = c(23, 45, NA_real_))
+    dataMetricsNA <- data.table("StimulusId" = c("1000", "1001", "1002"), "Timestamp" = c(1, 2, 3),
+                                "Metrics1" = c(1, NA_real_, 3), "Metrics2" = c(23, 45, NA_real_))
+
     dataMetricsNA <- checkDataFormat(dataMetricsNA)
     expectedFile <- fread("../data/metricsFile.csv")
 
@@ -543,12 +545,12 @@ test_that("General file header should be as expected", {
     headers <- privateGetFileHeader(dataMetrics, params)
 
     expect_equal(length(headers), 12, info = "should be composed of 11 lines")
-    expect_identical(headers[1], paste0("\ufeff", params$iMotionsVersion, ",,,"), "BOM should be added")
-    expect_identical(headers[8], "#METADATA,,,", "wrong number of comma added")
-    expect_identical(headers[9], "FieldName,StimulusId,Metrics1,Metrics2", "wrong FieldName")
-    expect_identical(headers[10], "DataType,Character,Double,Double", "wrong DataType")
-    expect_identical(headers[11], "ImotionsInternal,NoGraphDisplay,Metrics,Metrics", "wrong internal informations")
-    expect_identical(headers[12], "#DATA,,,", "data line should be added")
+    expect_identical(headers[1], paste0("\ufeff", params$iMotionsVersion, ",,,,"), "BOM should be added")
+    expect_identical(headers[8], "#METADATA,,,,", "wrong number of comma added")
+    expect_identical(headers[9], "FieldName,StimulusId,Timestamp,Metrics1,Metrics2", "wrong FieldName")
+    expect_identical(headers[10], "DataType,Character,Double,Double,Double", "wrong DataType")
+    expect_identical(headers[11], "ImotionsInternal,NoGraphDisplay,,Metrics,Metrics", "wrong internal informations")
+    expect_identical(headers[12], "#DATA,,,,", "data line should be added")
 
     # Export data no metadata
     dataExport <- data.table("Respondent Name" = "Respondent 1", "Metrics1" = seq(1:100),

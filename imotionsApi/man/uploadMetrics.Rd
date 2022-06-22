@@ -20,7 +20,9 @@ uploadMetrics(params, study, data, target, metadata = NULL)
 and there must be a row corresponding to each data column.}
 }
 \description{
-Metrics data.table must be composed of a StimulusId column and at least one additional column with metrics.
+Metrics data.table must be composed of a StimulusId column, a Timestamp column, and at least one additional column
+with metrics. The Timestamp column should be filled with recording timestamps falling during the stimulus of
+interest (i.e. the timestamp of the start of the stimulus it corresponds to).
 }
 \details{
 Params required field are "iMotionsVersion" and "flowName" (flow name will be used to link metrics to the original
@@ -33,7 +35,7 @@ studies <- imotionsApi::listStudies(connection)
 study <- imotionsApi::imStudy(connection, studies$id[1])
 respondents <- imotionsApi::getRespondents(study)
 
-data <- data.table("StimulusId" = c("1000", "1001"), "Metric1" = c(12, 25),
+data <- data.table("StimulusId" = c("1000", "1001"), "Timestamp" = c(10, 20), "Metric1" = c(12, 25),
                    "Metrics2" = c(NA_real_, 120))
 
 params <- list("iMotionsVersion" = 8, "flowName" = "Test")
@@ -41,7 +43,7 @@ uploadMetrics(params, study, data, respondents[1, ])
 
 
 # Adding some metadata to the data
-metadata <- data.table("Units" = c("ms", "", "microSiemens"))
+metadata <- data.table("Units" = c("", "ms", "", "microSiemens"))
 uploadMetrics(params, study, data, respondents[1, ], metadata)
 }
 }

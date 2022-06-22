@@ -30,13 +30,13 @@ test_that("should convert to imObject if from the good format", {
     metrics <- checkDataFormat(metrics)
     assertClass(metrics, "imAOIMetrics", "should be of class imMetrics")
 
-    # imMetrics if composed of multiple rows and a StimulusId column
-    metrics <- data.table("StimulusId" = c("1000", "1001"), "Metric3" = c(4, 5))
+    # imMetrics if composed of multiple rows, a StimuliId column and Timestamp column
+    metrics <- data.table("StimulusId" = c("1000", "1001"), "Timestamp" = c(10, 20), "Metric3" = c(4, 5))
     metrics <- checkDataFormat(metrics)
     assertClass(metrics, "imMetrics", "should be of class imMetrics")
 
-    # imMetrics if composed of one row and a StimuliId column
-    metrics <- data.table("StimulusId" = "1000", "Metric3" = 4)
+    # imMetrics if composed of one row, a StimuliId column and Timestamp column
+    metrics <- data.table("StimulusId" = "1000", "Timestamp" = 10, "Metric3" = 4)
     metrics <- checkDataFormat(metrics)
     assertClass(metrics, "imMetrics", "should be of class imMetrics")
 
