@@ -542,12 +542,13 @@ test_that("General file header should be as expected", {
     dataMetrics <- checkDataFormat(dataMetrics)
     headers <- privateGetFileHeader(dataMetrics, params)
 
-    expect_equal(length(headers), 11, info = "should be composed of 11 lines")
+    expect_equal(length(headers), 12, info = "should be composed of 11 lines")
     expect_identical(headers[1], paste0("\ufeff", params$iMotionsVersion, ",,,"), "BOM should be added")
     expect_identical(headers[8], "#METADATA,,,", "wrong number of comma added")
     expect_identical(headers[9], "FieldName,StimulusId,Metrics1,Metrics2", "wrong FieldName")
     expect_identical(headers[10], "DataType,Character,Double,Double", "wrong DataType")
-    expect_identical(headers[11], "#DATA,,,", "data line should be added")
+    expect_identical(headers[11], "ImotionsInternal,NoGraphDisplay,Metrics,Metrics", "wrong internal informations")
+    expect_identical(headers[12], "#DATA,,,", "data line should be added")
 
     # Export data no metadata
     dataExport <- data.table("Respondent Name" = "Respondent 1", "Metrics1" = seq(1:100),

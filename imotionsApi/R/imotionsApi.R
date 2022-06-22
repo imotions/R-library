@@ -1751,17 +1751,18 @@ privateSaveToFile <- function(params, data, sensorName = NULL, scriptName = NULL
         dataFileName <- file.path(tempdir(check = TRUE), "result.csv")
     }
 
-    # Create and write headers specific to the data format
-    headers <- privateGetFileHeader(data, params, sensorName, scriptName, metadata)
-    writeLines(text = headers, con = dataFileName, useBytes = TRUE)
-
-    # Make sure metrics are encoded as NA
+    # Make sure metrics are encoded as NaN and that the StimulusId is in first position
     if (inherits(data, "imMetrics")) {
-        na_option <- "NA"
+        na_option <- NaN
         data$StimulusId <- as.numeric(data$StimulusId)
+        setcolorder(data, "StimulusId")
     } else {
         na_option <- ""
     }
+
+    # Create and write headers specific to the data format
+    headers <- privateGetFileHeader(data, params, sensorName, scriptName, metadata)
+    writeLines(text = headers, con = dataFileName, useBytes = TRUE)
 
     # Format data for upload (need to add a RowNumber column)
     data <- cbind(RowNumber = seq(0, nrow(data) - 1), data)
@@ -1851,7 +1852,11 @@ privateCreateMetadata <- function(data, metadata = NULL) {
         dataType <- tools::toTitleCase(c("DataType", sapply(data, typeof)))
         dataType <- sub("Integer", "Double", dataType)
 
-        signalsMetadata <- list(dataType)
+        if (inherits(data, "imMetrics")) {
+            signalsMetadata <- list(dataType, c("ImotionsInternal", "NoGraphDisplay", rep("Metrics", ncol(data) - 1)))
+        } else {
+            signalsMetadata <- list(dataType)
+        }
     } else {
         mandatoryMetadata <- signalsMetadata <- list()
     }
