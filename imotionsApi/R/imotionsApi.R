@@ -1497,7 +1497,7 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
 uploadSensorData <- function(params, study, data, target, sensorName, scriptName, metadata = NULL, stimulus = NULL) {
     assertValid(hasArg(params), "Please specify parameters used for your script")
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
-    assertValid(hasArg(data), "Please specify a data.table with signals/metrics to upload")
+    assertValid(hasArg(data), "Please specify a data.table with signals to upload")
     assertValid(hasArg(target), "Please specify a target respondent loaded with `getRespondents()`")
     assertValid(hasArg(sensorName), "Please specify a name for the new sensor to upload")
     assertValid(hasArg(scriptName), "Please specify the name of the script used to produce this data")
@@ -1582,10 +1582,12 @@ uploadAOIRespondentMetrics <- function(study, AOI, respondent, metrics) {
 #'
 #' @param params The list of parameters provided to the script - specific parameters value will be stored as metadata.
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#' @param data A data.table containing the events to upload (imData object are also accepted).
+#' @param events A data.table containing the events to upload (imData object are also accepted).
 #' @param target The target respondent for the sensor (an imRespondent object as returned from
 #'               \code{\link{getRespondents}}).
 #'
+#' @param eventsName The name of the new events you would like to create.
+#' @param scriptName The name of the script used to produce these signals.
 #' @param metadata Optional - a data.table with metadata information. Column names will be converted to metadata headers
 #'                 and there must be a row corresponding to each data column.
 #'
@@ -1597,22 +1599,25 @@ uploadAOIRespondentMetrics <- function(study, AOI, respondent, metrics) {
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
 #' respondents <- imotionsApi::getRespondents(study)
 #'
-#' data <- data.table("Timestamp" = seq(1:5), "EventName" = rep("My event names", 5),
-#'                    "Description" = rep("Description of event", 5))
+#' events <- data.table("Timestamp" = seq(1:5), "EventName" = rep("My event names", 5),
+#'                      "Description" = rep("Description of event", 5))
 #'
 #' params <- list("iMotionsVersion" = 8, "flowName" = "Test")
-#' uploadEvents(params, study, data, respondents[1, ])
+#' uploadEvents(params, study, events, respondents[1, ], eventsName = "New events", scriptName = "Example Script")
 #'
 #'
-#' # Adding some metadata to the data
+#' # Adding some metadata to the events
 #' metadata <- data.table("Units" = c("ms", "", ""), "Show" = c("FALSE", "TRUE", "TRUE"))
-#' uploadEvents(params, study, data, respondents[1, ], metadata)
+#' uploadEvents(params, study, events, respondents[1, ], eventsName = "New events", scriptName = "Example Script",
+#'              metadata)
 #' }
-uploadEvents <- function(params, study, data, target, metadata = NULL) {
+uploadEvents <- function(params, study, events, target, eventsName, scriptName, metadata = NULL) {
     assertValid(hasArg(params), "Please specify parameters used for your script")
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
-    assertValid(hasArg(data), "Please specify a data.table with signals/metrics to upload")
+    assertValid(hasArg(events), "Please specify a data.table with events to upload")
     assertValid(hasArg(target), "Please specify a target respondent loaded with `getRespondents()`")
+    assertValid(hasArg(eventsName), "Please specify a name for the new events to upload")
+    assertValid(hasArg(scriptName), "Please specify the name of the script used to produce this data")
 
     assertClass(study, "imStudy", "`study` argument is not an imStudy object")
     assertClass(target, "imRespondent", "`target` argument is not an imRespondent object")
@@ -1621,11 +1626,11 @@ uploadEvents <- function(params, study, data, target, metadata = NULL) {
     assertValid(exists("flowName", params), "Required `flowName` field in params")
 
     # Verify that data is a data.table of the good format
-    data <- checkDataFormat(data)
-    assertUploadFormat(data)
+    events <- checkDataFormat(events)
+    assertUploadFormat(events)
 
-    if (inherits(data, "imEvents")) {
-        privateUpload(params, study, data, target, metadata = metadata)
+    if (inherits(events, "imEvents")) {
+        privateUpload(params, study, events, target, eventsName, scriptName, metadata)
     } else {
         warning("Events should be a data.frame/data.table containing EventName, Timestamp and Description columns")
     }
@@ -1645,10 +1650,12 @@ uploadEvents <- function(params, study, data, target, metadata = NULL) {
 #'
 #' @param params The list of parameters provided to the script - specific parameters value will be stored as metadata.
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#' @param data A data.table containing the metrics to upload (imData object are also accepted).
+#' @param metrics A data.table containing the metrics to upload (imData object are also accepted).
 #' @param target The target respondent for the sensor (an imRespondent object as returned from
 #'               \code{\link{getRespondents}}).
 #'
+#' @param metricsName The name of the new metrics you would like to create.
+#' @param scriptName The name of the script used to produce these signals.
 #' @param metadata Optional - a data.table with metadata information. Column names will be converted to metadata headers
 #'                 and there must be a row corresponding to each data column.
 #'
@@ -1660,22 +1667,25 @@ uploadEvents <- function(params, study, data, target, metadata = NULL) {
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
 #' respondents <- imotionsApi::getRespondents(study)
 #'
-#' data <- data.table("StimulusId" = c("1000", "1001"), "Timestamp" = c(10, 20), "Metric1" = c(12, 25),
-#'                    "Metrics2" = c(NA_real_, 120))
+#' metrics <- data.table("StimulusId" = c("1000", "1001"), "Timestamp" = c(10, 20), "Metric1" = c(12, 25),
+#'                       "Metrics2" = c(NA_real_, 120))
 #'
 #' params <- list("iMotionsVersion" = 8, "flowName" = "Test")
-#' uploadMetrics(params, study, data, respondents[1, ])
+#' uploadMetrics(params, study, metrics, respondents[1, ], metricsName = "New metrics", scriptName = "Example Script")
 #'
 #'
 #' # Adding some metadata to the data
 #' metadata <- data.table("Units" = c("", "ms", "", "microSiemens"))
-#' uploadMetrics(params, study, data, respondents[1, ], metadata)
+#' uploadMetrics(params, study, metrics, respondents[1, ], metricsName = "New metrics", scriptName = "Example Script",
+#'               metadata)
 #' }
-uploadMetrics <- function(params, study, data, target, metadata = NULL) {
+uploadMetrics <- function(params, study, metrics, target, metricsName, scriptName, metadata = NULL) {
     assertValid(hasArg(params), "Please specify parameters used for your script")
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
-    assertValid(hasArg(data), "Please specify a data.table with signals/metrics to upload")
+    assertValid(hasArg(metrics), "Please specify a data.table with metrics to upload")
     assertValid(hasArg(target), "Please specify a target respondent loaded with `getRespondents()`")
+    assertValid(hasArg(metricsName), "Please specify a name for the new metrics to upload")
+    assertValid(hasArg(scriptName), "Please specify the name of the script used to produce this data")
 
     assertClass(study, "imStudy", "`study` argument is not an imStudy object")
     assertClass(target, "imRespondent", "`target` argument is not an imRespondent object")
@@ -1683,12 +1693,12 @@ uploadMetrics <- function(params, study, data, target, metadata = NULL) {
     assertValid(exists("iMotionsVersion", params), "Required `iMotionsVersion` field in params")
     assertValid(exists("flowName", params), "Required `flowName` field in params")
 
-    # Verify that data is a data.table of the good format
-    data <- checkDataFormat(data)
-    assertUploadFormat(data)
+    # Verify that metrics is a data.table of the good format
+    metrics <- checkDataFormat(metrics)
+    assertUploadFormat(metrics)
 
-    if (inherits(data, "imMetrics")) {
-        privateUpload(params, study, data, target, metadata = metadata)
+    if (inherits(metrics, "imMetrics")) {
+        privateUpload(params, study, metrics, target, metricsName, scriptName, metadata)
     } else {
         warning(paste("Metrics should be a data.frame/data.table containing a StimulusId column, a Timestamp column",
                       "and at least one other column containing metrics"))
@@ -1698,18 +1708,29 @@ uploadMetrics <- function(params, study, data, target, metadata = NULL) {
 
 #' Upload signals/events to a given respondent/segment.
 #'
-#' @inheritParams uploadSensorData
+#' @param params The list of parameters provided to the script - specific parameters value will be stored as metadata.
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#' @param data A data.table containing the signals/metrics/events to upload (imData object are also accepted).
+#' @param target The target respondent for the sensor/metrics/events (an imRespondent object as returned from
+#'               \code{\link{getRespondents}}).
+#'
+#' @param sampleName The name of the new sensor/metrics/events you would like to create.
+#' @param scriptName The name of the script used to produce these signals.
+#' @param metadata Optional - a data.table with metadata information. Column names will be converted to metadata headers
+#'                 and there must be a row corresponding to each data column.
+#'
+#' @param stimulus Optional - an imStimulus object as returned from \code{\link{getStimuli}} to upload data specific to
+#'                 this stimulus.
 #'
 #' @keywords internal
-privateUpload <- function(params, study, data, target, sensorName = NULL, scriptName = NULL, metadata = NULL,
-                          stimulus = NULL) {
+privateUpload <- function(params, study, data, target, sampleName, scriptName, metadata = NULL,  stimulus = NULL) {
 
     # Create a temporary file with the data/metadata that needs to be uploaded
-    tempFileName <- privateSaveToFile(params, data, sensorName, scriptName, metadata)
+    tempFileName <- privateSaveToFile(params, data, sampleName, scriptName, metadata)
 
     # Prepare the http request and move the file to the right location
     if (inherits(data, "imSignals")) {
-        postData <- toJSON(list(flowName = params$flowName, sampleName = sensorName, fileName = tempFileName))
+        postData <- toJSON(list(flowName = params$flowName, sampleName = sampleName, fileName = tempFileName))
         uploadUrl <- getUploadSensorsUrl(study, target, stimulus)
         endpoint_data <- "sensor data"
     } else if (inherits(data, "imEvents")) {
@@ -1737,12 +1758,12 @@ privateUpload <- function(params, study, data, target, sensorName = NULL, script
 
 #' Create a temporary file with the data/metadata that needs to be uploaded.
 #'
-#' @inheritParams uploadSensorData
+#' @inheritParams privateUpload
 #'
 #' @import stringr
 #' @importFrom dplyr mutate_if %>%
 #' @keywords internal
-privateSaveToFile <- function(params, data, sensorName = NULL, scriptName = NULL, metadata = NULL) {
+privateSaveToFile <- function(params, data, sampleName, scriptName, metadata = NULL) {
     # Create the temporary file
     if (exists("scratchFolder", params)) {
         # AttentionTool will always give this scratchFolder path
@@ -1763,7 +1784,7 @@ privateSaveToFile <- function(params, data, sensorName = NULL, scriptName = NULL
     }
 
     # Create and write headers specific to the data format
-    headers <- privateGetFileHeader(data, params, sensorName, scriptName, metadata)
+    headers <- privateGetFileHeader(data, params, sampleName, scriptName, metadata)
     writeLines(text = headers, con = dataFileName, useBytes = TRUE)
 
     # Format data for upload (need to add a RowNumber column)
@@ -1781,13 +1802,13 @@ privateSaveToFile <- function(params, data, sensorName = NULL, scriptName = NULL
 
 #' Create headers specific to the data format (signals, events, exports).
 #'
-#' @inheritParams uploadSensorData
+#' @inheritParams privateUpload
 #'
 #' @keywords internal
-privateGetFileHeader <- function(data, params = NULL, sensorName = NULL, scriptName = NULL, metadata = NULL) {
+privateGetFileHeader <- function(data, params = NULL, sampleName = NULL, scriptName = NULL, metadata = NULL) {
     if (!inherits(data, "imExport")) {
         # Create script specific data header
-        dataHeader <- privateCreateHeader(params, data, sensorName, scriptName)
+        dataHeader <- privateCreateHeader(params, data, sampleName, scriptName)
     }   else {
         dataHeader <- list()
     }
@@ -1809,21 +1830,22 @@ privateGetFileHeader <- function(data, params = NULL, sensorName = NULL, scriptN
 
 #' Create header for the file that needs to be uploaded.
 #'
-#' @inheritParams uploadSensorData
+#' @inheritParams privateUpload
 #'
 #' @keywords internal
-privateCreateHeader <- function(params, data, sensorName, scriptName) {
+privateCreateHeader <- function(params, data, sampleName, scriptName) {
     # No need to save the following into the signal file metadata
     ignoreParams <- c("token", "iMotionsVersion", "flowName", "scratchFolder", "studyId", "respondentId", "segmentId",
                       "stimulusId")
 
     # Signals file metadata should contain script specific parameters, they will be used by the sensor data export
     class_type <- "iMotions.RAPIData"
-    metadata <- list(parameters = params[!(names(params) %in% ignoreParams)])
+
+    metadata <- list("sampleName" = sampleName, "script" = scriptName,
+                     parameters = params[!(names(params) %in% ignoreParams)])
 
     if (inherits(data, "imSignals")) {
-        metadata <- append(metadata, list("sampleName" = sensorName, "script" = scriptName,
-                                          "fileDependency" = attr(data, "fileDependency")), after = 0)
+        metadata <- append(metadata, list("fileDependency" = attr(data, "fileDependency")), after = 2)
 
         signal_type <- "ET_RExtAPI"
     } else if (inherits(data, "imEvents")) {

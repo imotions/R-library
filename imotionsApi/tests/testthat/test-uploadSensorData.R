@@ -33,7 +33,7 @@ test_that("should throw errors if arguments are missing or not from the good cla
 
     # in case of missing data
     error <- capture_error(uploadSensorData(params, study))
-    expect_identical(error$message, "Please specify a data.table with signals/metrics to upload",
+    expect_identical(error$message, "Please specify a data.table with signals to upload",
                      "missing `data` param not handled properly")
 
     # in case of missing target
@@ -109,7 +109,7 @@ test_that("should call privateUpload with the good parameters", {
 
     expect_called(privateUpload_Stub, 1)
     expect_args(privateUpload_Stub, 1, params = params, study = study, data = data, target = respondent,
-                sensorName = sensorName, scriptName = scriptName, metadata = additionalMetadata,
+                sampleName = sensorName, scriptName = scriptName, metadata = additionalMetadata,
                 stimulus = NULL)
 
 })
@@ -160,7 +160,7 @@ test_that("should throw errors if arguments are missing or not from the good cla
 
     # in case of missing data
     error <- capture_error(uploadEvents(params, study))
-    expect_identical(error$message, "Please specify a data.table with signals/metrics to upload",
+    expect_identical(error$message, "Please specify a data.table with events to upload",
                      "missing `data` param not handled properly")
 
     # in case of missing target
@@ -168,42 +168,63 @@ test_that("should throw errors if arguments are missing or not from the good cla
     expect_identical(error$message, "Please specify a target respondent loaded with `getRespondents()`",
                      "missing `target` param not handled properly")
 
+    # in case of missing eventsName
+    error <- capture_error(uploadEvents(params, study, data, respondent))
+    expect_identical(error$message, "Please specify a name for the new events to upload",
+                     "missing `eventsName` param not handled properly")
+
+    # in case of missing scriptName
+    error <- capture_error(uploadEvents(params, study, data, respondent, eventsName = sensorName))
+    expect_identical(error$message, "Please specify the name of the script used to produce this data",
+                     "missing `scriptName` param not handled properly")
 
     # in case of study that is not an imStudy object
-    error <- capture_error(uploadEvents(params, study = "whatever", dataEvents, respondent))
+    error <- capture_error(uploadEvents(params, study = "whatever", dataEvents, respondent, eventsName = sensorName,
+                                        scriptName = scriptName))
 
     expect_identical(error$message, "`study` argument is not an imStudy object",
                      "study not being an imStudy object should throw an error")
 
     # in case of target that is not an imRespondent object
-    error <- capture_error(uploadEvents(params, study, dataEvents, target = "whatever"))
+    error <- capture_error(uploadEvents(params, study, dataEvents, target = "whatever", eventsName = sensorName,
+                                        scriptName = scriptName))
 
     expect_identical(error$message, "`target` argument is not an imRespondent object",
                      "target not being an imRespondent object should throw an error")
 
     # in case of params required field not provided
     wrongParams <- list("FirstParam" = "blah")
-    error <- capture_error(uploadEvents(wrongParams, study, dataEvents, respondent))
+    error <- capture_error(uploadEvents(wrongParams, study, dataEvents, respondent, eventsName = sensorName,
+                                        scriptName = scriptName))
+
     expect_identical(error$message, "Required `iMotionsVersion` field in params",
                      "missing `iMotionsVersion` field in params not handled properly")
 
     wrongParams <- list("iMotionsVersion" = "blah")
-    error <- capture_error(uploadEvents(wrongParams, study, dataEvents, respondent))
+    error <- capture_error(uploadEvents(wrongParams, study, dataEvents, respondent, eventsName = sensorName,
+                                        scriptName = scriptName))
+
     expect_identical(error$message, "Required `flowName` field in params",
                      "missing `flowName` field in params not handled properly")
 
     # in case of wrong data format
     wrongData <- data.table(Timestamp = integer(), variableTest = numeric())
-    error <- capture_error(uploadEvents(params, study, wrongData, respondent))
+    error <- capture_error(uploadEvents(params, study, wrongData, respondent, eventsName = sensorName,
+                                        scriptName = scriptName))
+
     expect_identical(error$message, "Do not upload an empty dataset", "zero row dataset should not be uploaded")
 
     wrongData <- data[, 1, drop = FALSE]
-    error <- capture_error(uploadEvents(params, study, wrongData, respondent))
+    error <- capture_error(uploadEvents(params, study, wrongData, respondent, eventsName = sensorName,
+                                        scriptName = scriptName))
+
     expect_identical(error$message, "Dataset must contain at least two columns (Timestamp included)",
                      "Can't upload without data columns")
 
     wrongData <- data[, 2, drop = FALSE]
-    error <- capture_error(uploadEvents(params, study, wrongData, respondent))
+    error <- capture_error(uploadEvents(params, study, wrongData, respondent, eventsName = sensorName,
+                                        scriptName = scriptName))
+
     expect_identical(error$message, "Wrong data format for upload (must be imSignals, imMetrics or imEvents)",
                      "Timestamp column should be present")
 })
@@ -216,12 +237,13 @@ test_that("should call privateUpload with the good parameters", {
 
     mockr::with_mock(
         privateUpload = privateUpload_Stub, {
-            uploadEvents(params, study, dataEvents, respondent, metadata = additionalMetadata)
+            uploadEvents(params, study, dataEvents, respondent, eventsName = sensorName,
+                         scriptName = scriptName, metadata = additionalMetadata)
         })
 
     expect_called(privateUpload_Stub, 1)
     expect_args(privateUpload_Stub, 1, params = params, study = study, data = dataEvents, target = respondent,
-                metadata = additionalMetadata)
+                eventsName = sensorName, scriptName = scriptName, metadata = additionalMetadata)
 })
 
 
@@ -231,7 +253,7 @@ test_that("should not call privateUpload if data is of wrong format", {
 
     error <- capture_error(mockr::with_mock(
         privateUpload = privateUpload_Stub, {
-            uploadEvents(params, study, wrongData, respondent)
+            uploadEvents(params, study, wrongData, respondent, eventsName = sensorName, scriptName = scriptName)
         }))
 
     expect_called(privateUpload_Stub, 0)
@@ -243,7 +265,7 @@ test_that("should not call privateUpload if data is of wrong format", {
 
     warning <- capture_warning(mockr::with_mock(
         privateUpload = privateUpload_Stub, {
-            uploadEvents(params, study, wrongData, respondent)
+            uploadEvents(params, study, wrongData, respondent, eventsName = sensorName, scriptName = scriptName)
         }))
 
     expect_called(privateUpload_Stub, 0)
@@ -273,7 +295,7 @@ test_that("should throw errors if arguments are missing or not from the good cla
 
     # in case of missing data
     error <- capture_error(uploadMetrics(params, study))
-    expect_identical(error$message, "Please specify a data.table with signals/metrics to upload",
+    expect_identical(error$message, "Please specify a data.table with metrics to upload",
                      "missing `data` param not handled properly")
 
     # in case of missing target
@@ -282,41 +304,64 @@ test_that("should throw errors if arguments are missing or not from the good cla
                      "missing `target` param not handled properly")
 
 
+    # in case of missing metricsName
+    error <- capture_error(uploadMetrics(params, study, data, respondent))
+    expect_identical(error$message, "Please specify a name for the new metrics to upload",
+                     "missing `metricsName` param not handled properly")
+
+    # in case of missing scriptName
+    error <- capture_error(uploadMetrics(params, study, data, respondent, metricsName = sensorName))
+    expect_identical(error$message, "Please specify the name of the script used to produce this data",
+                     "missing `scriptName` param not handled properly")
+
+
     # in case of study that is not an imStudy object
-    error <- capture_error(uploadMetrics(params, study = "whatever", dataMetrics, respondent))
+    error <- capture_error(uploadMetrics(params, study = "whatever", dataMetrics, respondent, metricsName = sensorName,
+                                         scriptName = scriptName))
 
     expect_identical(error$message, "`study` argument is not an imStudy object",
                      "study not being an imStudy object should throw an error")
 
     # in case of target that is not an imRespondent object
-    error <- capture_error(uploadMetrics(params, study, dataMetrics, target = "whatever"))
+    error <- capture_error(uploadMetrics(params, study, dataMetrics, target = "whatever", metricsName = sensorName,
+                                         scriptName = scriptName))
 
     expect_identical(error$message, "`target` argument is not an imRespondent object",
                      "target not being an imRespondent object should throw an error")
 
     # in case of params required field not provided
     wrongParams <- list("FirstParam" = "blah")
-    error <- capture_error(uploadMetrics(wrongParams, study, dataMetrics, respondent))
+    error <- capture_error(uploadMetrics(wrongParams, study, dataMetrics, respondent, metricsName = sensorName,
+                                         scriptName = scriptName))
+
     expect_identical(error$message, "Required `iMotionsVersion` field in params",
                      "missing `iMotionsVersion` field in params not handled properly")
 
     wrongParams <- list("iMotionsVersion" = "blah")
-    error <- capture_error(uploadMetrics(wrongParams, study, dataMetrics, respondent))
+    error <- capture_error(uploadMetrics(wrongParams, study, dataMetrics, respondent, metricsName = sensorName,
+                                         scriptName = scriptName))
+
     expect_identical(error$message, "Required `flowName` field in params",
                      "missing `flowName` field in params not handled properly")
 
     # in case of wrong data format
     wrongData <- data.table(Timestamp = integer(), variableTest = numeric())
-    error <- capture_error(uploadMetrics(params, study, wrongData, respondent))
+    error <- capture_error(uploadMetrics(params, study, wrongData, respondent, metricsName = sensorName,
+                                         scriptName = scriptName))
+
     expect_identical(error$message, "Do not upload an empty dataset", "zero row dataset should not be uploaded")
 
     wrongData <- data[, 1, drop = FALSE]
-    error <- capture_error(uploadMetrics(params, study, wrongData, respondent))
+    error <- capture_error(uploadMetrics(params, study, wrongData, respondent, metricsName = sensorName,
+                                         scriptName = scriptName))
+
     expect_identical(error$message, "Dataset must contain at least two columns (Timestamp included)",
                      "Can't upload without data columns")
 
     wrongData <- data[, 2, drop = FALSE]
-    error <- capture_error(uploadMetrics(params, study, wrongData, respondent))
+    error <- capture_error(uploadMetrics(params, study, wrongData, respondent, metricsName = sensorName,
+                                         scriptName = scriptName))
+
     expect_identical(error$message, "Wrong data format for upload (must be imSignals, imMetrics or imEvents)",
                      "Timestamp column should be present")
 })
@@ -329,12 +374,13 @@ test_that("should call privateUpload with the good parameters", {
 
     mockr::with_mock(
         privateUpload = privateUpload_Stub, {
-            uploadMetrics(params, study, dataMetrics, respondent, metadata = additionalMetadata)
+            uploadMetrics(params, study, dataMetrics, respondent, metricsName = sensorName,
+                          scriptName = scriptName, metadata = additionalMetadata)
         })
 
     expect_called(privateUpload_Stub, 1)
     expect_args(privateUpload_Stub, 1, params = params, study = study, data = dataMetrics, target = respondent,
-                metadata = additionalMetadata)
+                sampleName = sensorName, scriptName = scriptName, metadata = additionalMetadata)
 })
 
 
@@ -344,7 +390,7 @@ test_that("should not call privateUpload if data is of wrong format", {
 
     error <- capture_error(mockr::with_mock(
         privateUpload = privateUpload_Stub, {
-            uploadMetrics(params, study, wrongData, respondent)
+            uploadMetrics(params, study, wrongData, respondent, metricsName = sensorName, scriptName = scriptName)
         }))
 
     expect_called(privateUpload_Stub, 0)
@@ -356,7 +402,7 @@ test_that("should not call privateUpload if data is of wrong format", {
 
     warning <- capture_warning(mockr::with_mock(
         privateUpload = privateUpload_Stub, {
-            uploadMetrics(params, study, wrongData, respondent)
+            uploadMetrics(params, study, wrongData, respondent, metricsName = sensorName, scriptName = scriptName)
         }))
 
     expect_called(privateUpload_Stub, 0)
@@ -420,7 +466,7 @@ mockedPrivateUpload <- function(params, study, data, respondent, expectedBody, e
         expect_args(getUploadMetricsUrl_Stub, 1, study = study, imObject = respondent)
     }
 
-    expect_args(privateSaveToFile_Stub, 1, params = params, data = data, sensorName = sensorName,
+    expect_args(privateSaveToFile_Stub, 1, params = params, data = data, sampleName = sensorName,
                 scriptName = scriptName, metadata = metadata)
 
     expect_args(postJSON_Stub, 1, connection = study$connection, expectedUrl, postData = expectedBody,
@@ -506,7 +552,6 @@ test_that("Data should get stored as a temporary file", {
 
     dataMetricsNA <- checkDataFormat(dataMetricsNA)
     expectedFile <- fread("../data/metricsFile.csv")
-
     dataFileName <- privateSaveToFile(params, dataMetricsNA, sensorName, scriptName)
     dataWritten <- fread(dataFileName)
     expect_identical(dataWritten, expectedFile, "files should still be identical")
@@ -531,7 +576,7 @@ test_that("General file header should be as expected", {
 
     # Event data
     dataEvents <- checkDataFormat(dataEvents)
-    headers <- privateGetFileHeader(dataEvents, params)
+    headers <- privateGetFileHeader(dataEvents, params, sensorName, scriptName)
 
     expect_equal(length(headers), 11, info = "should be composed of 11 lines")
     expect_identical(headers[1], paste0("\ufeff", params$iMotionsVersion, ",,,"), "BOM should be added")
@@ -542,7 +587,7 @@ test_that("General file header should be as expected", {
 
     # Metrics data
     dataMetrics <- checkDataFormat(dataMetrics)
-    headers <- privateGetFileHeader(dataMetrics, params)
+    headers <- privateGetFileHeader(dataMetrics, params, sensorName, scriptName)
 
     expect_equal(length(headers), 12, info = "should be composed of 11 lines")
     expect_identical(headers[1], paste0("\ufeff", params$iMotionsVersion, ",,,,"), "BOM should be added")
@@ -598,10 +643,11 @@ test_that("Data header should be as expected for signals", {
 
 test_that("Data header should be as expected for events", {
     dataEvents <- checkDataFormat(dataEvents)
-    dataHeader <- privateCreateHeader(params, dataEvents, sensorName = NULL, scriptName = NULL)
+    dataHeader <- privateCreateHeader(params, dataEvents, sampleName = NULL, scriptName = NULL)
 
     # Most of the params should have been removed from metadata
-    expectedMetadataUrl <- paste0("%7B%22parameters%22%3A%7B%22extraParam%22%3A%22fixationFilter%22%7D%7D")
+    expectedMetadataUrl <- paste0("%7B%22sampleName%22%3A%7B%7D%2C%22script%22%3A%7B%7D%2C%22parameters%22%3A%7B%22",
+                                  "extraParam%22%3A%22fixationFilter%22%7D%7D")
 
     expect_equal(length(dataHeader), 7, info = "should be composed of 7 lines")
     expect_identical(dataHeader[1], params$iMotionsVersion, "wrong imotions version")
@@ -615,10 +661,11 @@ test_that("Data header should be as expected for events", {
 
 test_that("Data header should be as expected for metrics", {
     dataMetrics <- checkDataFormat(dataMetrics)
-    dataHeader <- privateCreateHeader(params, dataMetrics, sensorName = NULL, scriptName = NULL)
+    dataHeader <- privateCreateHeader(params, dataMetrics, sampleName = NULL, scriptName = NULL)
 
     # Most of the params should have been removed from metadata
-    expectedMetadataUrl <- paste0("%7B%22parameters%22%3A%7B%22extraParam%22%3A%22fixationFilter%22%7D%7D")
+    expectedMetadataUrl <- paste0("%7B%22sampleName%22%3A%7B%7D%2C%22script%22%3A%7B%7D%2C%22parameters%22%3A%7B%22",
+                                  "extraParam%22%3A%22fixationFilter%22%7D%7D")
 
     expect_equal(length(dataHeader), 7, info = "should be composed of 7 lines")
     expect_identical(dataHeader[1], params$iMotionsVersion, "wrong imotions version")
