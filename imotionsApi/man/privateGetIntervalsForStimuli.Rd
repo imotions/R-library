@@ -4,12 +4,14 @@
 \alias{privateGetIntervalsForStimuli}
 \title{Get time intervals for stimuli.}
 \usage{
-privateGetIntervalsForStimuli(study, respondent)
+privateGetIntervalsForStimuli(study, respondent, stimuli)
 }
 \arguments{
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
 \item{respondent}{An imRespondent object as returned from \code{\link{getRespondents}}.}
+
+\item{stimuli}{An imStimulusList object as returned from \code{\link{getStimuli}}.}
 }
 \value{
 A data.table composed of the start, end, duration, id and name of each stimulus.

@@ -839,7 +839,7 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
 
     sensors$signals <- signals
     sensors$signalsMetaData <- signalsMetaData
-    sensors$respondent <- list(rep(respondent, nrow(sensors)))
+    sensors <- cbind(sensors, "respondent" = list(respondent))
     sensors <- reorderSensorColumns(sensors)
 
     sensors <- createImObject(sensors, "Sensor")
@@ -848,6 +848,58 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
 
 
 
+
+
+## Metadata ===========================================================================================================
+
+#' Get sensors specific metadata.
+#'
+#' Available sensors in your study can be listed using the \code{\link{getRespondentSensors}}.
+#'
+#' Metadata contains sensor metadata and signal metadata
+#'
+#' @param sensor An imSensor object as returned from \code{\link{getRespondentSensors}}.
+#'
+#' @importFrom utils URLdecode
+#' @importFrom dplyr bind_rows
+#' @return A list of two data frames containing respectively the sensor and the signals metadata.
+#' @export
+#' @examples
+#' \dontrun{
+#' connection <- imotionsApi::imConnection("xxxxxxxx")
+#' studies <- imotionsApi::listStudies(connection)
+#' study <- imotionsApi::imStudy(connection, studies$id[1])
+#' respondents <- imotionsApi::getRespondents(study)
+#' sensors <- imotionsApi::getRespondentSensors(study, respondents[1, ])
+#' metadata <- imotionsApi::getSensorMetaData(study, sensors[1, ])
+#' }
+getSensorsMetadata <- function(sensors) {
+    assertValid(hasArg(sensors), "Please specify sensors loaded with `getRespondentSensors()`")
+    assertClass(sensors, c("imSensor", "imSensorList"), "`sensors` argument is not an imSensor or imSensorList object")
+
+    sensors_metadata <- bind_rows(lapply(sensors$sensorSpecific, function(sensor) {
+        # Add an empty row in case no sensor information was found
+        if (is.na(sensor)) return(data.table(placeholderColumn = NA))
+
+        metadata <- fromJSON(sensor)
+
+        # Clean the return json object to create a data.table that can be bind together
+        metadata <- metadata[!lengths(metadata) == 0]
+
+        metadata <- lapply(metadata, function(x) {
+            return(ifelse(length(x) > 1, list(x), x))
+        })
+
+        processed_metadata <- as.data.table(metadata)
+        return(processed_metadata)
+    }))
+
+    if (exists("placeholderColumn", sensors_metadata)) {
+        sensors_metadata$placeholderColumn <- NULL
+    }
+
+    return(sensors_metadata)
+}
 
 
 ## Intervals (Stimulus, Scene, Annotation) ============================================================================
@@ -884,9 +936,11 @@ getRespondentIntervals <- function(study, respondent, type = c("Stimulus", "Scen
     assertValid(all(grepl("Stimulus|Scene|Annotation", type)),
                 "`type` argument can only be set to Stimulus, Scene and/or Annotation")
 
-    if ("Stimulus" %in% type) stimulusIntervals <- privateGetIntervalsForStimuli(study, respondent)
-    if ("Scene" %in% type) sceneIntervals <- privateGetIntervalsForScenes(study, respondent)
-    if ("Annotation" %in% type) annotationIntervals <- privateGetIntervalsForAnnotations(study, respondent)
+    stimuli <- getStimuli(study, respondent)
+
+    if ("Stimulus" %in% type) stimulusIntervals <- privateGetIntervalsForStimuli(study, respondent, stimuli)
+    if ("Scene" %in% type) sceneIntervals <- privateGetIntervalsForScenes(study, respondent,stimuli)
+    if ("Annotation" %in% type) annotationIntervals <- privateGetIntervalsForAnnotations(study, respondent, stimuli)
 
     intervals <- rbind(stimulusIntervals, sceneIntervals, annotationIntervals)
 
@@ -896,6 +950,7 @@ getRespondentIntervals <- function(study, respondent, type = c("Stimulus", "Scen
 
     intervals <- cbind(intervals, "respondent" = list(respondent))
     intervals <- createImObject(intervals, "Interval")
+    setkey(intervals, fragments.start, fragments.end)
     return(intervals)
 }
 
@@ -906,20 +961,26 @@ getRespondentIntervals <- function(study, respondent, type = c("Stimulus", "Scen
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
+#' @param stimuli An imStimulusList object as returned from \code{\link{getStimuli}}.
 #'
 #' @return A data.table composed of the start, end, duration, id and name of each stimulus.
 #' @keywords internal
-privateGetIntervalsForStimuli <- function(study, respondent) {
+privateGetIntervalsForStimuli <- function(study, respondent, stimuli) {
     sensors <- getRespondentSensors(study, respondent)
     sensor <- sensors[name == "SlideEvents", ]
 
     if (nrow(sensor) != 1) {
-        warning("No stimulus events found for this respondent.")
         return(NULL)
     }
 
     slideEvents <- getSensorData(study, sensor)
-    stimuli <- getStimuli(study)
+
+    # Filtering for stimuli included in the analysis
+    slideEvents <- slideEvents[slideEvents$SourceStimuliName %in% stimuli$name, ]
+
+    if (nrow(slideEvents) == 0) {
+        return(NULL)
+    }
 
     start <- slideEvents[slideEvents$SlideEvent == "StartMedia", ]$Timestamp
     end <- slideEvents[slideEvents$SlideEvent == "EndMedia", ]$Timestamp
@@ -942,24 +1003,30 @@ privateGetIntervalsForStimuli <- function(study, respondent) {
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
+#' @param stimuli An imStimulusList object as returned from \code{\link{getStimuli}}.
 #'
 #' @return A data.table composed of the start, end, duration, parent stimulus id/name, id and name of each scene.
 #' @keywords internal
-privateGetIntervalsForScenes <- function(study, respondent) {
+privateGetIntervalsForScenes <- function(study, respondent, stimuli) {
     id <- NULL #removing R Check Warnings
 
-    stimuli <- getStimuli(study)
     scenes <- getJSON(study$connection, getRespondentScenesUrl(study, respondent),
                       message = paste("Retrieving scenes for respondent", respondent$name))
 
     if (length(scenes) == 0) {
-        warning("No scenes events found for this respondent.")
+        return(NULL)
+    }
+
+    # Filtering for scenes included in the analysis
+    scenes <- scenes[scenes$sceneId %in% stimuli$id, ]
+
+    if (nrow(scenes) == 0) {
         return(NULL)
     }
 
     start <- scenes$fragmentStart
     end <- scenes$fragmentEnd
-    duration <- end - start
+    duration <- scenes$fragmentDuration
 
     # Find and merge more informations about the scenes
     scenesInfos <- stimuli[match(scenes$sceneId, id), ]
@@ -980,26 +1047,32 @@ privateGetIntervalsForScenes <- function(study, respondent) {
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
+#' @param stimuli An imStimulusList object as returned from \code{\link{getStimuli}}.
 #'
 #' @return A data.table composed of the start, end, duration, parent stimulus id/name, id, name and comment of each
 #'         annotation.
 #'
 #' @keywords internal
-privateGetIntervalsForAnnotations <- function(study, respondent) {
+privateGetIntervalsForAnnotations <- function(study, respondent, stimuli) {
     id <- NULL #removing R Check Warnings
 
-    stimuli <- getStimuli(study)
     annotations <- getJSON(study$connection, getRespondentAnnotationsUrl(study, respondent),
                            message = paste("Retrieving annotations for respondent", respondent$name))
 
     if (length(annotations) == 0) {
-        warning("No annotations events found for this respondent.")
         return(NULL)
     }
 
     # Expanding the data.table to have all annotations information displayed in the same table
     annotations$id <- NULL
     annotations <- unnest(annotations, cols = c("fragments"))
+
+    # Filtering for annotations included in the analysis
+    annotations <- annotations[annotations$stimuli %in% stimuli$id, ]
+
+    if (nrow(annotations) == 0) {
+        return(NULL)
+    }
 
     start <- annotations$rangeStart
     end <- annotations$rangeEnd
@@ -1210,38 +1283,7 @@ getSensorData <- function(study, sensor, signalsName = NULL, intervals = NULL) {
 }
 
 
-#' Download metadata corresponding to a specific sensor (sensor and signals metadata).
-#'
-#' Available sensors in your study can be listed using the \code{\link{getRespondentSensors}}.
-#'
-#' Metadata contains sensor metadata and signal metadata
-#'
-#' @param sensor An imSensor object as returned from \code{\link{getRespondentSensors}}.
-#'
-#' @importFrom utils URLdecode
-#' @return A list of two data frames containing respectively the sensor and the signals metadata.
-#' @export
-#' @examples
-#' \dontrun{
-#' connection <- imotionsApi::imConnection("xxxxxxxx")
-#' studies <- imotionsApi::listStudies(connection)
-#' study <- imotionsApi::imStudy(connection, studies$id[1])
-#' respondents <- imotionsApi::getRespondents(study)
-#' sensors <- imotionsApi::getRespondentSensors(study, respondents[1, ])
-#' metadata <- imotionsApi::getSensorMetaData(study, sensors[1, ])
-#' }
-getSensorMetaData <- function(sensor) {
-    assertValid(hasArg(sensor), "Please specify a sensor loaded with `getRespondentSensors()`")
-    assertClass(sensor, "imSensor", "`sensor` argument is not an imSensor object")
 
-    sensorMetaData <- fromJSON(URLdecode(sensor$sensorSpecific))
-    signalsMetaData <- sensor$signalsMetaData[[1]]
-
-    return(list(
-        sensor = sensorMetaData,
-        signals = signalsMetaData
-    ))
-}
 
 
 #' Get the inOutGaze information, inOutMouseClick information and AOI's intervals for a specific AOI/respondent
@@ -1724,7 +1766,6 @@ uploadMetrics <- function(params, study, metrics, target, metricsName, scriptNam
 #'
 #' @keywords internal
 privateUpload <- function(params, study, data, target, sampleName, scriptName, metadata = NULL,  stimulus = NULL) {
-
     # Create a temporary file with the data/metadata that needs to be uploaded
     tempFileName <- privateSaveToFile(params, data, sampleName, scriptName, metadata)
 

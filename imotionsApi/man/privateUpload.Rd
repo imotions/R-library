@@ -9,8 +9,8 @@ privateUpload(
   study,
   data,
   target,
-  sensorName = NULL,
-  scriptName = NULL,
+  sampleName,
+  scriptName,
   metadata = NULL,
   stimulus = NULL
 )
@@ -20,12 +20,12 @@ privateUpload(
 
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
-\item{data}{A data.table containing the signals to upload (imData object are also accepted).}
+\item{data}{A data.table containing the signals/metrics/events to upload (imData object are also accepted).}
 
-\item{target}{The target respondent for the sensor (an imRespondent object as returned from
+\item{target}{The target respondent for the sensor/metrics/events (an imRespondent object as returned from
 \code{\link{getRespondents}}).}
 
-\item{sensorName}{The name of the new sensor you would like to create.}
+\item{sampleName}{The name of the new sensor/metrics/events you would like to create.}
 
 \item{scriptName}{The name of the script used to produce these signals.}
 

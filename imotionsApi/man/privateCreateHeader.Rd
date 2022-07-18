@@ -4,14 +4,14 @@
 \alias{privateCreateHeader}
 \title{Create header for the file that needs to be uploaded.}
 \usage{
-privateCreateHeader(params, data, sensorName, scriptName)
+privateCreateHeader(params, data, sampleName, scriptName)
 }
 \arguments{
 \item{params}{The list of parameters provided to the script - specific parameters value will be stored as metadata.}
 
-\item{data}{A data.table containing the signals to upload (imData object are also accepted).}
+\item{data}{A data.table containing the signals/metrics/events to upload (imData object are also accepted).}
 
-\item{sensorName}{The name of the new sensor you would like to create.}
+\item{sampleName}{The name of the new sensor/metrics/events you would like to create.}
 
 \item{scriptName}{The name of the script used to produce these signals.}
 }

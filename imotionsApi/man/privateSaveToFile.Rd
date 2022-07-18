@@ -4,20 +4,14 @@
 \alias{privateSaveToFile}
 \title{Create a temporary file with the data/metadata that needs to be uploaded.}
 \usage{
-privateSaveToFile(
-  params,
-  data,
-  sensorName = NULL,
-  scriptName = NULL,
-  metadata = NULL
-)
+privateSaveToFile(params, data, sampleName, scriptName, metadata = NULL)
 }
 \arguments{
 \item{params}{The list of parameters provided to the script - specific parameters value will be stored as metadata.}
 
-\item{data}{A data.table containing the signals to upload (imData object are also accepted).}
+\item{data}{A data.table containing the signals/metrics/events to upload (imData object are also accepted).}
 
-\item{sensorName}{The name of the new sensor you would like to create.}
+\item{sampleName}{The name of the new sensor/metrics/events you would like to create.}
 
 \item{scriptName}{The name of the script used to produce these signals.}
 

@@ -4,17 +4,29 @@
 \alias{uploadMetrics}
 \title{Create metrics for a specific respondent in a study.}
 \usage{
-uploadMetrics(params, study, data, target, metadata = NULL)
+uploadMetrics(
+  params,
+  study,
+  metrics,
+  target,
+  metricsName,
+  scriptName,
+  metadata = NULL
+)
 }
 \arguments{
 \item{params}{The list of parameters provided to the script - specific parameters value will be stored as metadata.}
 
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
-\item{data}{A data.table containing the metrics to upload (imData object are also accepted).}
+\item{metrics}{A data.table containing the metrics to upload (imData object are also accepted).}
 
 \item{target}{The target respondent for the sensor (an imRespondent object as returned from
 \code{\link{getRespondents}}).}
+
+\item{metricsName}{The name of the new metrics you would like to create.}
+
+\item{scriptName}{The name of the script used to produce these signals.}
 
 \item{metadata}{Optional - a data.table with metadata information. Column names will be converted to metadata headers
 and there must be a row corresponding to each data column.}
@@ -35,15 +47,16 @@ studies <- imotionsApi::listStudies(connection)
 study <- imotionsApi::imStudy(connection, studies$id[1])
 respondents <- imotionsApi::getRespondents(study)
 
-data <- data.table("StimulusId" = c("1000", "1001"), "Timestamp" = c(10, 20), "Metric1" = c(12, 25),
-                   "Metrics2" = c(NA_real_, 120))
+metrics <- data.table("StimulusId" = c("1000", "1001"), "Timestamp" = c(10, 20), "Metric1" = c(12, 25),
+                      "Metrics2" = c(NA_real_, 120))
 
 params <- list("iMotionsVersion" = 8, "flowName" = "Test")
-uploadMetrics(params, study, data, respondents[1, ])
+uploadMetrics(params, study, metrics, respondents[1, ], metricsName = "New metrics", scriptName = "Example Script")
 
 
 # Adding some metadata to the data
 metadata <- data.table("Units" = c("", "ms", "", "microSiemens"))
-uploadMetrics(params, study, data, respondents[1, ], metadata)
+uploadMetrics(params, study, metrics, respondents[1, ], metricsName = "New metrics", scriptName = "Example Script",
+              metadata)
 }
 }
