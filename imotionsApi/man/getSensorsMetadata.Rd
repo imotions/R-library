@@ -7,16 +7,13 @@
 getSensorsMetadata(sensors)
 }
 \arguments{
-\item{sensor}{An imSensor object as returned from \code{\link{getRespondentSensors}}.}
+\item{sensors}{An imSensorList object as returned from \code{\link{getRespondentSensors}}.}
 }
 \value{
-A list of two data frames containing respectively the sensor and the signals metadata.
+A data.table with sensors metadata (one row by sensor).
 }
 \description{
 Available sensors in your study can be listed using the \code{\link{getRespondentSensors}}.
-}
-\details{
-Metadata contains sensor metadata and signal metadata
 }
 \examples{
 \dontrun{
@@ -25,6 +22,6 @@ studies <- imotionsApi::listStudies(connection)
 study <- imotionsApi::imStudy(connection, studies$id[1])
 respondents <- imotionsApi::getRespondents(study)
 sensors <- imotionsApi::getRespondentSensors(study, respondents[1, ])
-metadata <- imotionsApi::getSensorMetaData(study, sensors[1, ])
+metadata <- imotionsApi::getSensorsMetadata(study, sensors)
 }
 }

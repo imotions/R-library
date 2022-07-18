@@ -856,13 +856,12 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
 #'
 #' Available sensors in your study can be listed using the \code{\link{getRespondentSensors}}.
 #'
-#' Metadata contains sensor metadata and signal metadata
 #'
-#' @param sensor An imSensor object as returned from \code{\link{getRespondentSensors}}.
+#' @param sensors An imSensorList object as returned from \code{\link{getRespondentSensors}}.
 #'
 #' @importFrom utils URLdecode
 #' @importFrom dplyr bind_rows
-#' @return A list of two data frames containing respectively the sensor and the signals metadata.
+#' @return A data.table with sensors metadata (one row by sensor).
 #' @export
 #' @examples
 #' \dontrun{
@@ -871,7 +870,7 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
 #' respondents <- imotionsApi::getRespondents(study)
 #' sensors <- imotionsApi::getRespondentSensors(study, respondents[1, ])
-#' metadata <- imotionsApi::getSensorMetaData(study, sensors[1, ])
+#' metadata <- imotionsApi::getSensorsMetadata(study, sensors)
 #' }
 getSensorsMetadata <- function(sensors) {
     assertValid(hasArg(sensors), "Please specify sensors loaded with `getRespondentSensors()`")
