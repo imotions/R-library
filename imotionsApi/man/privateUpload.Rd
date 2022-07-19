@@ -2,7 +2,7 @@
 % Please edit documentation in R/imotionsApi.R
 \name{privateUpload}
 \alias{privateUpload}
-\title{Upload signals/events to a given respondent/segment.}
+\title{Upload signals/events/metrics to a given respondent/segment.}
 \usage{
 privateUpload(
   params,
@@ -36,6 +36,6 @@ and there must be a row corresponding to each data column.}
 this stimulus.}
 }
 \description{
-Upload signals/events to a given respondent/segment.
+Upload signals/events/metrics to a given respondent/segment.
 }
 \keyword{internal}

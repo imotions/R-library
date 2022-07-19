@@ -1747,7 +1747,7 @@ uploadMetrics <- function(params, study, metrics, target, metricsName, scriptNam
 
 }
 
-#' Upload signals/events to a given respondent/segment.
+#' Upload signals/events/metrics to a given respondent/segment.
 #'
 #' @param params The list of parameters provided to the script - specific parameters value will be stored as metadata.
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
@@ -1810,7 +1810,6 @@ privateSaveToFile <- function(params, data, sampleName, scriptName, metadata = N
         dataFileName <- file.path(params$scratchFolder, "result.csv")
     } else {
         # In case of a local upload without scratchFolder path given - we will use the user tempdir location
-        warning("params$scratchFolder not provided - using user tempdir location")
         dataFileName <- file.path(tempdir(check = TRUE), "result.csv")
     }
 

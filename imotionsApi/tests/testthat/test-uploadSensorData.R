@@ -535,11 +535,6 @@ test_that("Data should get stored as a temporary file", {
     dataWritten <- fread(dataFileName)
     expect_identical(dataWritten, testData, "files should still be identical")
 
-    # params without "scratchFolder" path provided should throw a warning
-    warning <- capture_warning(privateSaveToFile(params, data, sensorName, scriptName, additionalMetadata))
-    expect_identical(warning$message, "params$scratchFolder not provided - using user tempdir location",
-                     "should throw a warning")
-
     # params with a "scratchFolder" path provided should use this path directly without warnings
     params <- append(params, list("scratchFolder" = tmpDir))
     dataFileName <- privateSaveToFile(params, data, sensorName, scriptName, additionalMetadata)
