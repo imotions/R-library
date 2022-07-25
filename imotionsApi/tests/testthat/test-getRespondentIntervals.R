@@ -18,7 +18,9 @@ annotationsEvents <- jsonlite::fromJSON("../data/annotations.json")
 # Load sensors
 sensors <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorList.json")))
 
-mockedPrivateGetIntervalsForStimuli <- function(study, respondent,stimuli, slideEvents, sensors, expectedDataCall = 1) {
+mockedPrivateGetIntervalsForStimuli <- function(study, respondent, stimuli, slideEvents, sensors,
+                                                expectedDataCall = 1) {
+
     getRespondentSensors_Stub <- mock(sensors)
     getSensorData_Stub <- mock(slideEvents)
 
@@ -71,7 +73,7 @@ test_that("should return NULL if no slideEvents sensors available", {
 })
 
 # privateGetIntervalsForScenes ========================================================================================
-context("privateGetIntervalsForScenes()");
+context("privateGetIntervalsForScenes()")
 
 mockedPrivateGetIntervalsForScenes <- function(study, respondent, stimuli, scenesEvents) {
     getJSON_Stub <- mock(scenesEvents)
@@ -94,7 +96,7 @@ test_that("should return a data.table of the good format and filter for not incl
     expect_identical(unique(scenesIntervals$type), "Scene", "intervals should all be of scene type")
     expect_identical(scenesIntervals$parentId, c("1002", "1002"), "scene intervals should have a parent")
     expect_identical(scenesIntervals$parentName, c("IAAF", "IAAF"), "scene intervals should have a parent")
-    expect_identical(scenesIntervals$name, c("IAAF_Scene[1]", "IAAF_Scene[1]"),"wrong scenes name")
+    expect_identical(scenesIntervals$name, c("IAAF_Scene[1]", "IAAF_Scene[1]"), "wrong scenes name")
     expect_equal(scenesIntervals$fragments.start, c(6075.691, 18440.691), 1e-2, info = "wrong fragments start")
     expect_equal(scenesIntervals$fragments.end, c(13478.69, 25209.69), 1e-2, info = "wrong fragments end")
     expect_equal(scenesIntervals$fragments.duration, c(7403, 6769), 1e-2, info = "wrong fragments duration")
@@ -110,7 +112,7 @@ test_that("should return NULL if no scenes available", {
 })
 
 # privateGetIntervalsForAnnotations ===================================================================================
-context("privateGetIntervalsForAnnotations()");
+context("privateGetIntervalsForAnnotations()")
 
 mockedPrivateGetIntervalsForAnnotations <- function(study, respondent, stimuli, annotationsEvents) {
     getJSON_Stub <- mock(annotationsEvents)
@@ -163,7 +165,7 @@ test_that("should return NULL if no annotations available", {
 })
 
 # getRespondentIntervals ==============================================================================================
-context("getRespondentIntervals()");
+context("getRespondentIntervals()")
 
 mockedGetRespondentIntervals <- function(study, respondent, type = c("Stimulus", "Annotation", "Scene"),
                                          stimIntervals = NULL, sceneIntervals = NULL, annotationIntervals = NULL) {

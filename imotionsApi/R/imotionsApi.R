@@ -154,7 +154,7 @@ listLoadedStudies <- function() {
         return(NULL)
     }
 
-    loadedStudies <- data.frame(name = info[1, ], id = info[2, ], stringsAsFactors = F)
+    loadedStudies <- data.frame(name = info[1, ], id = info[2, ], stringsAsFactors = FALSE)
     row.names(loadedStudies) <- NULL
     return(loadedStudies)
 }
@@ -280,7 +280,7 @@ getStimuli <- function(study, respondent = NULL, relevant = TRUE) {
         stimuli <- stimuli[apply(stimuli, 1, function(x) any(x$respondentData$respondent$id %like% respondent$id)), ]
     }
 
-    stimuli$relevant <- !unlist(grepl("non-relevant", stimuli$tags, fixed = T))
+    stimuli$relevant <- !unlist(grepl("non-relevant", stimuli$tags, fixed = TRUE))
     stimuli$parentId <- stimuli$parentStimuli
 
     stimuli[, c("respondentData", "tags", "parentStimuli")] <- NULL
@@ -424,7 +424,7 @@ getAOIs <- function(study, stimulus = NULL, respondent = NULL, generateInOutFile
     AOIs$area[AOIs$area == 0] <- NA_real_
 
     # Generate InOut files and link them to the AOI object
-    if (generateInOutFiles & (is.null(stimulus) | is.null(respondent))) {
+    if (generateInOutFiles && (is.null(stimulus) || is.null(respondent))) {
         warning("InOut files can only be generated when both respondent and stimulus argument are provided.")
     } else if (generateInOutFiles) {
         AOIDetails <- privateGetAOIDetails(study, stimulus, respondent)
@@ -938,7 +938,7 @@ getRespondentIntervals <- function(study, respondent, type = c("Stimulus", "Scen
     stimuli <- getStimuli(study, respondent)
 
     if ("Stimulus" %in% type) stimulusIntervals <- privateGetIntervalsForStimuli(study, respondent, stimuli)
-    if ("Scene" %in% type) sceneIntervals <- privateGetIntervalsForScenes(study, respondent,stimuli)
+    if ("Scene" %in% type) sceneIntervals <- privateGetIntervalsForScenes(study, respondent, stimuli)
     if ("Annotation" %in% type) annotationIntervals <- privateGetIntervalsForAnnotations(study, respondent, stimuli)
 
     intervals <- rbind(stimulusIntervals, sceneIntervals, annotationIntervals)
@@ -949,7 +949,7 @@ getRespondentIntervals <- function(study, respondent, type = c("Stimulus", "Scen
 
     intervals <- cbind(intervals, "respondent" = list(respondent))
     intervals <- createImObject(intervals, "Interval")
-    setkey(intervals, fragments.start, fragments.end)
+    setkeyv(intervals, c("fragments.start", "fragments.end"))
     return(intervals)
 }
 
@@ -1644,13 +1644,14 @@ uploadAOIRespondentMetrics <- function(study, AOI, respondent, metrics) {
 #'                      "Description" = rep("Description of event", 5))
 #'
 #' params <- list("iMotionsVersion" = 8, "flowName" = "Test")
-#' uploadEvents(params, study, events, respondents[1, ], eventsName = "New events", scriptName = "Example Script")
+#' uploadEvents(params, study, events, respondents[1, ], eventsName = "New events",
+#'              scriptName = "Example Script")
 #'
 #'
 #' # Adding some metadata to the events
 #' metadata <- data.table("Units" = c("ms", "", ""), "Show" = c("FALSE", "TRUE", "TRUE"))
-#' uploadEvents(params, study, events, respondents[1, ], eventsName = "New events", scriptName = "Example Script",
-#'              metadata)
+#' uploadEvents(params, study, events, respondents[1, ], eventsName = "New events",
+#'              scriptName = "Example Script", metadata)
 #' }
 uploadEvents <- function(params, study, events, target, eventsName, scriptName, metadata = NULL) {
     assertValid(hasArg(params), "Please specify parameters used for your script")
@@ -1708,17 +1709,18 @@ uploadEvents <- function(params, study, events, target, eventsName, scriptName, 
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
 #' respondents <- imotionsApi::getRespondents(study)
 #'
-#' metrics <- data.table("StimulusId" = c("1000", "1001"), "Timestamp" = c(10, 20), "Metric1" = c(12, 25),
-#'                       "Metrics2" = c(NA_real_, 120))
+#' metrics <- data.table("StimulusId" = c("1000", "1001"), "Timestamp" = c(10, 20),
+#'                       "Metric1" = c(12, 25), "Metrics2" = c(NA_real_, 120))
 #'
 #' params <- list("iMotionsVersion" = 8, "flowName" = "Test")
-#' uploadMetrics(params, study, metrics, respondents[1, ], metricsName = "New metrics", scriptName = "Example Script")
+#' uploadMetrics(params, study, metrics, respondents[1, ], metricsName = "New metrics",
+#'               scriptName = "Example Script")
 #'
 #'
 #' # Adding some metadata to the data
 #' metadata <- data.table("Units" = c("", "ms", "", "microSiemens"))
-#' uploadMetrics(params, study, metrics, respondents[1, ], metricsName = "New metrics", scriptName = "Example Script",
-#'               metadata)
+#' uploadMetrics(params, study, metrics, respondents[1, ], metricsName = "New metrics",
+#'               scriptName = "Example Script", metadata)
 #' }
 uploadMetrics <- function(params, study, metrics, target, metricsName, scriptName, metadata = NULL) {
     assertValid(hasArg(params), "Please specify parameters used for your script")
@@ -1938,7 +1940,7 @@ privateCreateMetadata <- function(data, metadata = NULL) {
     metadata_values <- purrr::map_chr(metadata, paste, collapse = ",")
 
     if (inherits(data, "imExport")) {
-        metadata_values <- paste0("#", metadata_values, recycle0 = T)
+        metadata_values <- paste0("#", metadata_values, recycle0 = TRUE)
     }
 
     metadata <- c("#METADATA", metadata_values)
@@ -2093,7 +2095,7 @@ print.imObject <- function(x, ...) {
     objectType <- gsub("^im|List", "", class(x)[1])
     if (nrow(x) == 0) {
         cat("No iMotions", objectType, "found", sep = " ")
-    } else if (nrow(x) == 1 & !objectType %in% c("Sensor", "Interval")) {
+    } else if (nrow(x) == 1 && !objectType %in% c("Sensor", "Interval")) {
         cat("iMotions ", objectType, " `", x$name, "` with ID = ", x$id, sep = "")
     } else {
         print.default(x)
@@ -2279,7 +2281,7 @@ getUploadMetricsUrl.imRespondent <- function(study, imObject) {
 #'
 #' @keywords internal
 getAOIsUrl <- function(study, stimulusId = NULL, respondentId = NULL) {
-    if (!is.null(stimulusId) & !is.null(respondentId)) {
+    if (!is.null(stimulusId) && !is.null(respondentId)) {
         stop("Please provide either stimulusId or respondentId, not both.")
     }
 
@@ -2545,7 +2547,7 @@ assertUploadFormat <- function(data) {
 #'
 #' @keywords internal
 assertExportFormat <- function(data) {
-    if (!(inherits(data, "imExport") | inherits(data, "imMetrics"))) {
+    if (!(inherits(data, "imExport") || inherits(data, "imMetrics"))) {
         stop("Wrong data format for export (must be imMetrics or imExport)")
     }
 }
@@ -2577,7 +2579,7 @@ checkDataFormat <- function(data) {
 
         # Signals detected
         class(data) <- append(c("imSignals", "imData"), class(data))
-    } else if (nrow(data) == 1 & all(sapply(data, class) %like% "numeric|integer")) {
+    } else if (nrow(data) == 1 && all(sapply(data, class) %like% "numeric|integer")) {
         # AOI metrics detected
         class(data) <- append(c("imAOIMetrics", "imData"), class(data))
     } else {

@@ -63,7 +63,7 @@ test_that("should not change the object class if already an imData object", {
 
 
 
-context("assertUploadFormat()");
+context("assertUploadFormat()")
 
 test_that("should throw errors if data is of wrong format", {
     # No data rows
@@ -86,7 +86,7 @@ test_that("should throw errors if data is of wrong format", {
                      "Neither metrics nor signals should throw an error.")
 })
 
-context("assertExportFormat()");
+context("assertExportFormat()")
 
 test_that("should throw errors if data is of wrong format", {
     # with an imSignal object

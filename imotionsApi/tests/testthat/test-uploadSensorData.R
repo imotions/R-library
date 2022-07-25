@@ -142,7 +142,7 @@ test_that("should not call privateUpload if data is of wrong format", {
 
 
 
-context("uploadEvents()");
+context("uploadEvents()")
 
 # Create data to upload
 dataEvents <- data.table("Timestamp" = seq(1:100), "EventName" = rep("Event 1", 100), "Description" = rep("test", 100))
@@ -276,7 +276,7 @@ test_that("should not call privateUpload if data is of wrong format", {
 
 
 
-context("uploadMetrics()");
+context("uploadMetrics()")
 
 # Create data to upload
 dataMetrics <- data.table("StimulusId" = c("1000", "1001", "1002"), "Timestamp" = c(1, 2, 3), "Metrics1" = c(1, 2, 3),
@@ -413,7 +413,7 @@ test_that("should not call privateUpload if data is of wrong format", {
 
 
 
-context("privateUpload()");
+context("privateUpload()")
 
 uploadUrlStudyPath <- "uploadUrlStudy"
 uploadUrlStimulusPath <- "uploadUrlStimulus"
@@ -513,7 +513,7 @@ test_that("should upload metrics to a given respondent/segment if a good request
 })
 
 
-context("privateSaveToFile()");
+context("privateSaveToFile()")
 
 test_that("Data should get stored as a temporary file", {
     tmpDir <- tempdir(check = TRUE)
@@ -555,7 +555,7 @@ test_that("Data should get stored as a temporary file", {
     file.remove(dataFileName)
 })
 
-context("privateGetFileHeader()");
+context("privateGetFileHeader()")
 
 test_that("General file header should be as expected", {
     # Signal data
@@ -615,7 +615,7 @@ test_that("General file header should be as expected", {
     expect_identical(headers[4], "#DATA,,,", "wrong number of comma added")
 })
 
-context("privateCreateHeader()");
+context("privateCreateHeader()")
 
 test_that("Data header should be as expected for signals", {
     data <- checkDataFormat(data)

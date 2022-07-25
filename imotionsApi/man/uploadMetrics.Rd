@@ -47,16 +47,17 @@ studies <- imotionsApi::listStudies(connection)
 study <- imotionsApi::imStudy(connection, studies$id[1])
 respondents <- imotionsApi::getRespondents(study)
 
-metrics <- data.table("StimulusId" = c("1000", "1001"), "Timestamp" = c(10, 20), "Metric1" = c(12, 25),
-                      "Metrics2" = c(NA_real_, 120))
+metrics <- data.table("StimulusId" = c("1000", "1001"), "Timestamp" = c(10, 20),
+                      "Metric1" = c(12, 25), "Metrics2" = c(NA_real_, 120))
 
 params <- list("iMotionsVersion" = 8, "flowName" = "Test")
-uploadMetrics(params, study, metrics, respondents[1, ], metricsName = "New metrics", scriptName = "Example Script")
+uploadMetrics(params, study, metrics, respondents[1, ], metricsName = "New metrics",
+              scriptName = "Example Script")
 
 
 # Adding some metadata to the data
 metadata <- data.table("Units" = c("", "ms", "", "microSiemens"))
-uploadMetrics(params, study, metrics, respondents[1, ], metricsName = "New metrics", scriptName = "Example Script",
-              metadata)
+uploadMetrics(params, study, metrics, respondents[1, ], metricsName = "New metrics",
+              scriptName = "Example Script", metadata)
 }
 }

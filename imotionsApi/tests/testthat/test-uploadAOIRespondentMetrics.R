@@ -61,7 +61,7 @@ test_that("should throw errors if arguments are missing or not from the good cla
 
 test_that("should return a warning if the AOI is not found for the specific respondent", {
     metrics <- checkDataFormat(metrics)
-    privateGetAOIDetails_Stub <- mock(jsonlite::fromJSON("../data/no_scenes_annotations_aoidetails.json"), cycle = T)
+    privateGetAOIDetails_Stub <- mock(jsonlite::fromJSON("../data/no_scenes_annotations_aoidetails.json"), cycle = TRUE)
 
     warning <- capture_warning(mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub, {
                                                     uploadAOIRespondentMetrics(study, AOI, respondent, metrics)

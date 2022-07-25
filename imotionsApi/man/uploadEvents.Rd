@@ -50,12 +50,13 @@ events <- data.table("Timestamp" = seq(1:5), "EventName" = rep("My event names",
                      "Description" = rep("Description of event", 5))
 
 params <- list("iMotionsVersion" = 8, "flowName" = "Test")
-uploadEvents(params, study, events, respondents[1, ], eventsName = "New events", scriptName = "Example Script")
+uploadEvents(params, study, events, respondents[1, ], eventsName = "New events",
+             scriptName = "Example Script")
 
 
 # Adding some metadata to the events
 metadata <- data.table("Units" = c("ms", "", ""), "Show" = c("FALSE", "TRUE", "TRUE"))
-uploadEvents(params, study, events, respondents[1, ], eventsName = "New events", scriptName = "Example Script",
-             metadata)
+uploadEvents(params, study, events, respondents[1, ], eventsName = "New events",
+             scriptName = "Example Script", metadata)
 }
 }
