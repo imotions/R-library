@@ -5,7 +5,7 @@ library("imotionsApi")
 library("mockery")
 library("data.table")
 
-# Load study, respondent amd stimuli
+# Load study, respondent and stimuli
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
 respondent <- getRespondent(study, "09bd22e6-29b6-4a8a-8cc1-4780a5163e63")
 stimuli <- getStimuli(study, respondent)
