@@ -227,7 +227,7 @@ getSkintempSample <- function(study, respondent, selectedSensorName) {
         sensor <- rSensors[tempSampleIdx, ][1, ]
         signalNames <- sensor$signals[[1]]
         signalName <- signalNames[grepl("Raw", signalNames)]
-        
+
         if (!signalName %in% signalNames) {
             message("The skin temperature signal was not found.")
             return(NULL)
@@ -275,7 +275,7 @@ Temp_signal <- getSkintempSample(study, respondent, selectedSensorName)
 Temp_signal$Volt <- (Temp_signal$Volt * gain) + 90
 
 # Converts to Celsius if it is chosen, otherwise proceeded with Fahrenheit
-# Columns are furthermore renamed according to chosen temperature scale 
+# Columns are furthermore renamed according to chosen temperature scale
 if (temp_scale == "Celsius (deg C)") {
     colname <- "Skin Temperature (deg C)"
     Temp_signal$Volt <- (Temp_signal$Volt - 30) / 2

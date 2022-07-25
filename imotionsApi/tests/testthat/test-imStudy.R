@@ -91,7 +91,7 @@ test_that("environment saving of studies should work as expected", {
                      "both studies should been saved")
 })
 
-context("listStudies()");
+context("listStudies()")
 
 studiesJSON <- jsonlite::read_json("../data/studies.json", simplifyVector = TRUE)
 
@@ -128,7 +128,7 @@ test_that("listing studies available should return two studies", {
 })
 
 
-context("listLoadedStudies()");
+context("listLoadedStudies()")
 
 test_that("listing loaded studies should return two studies", {
     environment(listLoadedStudies) <- imotionsApiEnvironment
@@ -137,7 +137,7 @@ test_that("listing loaded studies should return two studies", {
 })
 
 
-context("unloadStudies()");
+context("unloadStudies()")
 
 test_that("unloading studies should empty the environment variables", {
     environment(unloadStudies) <- imotionsApiEnvironment

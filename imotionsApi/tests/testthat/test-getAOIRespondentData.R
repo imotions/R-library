@@ -33,7 +33,7 @@ mockedPrivateGetAOIDetails <- function(study, imObject, respondent = NULL, expec
 
     # Replace url to load test data
     mockUrl <- function(url) {
-        if (grepl("*", url, fixed = T)) {
+        if (grepl("*", url, fixed = TRUE)) {
             if (grepl("respondent", url)) {
                 return(AOIDetailForStimulusRPath)
             } else {
@@ -110,7 +110,7 @@ test_that("privateGetAOIDetails() should return the correct AOI details for a re
 
 
 
-context("getAOIRespondentData()");
+context("getAOIRespondentData()")
 
 AOIDetailsFile <- jsonlite::fromJSON(AOIDetailsRespondentPath)
 
@@ -211,7 +211,7 @@ test_that("should return the correct inOutGaze for this AOI/respondent pair", {
     # Check inOutGaze data.table
     expect_identical(names(inOutGaze), c("Timestamp", "IsGazeInAOI"), info = "wrong column names")
     expect_equal(nrow(inOutGaze), 7, info = "should have 7 in/off values")
-    expect_identical(inOutGaze$IsGazeInAOI, c(F, T, F, T, F, T, F), "wrong value")
+    expect_identical(inOutGaze$IsGazeInAOI, c(rep(c(FALSE, TRUE), 3), FALSE), "wrong value")
     expect_equal(inOutGaze$Timestamp, c(9181.255, 9195.980, 11400.944, 16016.118, 17195.937, 21816.359, 22655.954),
                  1e-2, info = "wrong in/off Timestamp")
 })

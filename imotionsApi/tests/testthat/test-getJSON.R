@@ -8,7 +8,7 @@ class(connection) <- c("imConnection", "list")
 
 mockedGetJSON <- function(connection, url, response, mockResponse = NULL) {
     getHttr_Stub <- mock(mockResponse)
-    getHttrStatusCode_Stub <- mock(eval(response), cycle = T)
+    getHttrStatusCode_Stub <- mock(eval(response), cycle = TRUE)
 
     mockr::with_mock(getHttr = getHttr_Stub,
                      getHttrStatusCode = getHttrStatusCode_Stub, {

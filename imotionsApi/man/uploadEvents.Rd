@@ -4,17 +4,29 @@
 \alias{uploadEvents}
 \title{Create events for a specific respondent in a study.}
 \usage{
-uploadEvents(params, study, data, target, metadata = NULL)
+uploadEvents(
+  params,
+  study,
+  events,
+  target,
+  eventsName,
+  scriptName,
+  metadata = NULL
+)
 }
 \arguments{
 \item{params}{The list of parameters provided to the script - specific parameters value will be stored as metadata.}
 
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
-\item{data}{A data.table containing the signals/metrics to upload (imData object are also accepted).}
+\item{events}{A data.table containing the events to upload (imData object are also accepted).}
 
 \item{target}{The target respondent for the sensor (an imRespondent object as returned from
 \code{\link{getRespondents}}).}
+
+\item{eventsName}{The name of the new events you would like to create.}
+
+\item{scriptName}{The name of the script used to produce these signals.}
 
 \item{metadata}{Optional - a data.table with metadata information. Column names will be converted to metadata headers
 and there must be a row corresponding to each data column.}
@@ -34,15 +46,17 @@ studies <- imotionsApi::listStudies(connection)
 study <- imotionsApi::imStudy(connection, studies$id[1])
 respondents <- imotionsApi::getRespondents(study)
 
-data <- data.table("Timestamp" = seq(1:5), "EventName" = rep("My event names", 5),
-                   "Description" = rep("Description of event", 5))
+events <- data.table("Timestamp" = seq(1:5), "EventName" = rep("My event names", 5),
+                     "Description" = rep("Description of event", 5))
 
 params <- list("iMotionsVersion" = 8, "flowName" = "Test")
-uploadEvents(params, study, data, respondents[1, ])
+uploadEvents(params, study, events, respondents[1, ], eventsName = "New events",
+             scriptName = "Example Script")
 
 
-# Adding some metadata to the data
+# Adding some metadata to the events
 metadata <- data.table("Units" = c("ms", "", ""), "Show" = c("FALSE", "TRUE", "TRUE"))
-uploadEvents(params, study, data, respondents[1, ], metadata)
+uploadEvents(params, study, events, respondents[1, ], eventsName = "New events",
+             scriptName = "Example Script", metadata)
 }
 }

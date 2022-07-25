@@ -11,7 +11,7 @@ class(body) <- "json"
 
 mockedPostJSON <- function(connection, url, postData, response, mockResponse = NULL) {
     postHttr_Stub <- mock(mockResponse)
-    getHttrStatusCode_Stub <- mock(eval(response), cycle = T)
+    getHttrStatusCode_Stub <- mock(eval(response), cycle = TRUE)
 
     filePath <- mockr::with_mock(postHttr = postHttr_Stub,
                      getHttrStatusCode = getHttrStatusCode_Stub, {

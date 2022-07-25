@@ -36,7 +36,7 @@ test_that("getRespondents() by stimulus", {
 })
 
 # Create get AOI details stub
-privateGetAOIDetails_Stub <- mock(AOIDetails, cycle = T)
+privateGetAOIDetails_Stub <- mock(AOIDetails, cycle = TRUE)
 
 test_that("getRespondents() by AOI", {
     # Case where only two respondents (out of 3) have an AOI defined
@@ -156,11 +156,11 @@ test_that("should expose respondent variables if available", {
     study_more_variables$respondents$variables$var1 <- "var1"
     study_more_variables$respondents$variables$var2 <- "var2"
 
-    respondents <- getRespondents(study_more_variables, keepRespondentVariables = T)
+    respondents <- getRespondents(study_more_variables, keepRespondentVariables = TRUE)
     expect_identical(names(respondents), c("name", "id", "group", "age", "gender", "variables.var1", "variables.var2"),
                      "Columns with variables should have been created")
 
-    respondents <- getRespondents(study_more_variables, keepRespondentVariables = F)
+    respondents <- getRespondents(study_more_variables, keepRespondentVariables = FALSE)
     expect_identical(names(respondents), c("name", "id", "group", "age", "gender"),
                      "No columns with variables should have been created")
 })

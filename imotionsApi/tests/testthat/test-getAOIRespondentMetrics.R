@@ -86,5 +86,5 @@ test_that("should return the correct metrics for this AOI/respondent pair", {
     # Check dimensions and class of metrics
     expect_equal(nrow(metrics), 1, infos = "metrics should always only have one row")
     expect_equal(ncol(metrics), 37, infos = "no column should be lost")
-    expect_true(inherits(metrics, "imMetrics"), "`metrics` should be an imMetrics object")
+    expect_true(inherits(metrics, "imAOIMetrics"), "`metrics` should be an imAOIMetrics object")
 })

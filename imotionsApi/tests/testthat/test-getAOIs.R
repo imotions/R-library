@@ -153,12 +153,12 @@ test_that("should throw errors if arguments are missing or not from the good cla
                      "respondent not being an imRespondent object should throw an error")
 
     # in case generateInOutFiles is true and not both respondent and stimulus are provided
-    warning <- capture_warning(mockedGetAOIs(study, stimuli[1, ], generateInOutFiles = T))
+    warning <- capture_warning(mockedGetAOIs(study, stimuli[1, ], generateInOutFiles = TRUE))
     expect_identical(warning$message,
                      "InOut files can only be generated when both respondent and stimulus argument are provided.",
                      "respondent argument must be provided")
 
-    warning <- capture_warning(mockedGetAOIs(study, stimulus = NULL, respondents[1, ], generateInOutFiles = T))
+    warning <- capture_warning(mockedGetAOIs(study, stimulus = NULL, respondents[1, ], generateInOutFiles = TRUE))
     expect_identical(warning$message,
                      "InOut files can only be generated when both respondent and stimulus argument are provided.",
                      "stimulus argument must be provided")
@@ -192,7 +192,7 @@ test_that("should return a imAOIList object with AOIs info", {
 
 test_that("generateInOutFiles should works as expected", {
   # Should return all AOIs from this study for a specific respondent and stimulus
-  AOIs <- mockedGetAOIs(study, stimulus = stimuli[4, ], respondent = respondents[1, ], generateInOutFiles = T, 1)
+  AOIs <- mockedGetAOIs(study, stimulus = stimuli[4, ], respondent = respondents[1, ], generateInOutFiles = TRUE, 1)
 
   expect_true(inherits(AOIs, "imAOIList"), "`AOIs` should be an imAOIList object")
   expect(nrow(AOIs) == 4, "combination should contain 4 AOIs")
@@ -200,7 +200,8 @@ test_that("generateInOutFiles should works as expected", {
                                      "resultId"), "AOIs infos not matching")
 
   # If stimulus is missing we shouldn't add any filepaths
-  AOIs <- suppressWarnings(mockedGetAOIs(study, stimulus = NULL, respondent = respondents[1, ], generateInOutFiles = T))
+  AOIs <- suppressWarnings(mockedGetAOIs(study, stimulus = NULL, respondent = respondents[1, ],
+                                         generateInOutFiles = TRUE))
 
   expect_true(inherits(AOIs, "imAOIList"), "`AOIs` should be an imAOIList object")
   expect(nrow(AOIs) == 4, "study for this respondent should contain 4 AOIs")
@@ -208,7 +209,7 @@ test_that("generateInOutFiles should works as expected", {
                    "AOIs infos not matching")
 
   # If respondent is missing we shouldn't add any filepaths
-  AOIs <- suppressWarnings(mockedGetAOIs(study, stimulus = stimuli[4, ], respondent = NULL, generateInOutFiles = T))
+  AOIs <- suppressWarnings(mockedGetAOIs(study, stimulus = stimuli[4, ], respondent = NULL, generateInOutFiles = TRUE))
 
   expect_true(inherits(AOIs, "imAOIList"), "`AOIs` should be an imAOIList object")
   expect(nrow(AOIs) == 3, "study for this stimulus should contain 3 AOIs")
