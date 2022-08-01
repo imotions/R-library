@@ -541,8 +541,8 @@ test_that("Data should get stored as a temporary file", {
     dataWritten <- fread(dataFileName)
     expect_identical(dataWritten, testData, "files should still be identical")
 
-    # NA in metrics should be output as "NA"
-    dataMetricsNA <- data.table("StimulusId" = c("1000", "1001", "1002"), "Timestamp" = c(1, 2, 3),
+    # NA in metrics should be output as "NA" and reordered
+    dataMetricsNA <- data.table("StimulusId" = c("1000", "1001", "1002"), "Timestamp" = c(30, 20, 10),
                                 "Metrics1" = c(1, NA_real_, 3), "Metrics2" = c(23, 45, NA_real_))
 
     dataMetricsNA <- checkDataFormat(dataMetricsNA)

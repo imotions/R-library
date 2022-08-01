@@ -1815,11 +1815,12 @@ privateSaveToFile <- function(params, data, sampleName, scriptName, metadata = N
         dataFileName <- file.path(tempdir(check = TRUE), "result.csv")
     }
 
-    # Make sure metrics are encoded as NaN and that the StimulusId is in first position
+    # Make sure metrics are encoded as NaN, that the StimulusId comes first and that rows are ordered by timestamps
     if (inherits(data, "imMetrics")) {
         na_option <- NaN
         data$StimulusId <- as.numeric(data$StimulusId)
         setcolorder(data, c("StimulusId", "Timestamp"))
+        setorder(data, "Timestamp")
     } else {
         na_option <- ""
     }

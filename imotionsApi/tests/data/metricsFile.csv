@@ -1,4 +1,4 @@
-﻿iMotionsVersion,,,,
+iMotionsVersion,,,,
 #HEADER,,,,
 iMotions.RAPIData,,,,
 flowName,,,,
@@ -11,6 +11,6 @@ DataType,Double,Double,Double,Double
 ImotionsInternal,NoGraphDisplay,,Metrics,Metrics
 #DATA,,,,
 "RowNumber","StimulusId","Timestamp","Metrics1","Metrics2"
-0,1000,1,1,23
-1,1001,2,NaN,45
-2,1002,3,3,NaN
+0,1002,10,3,NaN
+1,1001,20,NaN,45
+2,1000,30,1,23
