@@ -1,0 +1,16 @@
+iMotionsVersion,,,,
+#HEADER,,,,
+iMotions.RAPIData,,,,
+flowName,,,,
+ET_RMetricsAPI,,,,
+,,,,
+%7B%22sampleName%22%3A%22TestSensor%22%2C%22script%22%3A%22TestScript%22%2C%22parameters%22%3A%7B%22extraParam%22%3A%22fixationFilter%22%7D%7D,,,,
+#METADATA,,,,
+FieldName,StimulusId,Timestamp,Metrics1,Metrics2
+DataType,Double,Double,Double,Double
+ImotionsInternal,NoGraphDisplay,,Metrics,Metrics
+#DATA,,,,
+"RowNumber","StimulusId","Timestamp","Metrics1","Metrics2"
+0,1002,10,3,NaN
+1,1001,20,NaN,45
+2,1000,30,1,23

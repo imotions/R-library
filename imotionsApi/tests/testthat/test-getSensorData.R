@@ -53,7 +53,7 @@ test_that("privateDownloadData() should return the correct signals file during l
 })
 
 
-context("getSensorData()");
+context("getSensorData()")
 
 # Load signals
 signals <- arrow::read_parquet("../data/ET_Eyetracker.csv.pbin")

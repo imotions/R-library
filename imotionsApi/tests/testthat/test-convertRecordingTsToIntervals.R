@@ -34,7 +34,7 @@ test_that("should throw errors if arguments are missing or not from the good cla
     expect_identical(error$message, "`recordingTs` array or scalar must be of numeric type",
                      "recordingTs from type string should throw an error")
 
-    error <- capture_error(convertRecordingTsToIntervals(recordingTs = c(T, F), intervals[1, ]))
+    error <- capture_error(convertRecordingTsToIntervals(recordingTs = c(TRUE, FALSE), intervals[1, ]))
     expect_identical(error$message, "`recordingTs` array or scalar must be of numeric type",
                      "recordingTs from type boolean should throw an error")
 })

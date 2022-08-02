@@ -7,7 +7,7 @@
 privateCreateMetadata(data, metadata = NULL)
 }
 \arguments{
-\item{data}{A data.table containing the signals/metrics to upload (imData object are also accepted).}
+\item{data}{A data.table containing the signals to upload (imData object are also accepted).}
 
 \item{metadata}{Optional - a data.table with metadata information. Column names will be converted to metadata headers
 and there must be a row corresponding to each data column.}
