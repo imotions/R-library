@@ -1214,7 +1214,7 @@ convertRecordingTsToIntervals <- function(recordingTs, intervals) {
     }
 
     # Converting timestamps to intervals fragments ranges
-    invisible(lapply(seq(nrow(intervals)), function(x) {
+    invisible(lapply(seq_len(nrow(intervals)), function(x) {
         isIn <- timestamps %inrange% intervals[x, c("fragments.start", "fragments.end")]
         timestamps[isIn] <<- timestamps[isIn] - intervals[x, ]$fragments.start +
             sum(intervals[0:(x - 1), ]$fragments.duration)
@@ -1422,12 +1422,15 @@ getAOIRespondentMetrics <- function(study, AOI, respondent) {
 #' @param sensor An imSensor object as returned from \code{\link{getRespondentSensors}}.
 #' @param signalsName Optional - A vector of specific signals name you would like to return.
 #'
-#' @importFrom arrow read_parquet
+#' @importFrom arrow read_parquet set_cpu_count
 #' @importFrom tidyselect any_of
 #' @return A data.table with all signals (or specified signals) from the sensor of interest.
 #' @keywords internal
 privateDownloadData <- function(study, sensor, signalsName = NULL) {
     if (study$connection$localIM) {
+        # Making sure we only use one core to fix an issue with the arrow package (freezing on big file)
+        set_cpu_count(1)
+
         # Accessing filesPath for local imotions files corresponding to this sensor
         dataUrl <- getSensorDataUrl(study, sensor)
         filesPath <- getJSON(study$connection, dataUrl, message = paste("Retrieving data for sensor:", sensor$name))

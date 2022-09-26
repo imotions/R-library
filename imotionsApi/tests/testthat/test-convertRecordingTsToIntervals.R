@@ -62,7 +62,7 @@ test_that("Timestamps from signals should be converted as expected", {
 
     # Check that data got converted and truncated as expected
     expect_identical(convertedSignals[, -c("Timestamp")], expectedData[, -c("Timestamp")], "should be truncated")
-    expect_equal(convertedSignals[seq(nrow(expectedFirstFragment)), ]$Timestamp,
+    expect_equal(convertedSignals[seq_len(nrow(expectedFirstFragment)), ]$Timestamp,
                  expectedFirstFragment$Timestamp - intervals[1, ]$fragments.start,
                  info = "timestamps should be converted")
 
