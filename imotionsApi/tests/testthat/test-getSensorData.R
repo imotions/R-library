@@ -9,35 +9,44 @@ study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
 
 # Load sensor
 sensors <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorList.json")))
-sensor <- sensors[1, ]
+sensor <- sensors[3, ]
 
-mockedPrivateDownloadData <- function(study, sensor, signals, filesPath) {
+expectedMessage <- "Retrieving data for sensor: Eyetracker"
+
+mockedPrivateDownloadData <- function(study, sensor, fileInfos, expectedMessage, expectedFileName = NULL,
+                                      signalsName = NULL) {
+
     expectedUrl <- getSensorDataUrl(study = study, sensor = sensor)
-    getJSON_Stub <- mock(filesPath)
+    getJSON_Stub <- mock(fileInfos)
+    getFile_Stub <- mock(fileInfos)
 
-    signals <- mockr::with_mock(getJSON = getJSON_Stub, {
-                                    privateDownloadData(study, sensor, signals)
+    signals <- mockr::with_mock(getJSON = getJSON_Stub,
+                                getFile = getFile_Stub, {
+                                    privateDownloadData(study, sensor, signalsName)
                                 })
 
-    expect_args(getJSON_Stub, 1, study$connection, expectedUrl,
-                message = paste("Retrieving data for sensor: SlideEvents"))
+    if (study$connection$localIM) {
+        expect_args(getJSON_Stub, 1, study$connection, expectedUrl, expectedMessage)
+    } else {
+        expect_args(getFile_Stub, 1, study$connection, expectedUrl, expectedMessage, expectedFileName)
+    }
 
     return(signals)
 }
 
 test_that("privateDownloadData() should return the correct signals file during local connection", {
     # Case where timestamps are not changed
-    filesPath <- list(binFile = "../data/ET_Eyetracker.csv.pbin", timestampBinFile = "")
-    signals <- mockedPrivateDownloadData(study, sensor, signals = NULL, filesPath)
+    fileInfos <- list(binFile = "../data/ET_Eyetracker.csv.pbin", timestampBinFile = "")
+    signals <- mockedPrivateDownloadData(study, sensor, fileInfos, expectedMessage)
 
     expect_gt(NROW(signals), 100, "data points should be present.")
     expect_equal(NCOL(signals), 14, info = "should have 14 different columns")
 
     # Case where timestamps are changed
-    filesPath <- list(binFile = "../data/ET_Eyetracker.csv.pbin",
+    fileInfos <- list(binFile = "../data/ET_Eyetracker.csv.pbin",
                       timestampBinFile = "../data/ET_Eyetracker.csv.ts.pbin")
 
-    signalsWithLatency <- mockedPrivateDownloadData(study, sensor, signals = NULL, filesPath)
+    signalsWithLatency <- mockedPrivateDownloadData(study, sensor, fileInfos, expectedMessage)
 
     expect_equal(NROW(signalsWithLatency), NROW(signals), info = "data points should be preserved")
     expect_equal(NCOL(signalsWithLatency), NCOL(signals), info = "columns should be preserved")
@@ -46,12 +55,35 @@ test_that("privateDownloadData() should return the correct signals file during l
 
     # Case where columns are changed
     signalToKeep <- c("ET_PupilLeft")
-    signal <- mockedPrivateDownloadData(study, sensor, signals = signalToKeep, filesPath)
-
+    signal <- mockedPrivateDownloadData(study, sensor, fileInfos, expectedMessage, signalsName = signalToKeep)
     expect_equal(NROW(signal), NROW(signals), info = "data points should be preserved")
     expect_identical(colnames(signal), c("Timestamp", signalToKeep), "incorrect columns name")
 })
 
+# Get the sensors through the cloud
+sensors_cloud <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorListCloud.json")))
+
+test_that("privateDownloadData() should return the correct signals file during remote cloud connection", {
+    study$connection$localIM <- FALSE
+    study$connection$s3BaseUrl <- "http://host.docker.internal:9000/test"
+    fileInfos <- list(file_path = "../data/Native_SlideEvents_cloud.csv")
+
+    # Case with slide events
+    expectedFileName <- sensors_cloud[3, ]$fileName
+    expectedMessage <- "Retrieving data for sensor: SlideEvents"
+
+    signals <- mockedPrivateDownloadData(study, sensors_cloud[3, ], fileInfos, expectedMessage, expectedFileName)
+    expect_gt(NROW(signals), 100, "slide events should be retrieved")
+    expect_equal(NCOL(signals), 7, info = "should have 7 different columns")
+
+    # Case where columns are changed
+    signalToKeep <- c("Duration")
+    signal <- mockedPrivateDownloadData(study, sensors_cloud[3, ], fileInfos, expectedMessage, expectedFileName,
+                                        signalToKeep)
+
+    expect_equal(NROW(signal), NROW(signals), info = "data points should be preserved")
+    expect_identical(colnames(signal), c("Timestamp", signalToKeep), "incorrect columns name")
+})
 
 context("getSensorData()")
 

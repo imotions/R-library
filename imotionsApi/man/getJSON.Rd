@@ -2,8 +2,8 @@
 % Please edit documentation in R/imotionsApi.R
 \name{getJSON}
 \alias{getJSON}
-\title{Retrieve a JSON file from the indicated path/url - optionally allow the user to add more information about to know
-when an error occurred.}
+\title{Retrieve a JSON file from the indicated path/url - optionally allow the user to add more information to know when an
+error occurred.}
 \usage{
 getJSON(connection, url, message = NULL, ...)
 }
@@ -21,7 +21,7 @@ error message.}
 The retrieved JSON file.
 }
 \description{
-Retrieve a JSON file from the indicated path/url - optionally allow the user to add more information about to know
-when an error occurred.
+Retrieve a JSON file from the indicated path/url - optionally allow the user to add more information to know when an
+error occurred.
 }
 \keyword{internal}

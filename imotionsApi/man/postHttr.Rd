@@ -4,14 +4,17 @@
 \alias{postHttr}
 \title{Perform a POST HTTP request with authentication.}
 \usage{
-postHttr(connection, url, reqBody)
+postHttr(connection, url, reqBody, message = NULL)
 }
 \arguments{
 \item{connection}{An imConnection object as returned from \code{\link{imConnection}}.}
 
-\item{url}{The url/path where the JSON file is located.}
+\item{url}{The url/path where the POST request need to be send.}
 
 \item{reqBody}{The body of the request.}
+
+\item{message}{Optional - a short message indicating which steps are getting performed to get a more indicative
+error message.}
 }
 \value{
 The last HTTP response.

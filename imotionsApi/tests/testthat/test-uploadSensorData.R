@@ -424,13 +424,14 @@ mockedPrivateUpload <- function(params, study, data, respondent, expectedBody, e
                                 scriptName = NULL, metadata = NULL, stimulus = NULL) {
 
     class(expectedBody) <- "json"
-
     privateSaveToFile_Stub <- mock("../data/testFile.csv")
 
     # Replace url to load test data
     mockUrl <- function(url) {
          if (grepl("stimuli", url)) {
             return(uploadUrlStimulusPath)
+        } else if (grepl("reportruns", url)) {
+            return(url)
         } else {
             return(uploadUrlStudyPath)
         }
@@ -447,13 +448,23 @@ mockedPrivateUpload <- function(params, study, data, respondent, expectedBody, e
     getUploadSensorsUrl_Stub <- mock(expectedUrl)
     getUploadEventsUrl_Stub <- mock(expectedUrl)
     getUploadMetricsUrl_Stub <- mock(expectedUrl)
-    postJSON_Stub <- mock(list(filePath = expectedUrl))
+
+    if (study$connection$localIM) {
+        expectedPostData <- list(filePath = expectedUrl)
+    } else {
+        expectedPostData <- fromJSON("../data/uploadCredentialCloud.json")
+        expectedUrl <- "s3BaseUrl/api/reportruns/1234/respondents/09bd22e6-29b6-4a8a-8cc1-4780a5163e63"
+    }
+
+    postJSON_Stub <- mock(expectedPostData)
+    putHttr_Stub <- mock()
 
     res <- mockr::with_mock(privateSaveToFile = privateSaveToFile_Stub,
                             getUploadSensorsUrl = getUploadSensorsUrl_Stub,
                             getUploadEventsUrl = getUploadEventsUrl_Stub,
                             getUploadMetricsUrl = getUploadMetricsUrl_Stub,
-                            postJSON = postJSON_Stub, {
+                            postJSON = postJSON_Stub,
+                            putHttr = putHttr_Stub, {
                                 privateUpload(params, study, data, respondent, sensorName, scriptName, metadata,
                                               stimulus)
                             })
@@ -472,11 +483,22 @@ mockedPrivateUpload <- function(params, study, data, respondent, expectedBody, e
     expect_args(postJSON_Stub, 1, connection = study$connection, expectedUrl, postData = expectedBody,
                 message = expectedEndpoint)
 
+    if (!study$connection$localIM) {
+        presignedUrl <- paste0("https://my-dev-imotions-blah.s3.us-east-1.amazonaws.com/",
+                               "verylongqueryparamshere?Z-Amz-Credential=ADFFKAHDKFH")
+
+        expect_args(putHttr_Stub, 1, connection = study$connection, presignedUrl, fileName = "../data/testFile.csv",
+                    message = "Uploading sensor data for target: Wendy")
+
+        expectedUrl <- paste0(expectedUrl, "/samples/1e0c8d99-4aa1-4916-adf8-b6950db40d67")
+        expect_args(putHttr_Stub, 2, connection = study$connection, expectedUrl, message = "Upload confirmed")
+    }
+
     return(res)
 }
 
 
-test_that("should upload signals to a given respondent/segment if a good request has been sent", {
+test_that("Local study - should upload signals to a given respondent/segment if a good request has been sent", {
     data <- checkDataFormat(data)
     expectedBody <- '{"flowName":"flowName","sampleName":"TestSensor","fileName":"../data/testFile.csv"}'
     expectedEndpoint <- "Uploading sensor data for target: Wendy"
@@ -492,6 +514,28 @@ test_that("should upload signals to a given respondent/segment if a good request
     expect_identical(res$filePath, uploadUrlStimulusPath, info = "wrong path returned")
 })
 
+test_that("Remote study - should throw an error if missing reportRunId parameter", {
+    study$connection$localIM <- FALSE
+    data <- checkDataFormat(data)
+    expectedBody <- '{"instance":"flowName","name":"TestSensor","fileName":"../data/testFile.csv"}'
+    expectedEndpoint <- "Getting presignedUrl to upload data"
+    error <- capture_error(mockedPrivateUpload(params, study, data, respondent, expectedBody, expectedEndpoint,
+                                               sensorName, scriptName))
+
+    expect_identical(error$message, "Required `reportRunId` field in params for remote connection",
+                     "missing `reportRunId` field in params not handled properly")
+})
+
+test_that("Remote study - should upload signals to a given respondent/segment if a good request has been sent", {
+    study$connection$localIM <- FALSE
+    data <- checkDataFormat(data)
+    params$reportRunId <- "1234"
+    expectedBody <- '{"instance":"flowName","name":"TestSensor","fileName":"../data/testFile.csv"}'
+    expectedEndpoint <- "Getting presignedUrl to upload data"
+
+    res <- mockedPrivateUpload(params, study, data, respondent, expectedBody, expectedEndpoint, sensorName, scriptName)
+    expect_equal(length(res), 6, info = "should return a lot of information")
+})
 
 test_that("should upload events to a given respondent/segment if a good request has been sent", {
     dataEvents <- checkDataFormat(dataEvents)
@@ -552,7 +596,24 @@ test_that("Data should get stored as a temporary file", {
     expect_identical(dataWritten, expectedFile, "files should still be identical")
 
     # Cleaning file created for testing
-    file.remove(dataFileName)
+    unlink(file.path(tmpDir, "*"))
+})
+
+context("privateCreatePostRequest()")
+
+test_that("Generated post request data should be as expected", {
+    # In case of local connection
+    expectedPostData <- '{"flowName":"flowName","sampleName":"TestSensor","fileName":"../data/testFile.csv"}'
+    class(expectedPostData) <- "json"
+    postData <- privateCreatePostRequest(params, study, "TestSensor", "../data/testFile.csv")
+    expect_identical(postData, expectedPostData, info = "wrong post body for local connection")
+
+    # In case of remote connection
+    expectedPostData <- '{"instance":"flowName","name":"TestSensor","fileName":"../data/testFile.csv"}'
+    class(expectedPostData) <- "json"
+    study$connection$localIM <- FALSE
+    postData <- privateCreatePostRequest(params, study, "TestSensor", "../data/testFile.csv")
+    expect_identical(postData, expectedPostData, info = "wrong post body for remote connection")
 })
 
 context("privateGetFileHeader()")

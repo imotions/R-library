@@ -12,13 +12,13 @@ postJSON(connection, url, postData, message = NULL)
 
 \item{url}{The url/path where the JSON file will be located.}
 
-\item{postData}{The JSON file that needs to be uploaded.}
+\item{postData}{The JSON body that needs to be uploaded.}
 
 \item{message}{Optional - a short message indicating which steps are getting performed to get a more indicative
 error message.}
 }
 \value{
-The url/path where the JSON file has been uploaded.
+The url/path where the JSON file has been uploaded and additional information.
 }
 \description{
 Post a JSON file to the indicated path/url - optionally allow the user to add more information about to know

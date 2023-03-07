@@ -1,0 +1,116 @@
+[
+  {
+    "id": "0a507f6c-4f4c-44ef-9a9c-bba90c290301",
+    "name": "Affectiva",
+    "sensor": "Affectiva AFFDEX",
+    "instance": null,
+    "dataUrl": "api/content/StudyUpload/77f8838b-8ecc-44d5-bdbf-16ffa9e4026f/8c658727-31c2-41b4-91ab-3b0aecd71e85_Affectiva",
+    "fileName": "Affectiva_AFFDEX_ET_Affectiva_AffectivaCameraDevice.csv",
+    "eventSourceType": "Sensor",
+    "respondent": {
+      "id": "2cd78f42-e265-4fea-b4b7-da530593b62f"
+    },
+    "sampleDescription": {
+      "id": "db4cda7d-1359-41ec-b56c-b3e9ca9c06f1",
+      "signals": [
+        "Anger",
+        "Attention",
+        "Blink",
+        "BlinkRate",
+        "Brow Furrow",
+        "Brow Raise",
+        "Cheek Raise",
+        "Chin Raise",
+        "Confusion",
+        "Contempt",
+        "Dimpler",
+        "Disgust",
+        "Engagement",
+        "Eye Closure",
+        "Eye Widen",
+        "Fear",
+        "Inner Brow Raise",
+        "Interocular Distance",
+        "Jaw Drop",
+        "Joy",
+        "Lid Tighten",
+        "Lip Corner Depressor",
+        "Lip Press",
+        "Lip Pucker",
+        "Lip Stretch",
+        "Lip Suck",
+        "Mouth Open",
+        "Neutral",
+        "Nose Wrinkle",
+        "Pitch",
+        "Roll",
+        "Sadness",
+        "SampleNumber",
+        "Sentimentality",
+        "Smile",
+        "Smirk",
+        "Surprise",
+        "Timestamp",
+        "Upper Lip Raise",
+        "Valence",
+        "Yaw"
+      ]
+    }
+  },
+  {
+    "id": "fca9ba60-e6fa-48e8-b843-a8cb64858a6a",
+    "name": "Eyetracker",
+    "sensor": "Web Camera Eyetracker",
+    "instance": null,
+    "dataUrl": "api/content/StudyUpload/77f8838b-8ecc-44d5-bdbf-16ffa9e4026f/8c658727-31c2-41b4-91ab-3b0aecd71e85_Eyetracker",
+    "fileName": "ET_Eyetracker.csv",
+    "eventSourceType": "Sensor",
+    "respondent": {
+      "id": "2cd78f42-e265-4fea-b4b7-da530593b62f"
+    },
+    "sampleDescription": {
+      "id": "8dbe9207-d461-4467-96ce-d98dbc908141",
+      "signals": [
+        "ET_CameraLeftX",
+        "ET_CameraLeftY",
+        "ET_CameraRightX",
+        "ET_CameraRightY",
+        "ET_DistanceLeft",
+        "ET_DistanceRight",
+        "ET_GazeLeftx",
+        "ET_GazeLefty",
+        "ET_GazeRightx",
+        "ET_GazeRighty",
+        "ET_PupilLeft",
+        "ET_PupilRight",
+        "ET_TimeSignal",
+        "ET_ValidityLeftEye",
+        "ET_ValidityRightEye",
+        "Timestamp"
+      ]
+    }
+  },
+  {
+    "id": "ca01a571-08d2-42ad-83a3-462e55731cfb",
+    "name": "SlideEvents",
+    "sensor": null,
+    "instance": null,
+    "dataUrl": "api/content/StudyUpload/77f8838b-8ecc-44d5-bdbf-16ffa9e4026f/8c658727-31c2-41b4-91ab-3b0aecd71e85_Native_SlideEvents.csv",
+    "fileName": "Native_SlideEvents.csv",
+    "eventSourceType": "InternalEvent",
+    "respondent": {
+      "id": "2cd78f42-e265-4fea-b4b7-da530593b62f"
+    },
+    "sampleDescription": {
+      "id": "85cb685d-0a15-4353-9687-2b2d02bb7455",
+      "signals": [
+        "CollectionPhase",
+        "Duration",
+        "SlideEvent",
+        "SourceStimuliName",
+        "StimType",
+        "Timestamp"
+      ]
+    }
+  }
+]

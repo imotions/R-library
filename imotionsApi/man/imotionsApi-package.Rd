@@ -13,7 +13,7 @@ Use tokens (found on a study's R Analysis page) to load information from the
 iMotions API
 }
 \examples{
-myToken <- "xxxxx-xxxx-xxxxx-xxxxx"
+myToken <- "xxxxxxxx"
 connection <- imotionsApi::imConnection(myToken)
 }
 \seealso{
