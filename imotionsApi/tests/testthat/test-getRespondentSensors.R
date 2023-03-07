@@ -10,9 +10,10 @@ stimulus <- getStimulus(study, "1000")
 
 # Create Stub
 sensorsPath <- "../data/respondentSensors.json"
+sensorsCloudPath <- "../data/respondentSensorsCloud.json"
 sensorsStimulusPath <- "../data/respondentSensorsStimulus.json"
 
-mockedGetRespondentSensors <- function(study, respondent, stimulus = NULL) {
+mockedGetRespondentSensors <- function(study, respondent, sensorsPath, stimulus = NULL) {
     # Get expected endpoint
     endpoint <- paste("respondent:", respondent$name)
 
@@ -74,7 +75,7 @@ test_that("should throw errors if arguments are missing or not from the good cla
 
 test_that("should return a imSensorList object", {
     # Load sensors
-    sensors <- mockedGetRespondentSensors(study, respondent)
+    sensors <- mockedGetRespondentSensors(study, respondent, sensorsPath)
 
     expect_true(inherits(sensors, "imSensorList"), "`sensors` should be an imSensorList object")
     expect_equal(nrow(sensors), 4, info = "`sensors` should contain 4 sensors")
@@ -93,7 +94,7 @@ test_that("should return a imSensorList object", {
 
 test_that("should return a imSensorList object at the stimulus level", {
     # Load sensors
-    sensors <- mockedGetRespondentSensors(study, respondent, stimulus)
+    sensors <- mockedGetRespondentSensors(study, respondent, sensorsPath, stimulus)
 
     expect_true(inherits(sensors, "imSensorList"), "`sensors` should be an imSensorList object")
     expect_equal(nrow(sensors), 5, info = "`sensors` should contain 5 sensors")
@@ -103,10 +104,31 @@ test_that("should return a imSensorList object at the stimulus level", {
 
 })
 
+test_that("should return a imSensorList object when the object comes from the Cloud", {
+    # Load sensors
+    study$connection$localIM <- FALSE
+    sensors <- mockedGetRespondentSensors(study, respondent, sensorsCloudPath)
+    expect_true(inherits(sensors, "imSensorList"), "`sensors` should be an imSensorList object")
+    expect_equal(nrow(sensors), 3, info = "`sensors` should contain 3 sensors")
+    correctColumns <- c("eventSourceType", "name", "signals", "sensor", "instance", "dataUrl", "respondent",
+                        "sensorSpecific", "signalsMetaData", "fileName")
+
+    expect_identical(colnames(sensors), correctColumns, "sensors need to have the correct columns in the correct order")
+
+    # check that taking only one sensor changes the class of the object
+    sensor <- sensors[1, ]
+    expect_true(inherits(sensor, "imSensor"), "`sensor` should be an imSensor object")
+
+    # check that only taking names of the list of sensors changes the class of the object
+    sensors <- sensors[, c("name", "sensor")]
+    expect_true(all(class(sensors) == c("data.table", "data.frame")), "truncated sensors should be data.table")
+})
+
+
 sensorsPath <- "../data/respondentSensor.json"
 test_that("getRespondentSensors() in case of only one sensor should return an imSensor object", {
     # Load sensor
-    sensors <- mockedGetRespondentSensors(study, respondent)
+    sensors <- mockedGetRespondentSensors(study, respondent, sensorsPath)
 
     expect_true(inherits(sensors, "imSensor"), "`sensors` should be an imSensor object")
     expect(nrow(sensors) == 1, "sensors should only contain a single sensor")

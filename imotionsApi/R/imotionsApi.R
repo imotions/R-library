@@ -6,7 +6,7 @@
 #' iMotions API
 #'
 #' @examples
-#' myToken <- "xxxxx-xxxx-xxxxx-xxxxx"
+#' myToken <- "xxxxxxxx"
 #' connection <- imotionsApi::imConnection(myToken)
 "_PACKAGE"
 
@@ -21,38 +21,47 @@ imotionsApiEnvironment$loadedStudies <- list()
 
 #' Create a connection with the iMotions API.
 #'
-#' Tokens can be found on a study's R Analysis page or given directly by the iMotions software
+#' Tokens can be obtained by right-clicking on an analysis in iMotions and clicking "Get token for R API connection".
 #'
 #' @param token The token to be used for authentication.
-#' @param baseUrl The iMotions server to connect to, normally you do not need to change the default.
+#' @param baseUrl Optional - The server to connect to in case of remote connection.
+#' @param s3BaseUrl Optional - The server to use to write back data in case of remote connection.
 #'
 #' @return An imConnection object to be passed to other methods.
 #' @import methods
 #' @export
 #' @examples
 #' \dontrun{
-#' myToken <- "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+#' # Local connection
+#' myToken <- "xxxxxxxx"
 #' connection <- imotionsApi::imConnection(myToken)
+#'
+#' # Remote connection
+#' myToken <- "token"
+#' connection <- imotionsApi::imConnection(myToken, "myBaseUrl", "myS3BaseUrl")
 #' }
-imConnection <- function(token, baseUrl = "https://my.imotions.com/api") {
-    assertValid(hasArg(token), "You need a token to connect. Please refer to https://my.imotions.com for instructions.")
+imConnection <- function(token, baseUrl = NULL, s3BaseUrl = NULL) {
+    assertValid(hasArg(token), "You need a token to connect.")
 
     # token starting with xxxxxxxx is assumed to be a local "manual" session
     # xxxxxxxx_<base64string> is local session  launched from imotions analysis
-    localIM <- imAnalysis <- grepl("^xxxxxxxx(_.+)?$", token)
+    localIM <- grepl("^xxxxxxxx(_.+)?$", token)
 
-    if (localIM && missing(baseUrl)) {
+    if (localIM) {
         # Assume connecting locally
         envUrl <- Sys.getenv("IMOTIONS_R_SERVER")
         baseUrl <- ifelse(nchar(envUrl) > 0, envUrl, "http://localhost:8086")
+    } else {
+        # Assume remote connection and check that urls are not null
+        assertValid(!is.null(baseUrl), "You need a baseUrl for remote connection.")
+        assertValid(!is.null(s3BaseUrl), "You need a s3BaseUrl for remote connection.")
     }
 
-    connection <- list(token = token, baseUrl = baseUrl, localIM = localIM, imAnalysis = imAnalysis)
+    connection <- list(token = token, baseUrl = baseUrl, localIM = localIM, s3BaseUrl = s3BaseUrl)
+
     attr(connection, "class") <- c("imConnection", "list")
 
-    infoMessage <- paste("Connecting to iMotions API...", baseUrl)
-
-    message(infoMessage)
+    message(paste("Connecting to iMotions API...", baseUrl))
     return(connection)
 }
 
@@ -696,7 +705,9 @@ privateRespondentFiltering.imStudy <- function(study, ...) {
             respondents$group <- respVariables$Group
         }
 
-        names(respVariables) <- paste0("variables.", names(respVariables))
+        if (length(respVariables) > 0) {
+            names(respVariables) <- paste0("variables.", names(respVariables))
+        }
     }
 
     respVariables$variables.Group <- NULL
@@ -827,18 +838,24 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
     signalsMetaData <- list()
     signals <- list()
 
-    for (i in seq_along(sensors)) {
-        rawSignalsMetaData <- sensors[[i]]$signalsMetaData
-        suppressWarnings(signalsMetaData[[i]] <- rbindlist(rawSignalsMetaData, fill = TRUE))
-        sensors[[i]]$signalsMetaData <- NULL
-        signals[[i]] <- sensors[[i]]$signals
-        sensors[[i]]$signals <- NULL
+    if (study$connection$localIM == TRUE) {
+        for (i in seq_along(sensors)) {
+            suppressWarnings(signalsMetaData[[i]] <- rbindlist(sensors[[i]]$signalsMetaData, fill = TRUE))
+            signals[[i]] <- sensors[[i]]$signals
+            sensors[[i]][c("signals", "signalsMetaData")] <- NULL
+        }
+    } else {
+        for (i in seq_along(sensors)) {
+            signals[[i]] <- sensors[[i]]$sampleDescription$signals
+            sensors[[i]][c("id", "respondent", "sampleDescription")] <- NULL
+            sensors[[i]]$sensorSpecific <- list()
+        }
     }
 
     suppressWarnings(sensors <- rbindlist(sensors, fill = TRUE))
-
     sensors$signals <- signals
     sensors$signalsMetaData <- signalsMetaData
+
     sensors <- cbind(sensors, "respondent" = list(respondent))
     sensors <- reorderSensorColumns(sensors)
 
@@ -878,7 +895,7 @@ getSensorsMetadata <- function(sensors) {
 
     sensors_metadata <- bind_rows(lapply(sensors$sensorSpecific, function(sensor) {
         # Add an empty row in case no sensor information was found
-        if (is.na(sensor)) return(data.table(placeholderColumn = NA))
+        if (is.na(sensor) || is.null(sensor)) return(data.table(placeholderColumn = NA))
 
         metadata <- fromJSON(sensor)
 
@@ -895,6 +912,11 @@ getSensorsMetadata <- function(sensors) {
 
     if (exists("placeholderColumn", sensors_metadata)) {
         sensors_metadata$placeholderColumn <- NULL
+    }
+
+    if (nrow(sensors_metadata) == 0) {
+        warning("No sensor specific metadata found.")
+        return(NULL)
     }
 
     return(sensors_metadata)
@@ -1259,8 +1281,8 @@ convertRecordingTsToIntervals <- function(recordingTs, intervals) {
 #' }
 getSensorData <- function(study, sensor, signalsName = NULL, intervals = NULL) {
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
-    assertValid(hasArg(sensor), "Please specify a sensor loaded with `getRespondentSensors()`")
     assertClass(study, "imStudy", "`study` argument is not an imStudy object")
+    assertValid(hasArg(sensor), "Please specify a sensor loaded with `getRespondentSensors()`")
     assertClass(sensor, "imSensor", "`sensor` argument is not an imSensor object")
 
     data <- privateDownloadData(study, sensor, signalsName = signalsName)
@@ -1424,33 +1446,46 @@ getAOIRespondentMetrics <- function(study, AOI, respondent) {
 #'
 #' @importFrom arrow read_parquet set_cpu_count
 #' @importFrom tidyselect any_of
+#' @importFrom rlang enquo
+#' @importFrom utils download.file unzip
 #' @return A data.table with all signals (or specified signals) from the sensor of interest.
 #' @keywords internal
 privateDownloadData <- function(study, sensor, signalsName = NULL) {
+    # Accessing the path where is located the data of interest
+    dataUrl <- getSensorDataUrl(study, sensor)
+
+    # Checking that the entered signalsName match some of the available signals
+    if (!is.null(signalsName)) {
+        # ensure timestamps will always be retrieved
+        signalsName <- intersect(c("Timestamp", signalsName), sensor$signals[[1]])
+    }
+
     if (study$connection$localIM) {
         # Making sure we only use one core to fix an issue with the arrow package (freezing on big file)
         set_cpu_count(1)
 
-        # Accessing filesPath for local imotions files corresponding to this sensor
-        dataUrl <- getSensorDataUrl(study, sensor)
-        filesPath <- getJSON(study$connection, dataUrl, message = paste("Retrieving data for sensor:", sensor$name))
-
-        # Downloading data of interest
-        if (!is.null(signalsName)) {
-            # ensure timestamps will always be retrieved
-            signalsName <- c("Timestamp", signalsName)
-            data <- read_parquet(filesPath$binFile, col_select = any_of(signalsName))
-        } else {
-            data <- read_parquet(filesPath$binFile)
-        }
+        # Accessing fileInfos corresponding to this sensor (can be a list of files)
+        fileInfos <- getJSON(study$connection, dataUrl, message = paste("Retrieving data for sensor:", sensor$name))
+        data <- read_parquet(fileInfos$binFile, col_select = !!enquo(signalsName))
 
         # if corrected timestamps are available - correct the original timestamps
-        if (nchar(filesPath$timestampBinFile) > 0) {
-            tmp <- read_parquet(filesPath$timestampBinFile)
+        if (nchar(fileInfos$timestampBinFile) > 0) {
+            tmp <- read_parquet(fileInfos$timestampBinFile)
             data$Timestamp <- tmp$Timestamp
         }
 
-        attr(data, "fileDependency") <- filesPath$binFile
+        attr(data, "fileDependency") <- fileInfos$binFile
+    } else {
+        # Download the data corresponding to this sensor
+        fileInfos <- getFile(study$connection, dataUrl, message = paste("Retrieving data for sensor:", sensor$name),
+                             sensor$fileName)
+
+        # Downloading data of interest
+        index <- str_which(readLines(fileInfos$file_path, warn = FALSE), "#DATA")
+        data <- fread(fileInfos$file_path, header = TRUE, skip = index, select = signalsName)
+
+        # Make sure we remove all the files in the temporary folder
+        unlink(file.path(fileInfos$tmp_dir, "*"), recursive = TRUE)
     }
 
     setDT(data)
@@ -1773,18 +1808,18 @@ privateUpload <- function(params, study, data, target, sampleName, scriptName, m
     # Create a temporary file with the data/metadata that needs to be uploaded
     tempFileName <- privateSaveToFile(params, data, sampleName, scriptName, metadata)
 
-    # Prepare the http request and move the file to the right location
+    # Prepare the http request
     if (inherits(data, "imSignals")) {
-        postData <- toJSON(list(flowName = params$flowName, sampleName = sampleName, fileName = tempFileName))
         uploadUrl <- getUploadSensorsUrl(study, target, stimulus)
+        postData <- privateCreatePostRequest(params, study, sampleName, tempFileName)
         endpoint_data <- "sensor data"
     } else if (inherits(data, "imEvents")) {
-        postData <- toJSON(list(flowName = params$flowName, sampleName = "ET_REventApi", fileName = tempFileName))
         uploadUrl <- getUploadEventsUrl(study, target)
+        postData <- privateCreatePostRequest(params, study, "ET_REventApi", tempFileName)
         endpoint_data <- "events"
     } else if (inherits(data, "imMetrics")) {
-        postData <- toJSON(list(flowName = params$flowName, sampleName = "ET_RMetricsApi", fileName = tempFileName))
         uploadUrl <- getUploadMetricsUrl(study, target)
+        postData <- privateCreatePostRequest(params, study, "ET_RMetricsApi", tempFileName)
         endpoint_data <- "metrics"
     }
 
@@ -1793,10 +1828,22 @@ privateUpload <- function(params, study, data, target, sampleName, scriptName, m
         endpoint <- paste0(endpoint, ", stimulus: ", stimulus$name)
     }
 
-    filePath <- postJSON(study$connection, uploadUrl, postData,
-                         message = paste("Uploading", endpoint_data, "for", endpoint))
+    if (study$connection$localIM) {
+        fileInfos <- postJSON(study$connection, uploadUrl, postData,
+                              message = paste("Uploading", endpoint_data, "for", endpoint))
+    } else {
+        assertValid(exists("reportRunId", params), "Required `reportRunId` field in params for remote connection")
+        uploadUrl <- str_replace(uploadUrl, "placeholder_reportId", params$reportRunId)
+        fileInfos <- postJSON(study$connection, uploadUrl, postData, message = "Getting presignedUrl to upload data")
 
-    return(filePath)
+        putHttr(study$connection, fileInfos$presignedUrl, tempFileName,
+                message = paste("Uploading", endpoint_data, "for", endpoint))
+
+        confirmUrl <- file.path(uploadUrl, "samples", fileInfos$assetId)
+        putHttr(study$connection, confirmUrl, message = "Upload confirmed")
+    }
+
+    return(fileInfos)
 }
 
 
@@ -1840,6 +1887,27 @@ privateSaveToFile <- function(params, data, sampleName, scriptName, metadata = N
 
     fwrite(data, file = dataFileName, append = TRUE, col.names = TRUE, scipen = 999, na = na_option)
     return(dataFileName)
+}
+
+
+
+
+#' Create headers specific to the data format (signals, events, exports).
+#'
+#' @inheritParams privateUpload
+#'
+#' @keywords internal
+privateCreatePostRequest <- function(params, study, sampleName, fileName) {
+    postRequest <- list(params$flowName, sampleName, fileName)
+
+    if (study$connection$localIM) {
+        names(postRequest) <- c("flowName", "sampleName", "fileName")
+    } else {
+        names(postRequest) <- c("instance", "name", "fileName")
+    }
+
+    postRequest <- toJSON(postRequest)
+    return(postRequest)
 }
 
 
@@ -1911,6 +1979,7 @@ privateCreateHeader <- function(params, data, sampleName, scriptName) {
 #'
 #' @inheritParams uploadSensorData
 #'
+#' @importFrom purrr map_chr
 #' @keywords internal
 privateCreateMetadata <- function(data, metadata = NULL) {
     if (!inherits(data, "imExport")) {
@@ -1941,7 +2010,7 @@ privateCreateMetadata <- function(data, metadata = NULL) {
     }
 
     metadata <- append(mandatoryMetadata, signalsMetadata)
-    metadata_values <- purrr::map_chr(metadata, paste, collapse = ",")
+    metadata_values <- map_chr(metadata, paste, collapse = ",")
 
     if (inherits(data, "imExport")) {
         metadata_values <- paste0("#", metadata_values, recycle0 = TRUE)
@@ -2118,6 +2187,18 @@ getStudyBaseUrl <- function(study) {
     file.path(study$connection$baseUrl)
 }
 
+#' Return the s3basePath/s3baseUrl to the iMotions server based on a specific study object (used to download data).
+#'
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#'
+#' @keywords internal
+getStudyS3BaseUrl <- function(study) {
+    if (study$connection$localIM) {
+        getStudyBaseUrl(study)
+    } else {
+        file.path(study$connection$s3BaseUrl)
+    }
+}
 
 #' Return the path/url to the studies available.
 #'
@@ -2125,7 +2206,7 @@ getStudyBaseUrl <- function(study) {
 #'
 #' @keywords internal
 getStudiesUrl <- function(connection) {
-    file.path(connection$baseUrl, "studies")
+    file.path(file.path(connection$baseUrl), "studies")
 }
 
 
@@ -2150,22 +2231,6 @@ getStudyUrlById <- function(connection, studyId) {
 }
 
 
-#' Based on the kind of connection, return the path/url to a specific study object.
-#'
-#' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#'
-#' @keywords internal
-getStudySpecificUrl <- function(study) {
-    if (study$connection$localIM) {
-        studyUrl <- getStudyUrl(study)
-    } else {
-        studyUrl <- getStudyBaseUrl(study)
-    }
-
-    return(studyUrl)
-}
-
-
 #' Generic getSensorsUrl function that takes as parameter a study object and a respondent/segment object.
 #'
 #' Return the path/url to the sensors for this respondent/segment object.
@@ -2186,7 +2251,7 @@ getSensorsUrl <- function(study, imObject, stimulus = NULL) {
 #'
 #' @keywords internal
 getSensorsUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
-    url <- file.path(getStudySpecificUrl(study), "respondent", imObject$id)
+    url <- file.path(getStudyUrl(study), "respondent", imObject$id)
 
     if (!is.null(stimulus)) {
         url <- file.path(url, "stimuli", stimulus$id)
@@ -2204,7 +2269,8 @@ getSensorsUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
 #'
 #' @keywords internal
 getSensorDataUrl <- function(study, sensor) {
-    paste0(getStudyBaseUrl(study), sensor$dataUrl)
+    # As the sensor dataUrl sometimes contains a forward slash, we ensure we only keep one of them
+    gsub("//", "/", file.path(getStudyS3BaseUrl(study), sensor$dataUrl))
 }
 
 
@@ -2227,7 +2293,11 @@ getUploadSensorsUrl <- function(study, imObject, stimulus = NULL) {
 #'
 #' @keywords internal
 getUploadSensorsUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
-    file.path(getSensorsUrl(study, imObject, stimulus), "data")
+    if (study$connection$localIM) {
+        file.path(getSensorsUrl(study, imObject, stimulus), "data")
+    } else {
+        file.path(getStudyBaseUrl(study), "reportruns", "placeholder_reportId", "respondents", imObject$id)
+    }
 }
 
 
@@ -2372,43 +2442,70 @@ getRespondentAnnotationsUrl <- function(study, respondent) {
 
 ## HTTP request methods ===============================================================================================
 
-#' Retrieve a JSON file from the indicated path/url - optionally allow the user to add more information about to know
-#' when an error occurred.
+#' Retrieve a JSON file from the indicated path/url - optionally allow the user to add more information to know when an
+#' error occurred.
 #'
 #' @param connection An imConnection object as returned from \code{\link{imConnection}}.
 #' @param url The url/path where the JSON file is located.
 #' @param message Optional - a short message indicating which steps are getting performed to get a more indicative
 #'                error message.
+#'
 #' @param ... Optional - arguments passed to jsonlite::fromJSON.
 #'
 #' @return The retrieved JSON file.
 #' @keywords internal
 getJSON <- function(connection, url, message = NULL, ...) {
-    response <- getHttr(connection, url)
-    response_status <- getHttrStatusCode(response)
-    stopOnHttpError(response_status, message)
-
+    response <- getHttr(connection, url, message)
     text <- content(x = response, as = "text", encoding = "UTF-8")
     return(fromJSON(txt = text, ...))
 }
 
+
+#' Retrieve a zip/csv file from the indicated path/url - optionally allow the user to add more information to know
+#' when an error occurred.
+#'
+#' @param connection An imConnection object as returned from \code{\link{imConnection}}.
+#' @param url The url/path where the zip/csv file is located.
+#' @param message Optional - a short message indicating which steps are getting performed to get a more indicative
+#'                error message.
+#'
+#' @param fileName Optional - In case of a zip folder, the name of the file to look for.
+#'
+#' @return A list with the temporary folder path and the downloaded file name.
+#' @keywords internal
+getFile <- function(connection, url, message = NULL, fileName = NULL) {
+    response <- getHttr(connection, url, message)
+
+    # Use temporary directory to download data
+    tmp_dir <- tempdir(check = TRUE)
+    file_path <- file.path(tmp_dir, "tmp_data")
+
+    # Detect if the file of interest is a zip or a csv file
+    file_path <- paste0(file_path, ifelse(response$headers$`content-type` == "application/zip", ".zip", ".csv"))
+    download.file(response$url, file_path, method = "auto")
+
+    if (grepl(".zip$", file_path)) {
+        files_in_zip <- unzip(file_path, exdir = tmp_dir)
+        assertValid(!is.null(fileName), "You need to provide a fileName for zip file extraction.")
+        file_path <- str_subset(files_in_zip, fileName)
+    }
+
+    return(list(tmp_dir = tmp_dir, file_path = file_path))
+}
 
 #' Post a JSON file to the indicated path/url - optionally allow the user to add more information about to know
 #' when an error occurred.
 #'
 #' @param connection An imConnection object as returned from \code{\link{imConnection}}.
 #' @param url The url/path where the JSON file will be located.
-#' @param postData The JSON file that needs to be uploaded.
+#' @param postData The JSON body that needs to be uploaded.
 #' @param message Optional - a short message indicating which steps are getting performed to get a more indicative
 #'                error message.
 #'
-#' @return The url/path where the JSON file has been uploaded.
+#' @return The url/path where the JSON file has been uploaded and additional information.
 #' @keywords internal
 postJSON <- function(connection, url, postData, message = NULL) {
-    response <- postHttr(connection, url, reqBody = postData)
-    response_status <- getHttrStatusCode(response)
-    stopOnHttpError(response_status, message)
-
+    response <- postHttr(connection, url, reqBody = postData, message)
     text <- content(x = response, as = "text", encoding = "UTF-8")
     return(fromJSON(txt = text))
 }
@@ -2421,6 +2518,11 @@ postJSON <- function(connection, url, postData, message = NULL) {
 tokenHeaders <- function(token) httr::add_headers(Authorization = paste("Bearer", token))
 
 
+#' Return csv content-type specific header
+#'
+#' @keywords internal
+csvHeaders <- function() httr::add_headers("Content-Type" = "text/csv")
+
 #' Return json content-type specific header
 #'
 #' @keywords internal
@@ -2432,11 +2534,13 @@ jsonHeaders <- function() httr::add_headers("Content-Type" = "application/json")
 #' The request will be retried up to 3 times if an error is encountered.
 #'
 #' @param connection An imConnection object as returned from \code{\link{imConnection}}.
-#' @param url The url/path where the JSON file is located.
+#' @param url The url/path where the file is located.
+#' @param message Optional - a short message indicating which steps are getting performed to get a more indicative
+#'                error message.
 #'
 #' @return The last response.
 #' @keywords internal
-getHttr <- function(connection, url) {
+getHttr <- function(connection, url, message = NULL) {
     if (connection$localIM) {
         # Locally there is no point to retry request if we get a 404 not found error
         terminate_on <- 404
@@ -2444,10 +2548,9 @@ getHttr <- function(connection, url) {
         terminate_on <- NULL
     }
 
-    res <- RETRY("GET", url, tokenHeaders(connection$token), simplifyVector = TRUE, simplifyDataFrame = TRUE,
-                 terminate_on = terminate_on)
-
-    return(res)
+    response <- RETRY("GET", url, tokenHeaders(connection$token), terminate_on = terminate_on)
+    stopOnHttpError(response, message)
+    return(response)
 }
 
 
@@ -2456,29 +2559,41 @@ getHttr <- function(connection, url) {
 #' The request will be retried up to 3 times if an error is encountered.
 #'
 #' @param connection An imConnection object as returned from \code{\link{imConnection}}.
-#' @param url The url/path where the JSON file is located.
+#' @param url The url/path where the POST request need to be send.
 #' @param reqBody The body of the request.
+#' @param message Optional - a short message indicating which steps are getting performed to get a more indicative
+#'                error message.
 #'
 #' @return The last HTTP response.
 #' @keywords internal
-postHttr <- function(connection, url, reqBody) {
-    res <- RETRY("POST", url, body = reqBody, tokenHeaders(connection$token), jsonHeaders(), encode = "json")
-    return(res)
+postHttr <- function(connection, url, reqBody, message = NULL) {
+    response <- RETRY("POST", url, body = reqBody, tokenHeaders(connection$token), jsonHeaders(), encode = "json")
+    stopOnHttpError(response, message)
+    return(response)
 }
 
-#' Perform a PUT HTTP request with authentication.
+#' Perform a PUT HTTP request with authentication (if needed).
 #'
 #' The request will be retried up to 3 times if an error is encountered.
 #'
 #' @param connection An imConnection object as returned from \code{\link{imConnection}}.
-#' @param url The url/path where the JSON file is located.
-#' @param reqBody The body of the request.
+#' @param url The url/path where the PUT request need to be send.
+#' @param fileName Optional - the name of the file to upload if any.
+#' @param message Optional - a short message indicating which steps are getting performed to get a more indicative
+#'                error message.
 #'
-#' @return The last HTTP response.
 #' @keywords internal
-putHttr <- function(connection, url, reqBody) {
-    res <- RETRY("PUT", url, body = reqBody, tokenHeaders(connection$token), jsonHeaders())
-    return(res)
+putHttr <- function(connection, url, fileName = NULL, message = NULL) {
+    if (!is.null(fileName)) {
+        reqBody <- httr::upload_file(fileName)
+        config <- csvHeaders()
+    } else {
+        reqBody <- NULL
+        config <- tokenHeaders(connection$token)
+    }
+
+    response <- RETRY("PUT", url, body = reqBody, config)
+    stopOnHttpError(response, message)
 }
 
 
@@ -2495,7 +2610,9 @@ stopOnHttpError <- function(response, message = NULL) {
     response_status <- getHttrStatusCode(response)
     if (response_status == 401) stop(paste(message, "- Token not authorized to access requested resource"))
     if (response_status == 404) stop(paste(message, "- Resource not found"))
-    if (response_status != 200) stop(paste0(message, " - unexpected response status (", response_status, ")"))
+    if (!response_status %in% c(200, 204)) {
+        stop(paste0(message, " - unexpected response status (", response_status, ")"))
+    }
 }
 
 

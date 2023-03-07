@@ -2,19 +2,19 @@
 % Please edit documentation in R/imotionsApi.R
 \name{putHttr}
 \alias{putHttr}
-\title{Perform a PUT HTTP request with authentication.}
+\title{Perform a PUT HTTP request with authentication (if needed).}
 \usage{
-putHttr(connection, url, reqBody)
+putHttr(connection, url, fileName = NULL, message = NULL)
 }
 \arguments{
 \item{connection}{An imConnection object as returned from \code{\link{imConnection}}.}
 
-\item{url}{The url/path where the JSON file is located.}
+\item{url}{The url/path where the PUT request need to be send.}
 
-\item{reqBody}{The body of the request.}
-}
-\value{
-The last HTTP response.
+\item{fileName}{Optional - the name of the file to upload if any.}
+
+\item{message}{Optional - a short message indicating which steps are getting performed to get a more indicative
+error message.}
 }
 \description{
 The request will be retried up to 3 times if an error is encountered.

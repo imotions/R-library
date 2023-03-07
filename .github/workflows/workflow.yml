@@ -5,11 +5,9 @@ on:
     branches:
       - main
   pull_request:
+    types: [closed, opened, synchronize]
     branches:
       - main
-  release:
-    types:
-      - created
 
 name: R test, lint & check, build, release
 
@@ -19,125 +17,76 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: '4.1.0'
-      
-      - name: Query dependencies
-        run: |
-          install.packages('remotes')
-          saveRDS(remotes::dev_package_deps("imotionsApi", dependencies = TRUE), ".github/depends.Rds", version = 2)
-          writeLines(sprintf("R-%i.%i", getRversion()$major, getRversion()$minor), ".github/R-version")
-        shell: Rscript {0}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
 
-      - name: Restore R package cache
-        uses: actions/cache@v2
+      - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-${{ hashFiles('.github/depends.Rds') }}
-          restore-keys: ${{ runner.os }}-${{ hashFiles('.github/R-version') }}-1-
-
-      - name: Install Pandoc
-        run: |
-          choco install pandoc
-
-      - name: Install R dependencies
-        run: |
-          install.packages(c('rcmdcheck', 'devtools'))
-          remotes::install_deps("imotionsApi", dependencies = TRUE)
-        shell: Rscript {0}
-      
-      - name: Run tests
-        run: |
-          options(testthat.output_file = 'test-results-tests.xml')
-          result <- as.data.frame(devtools::test("imotionsApi", reporter='junit'))
-          if (sum(result$failed) > 0 || any(result$error)) {
-            q(status = 1)
-          }
-        shell: Rscript {0}
+          extra-packages: any::rcmdcheck, any::lintr
+          needs: check, lint
+          working-directory: './imotionsApi'
 
       - name: Run linter
-        id: linter
         run: |
-          lints <- lintr::lint_package("imotionsApi")
-          for (i in seq_along(lints)) {
-            if (lints[[i]]$type == "style") lints[[i]]$type <- "warning"
-          }
-          lintr::checkstyle_output(lints, "test-results-lintr.xml")
-          if (length(lints) > 0) {
-            q(status = 1)
-          }
+            lintr::lint_package('./imotionsApi')
         shell: Rscript {0}
-
-      - name: R package check
-        run: |
-          options(crayon.enabled = TRUE)
-          devtools::check("imotionsApi", vignettes = FALSE, error_on = "error")
-        shell: Rscript {0}
-
+        env:
+          LINTR_ERROR_ON_LINT: true
+          
       - name: Get current date
         id: date
-        run: echo "::set-output name=datetime::$(date +'%Y%m%d-%H%M%S')"
+        run: echo "datetime=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
+        shell: bash
         
       - name: Fix version number for snapshot
         run: |
-          cat imotionsApi/DESCRIPTION
           sed -i 's/0000000000/${{ steps.date.outputs.datetime }}/' imotionsApi/DESCRIPTION
-          cat imotionsApi/DESCRIPTION
 
-      - name: Build snapshot package
-        if: ${{ github.event_name == 'push' }} 
+      - name: Get the version
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Remove snapshot build and fix version number for release
+        if: startsWith(github.ref, 'refs/tags/v')
         run: |
-          devtools::build("imotionsApi")
-        shell: Rscript {0}
+          sed -i "/^Version:/c\Version: ${{ steps.get_version.outputs.VERSION }}" imotionsApi/DESCRIPTION
+
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          error-on: '"error"'
+          check-dir: '"check"'
+          working-directory: './imotionsApi'
+          args: 'c("--no-manual", "--as-cran", "--no-multiarch")'
 
       - name: Publish snapshot
         uses: softprops/action-gh-release@v1
-        if: ${{ github.event_name == 'push' }}
+        if: ${{ (github.event.pull_request.merged == true) && !(startsWith(github.ref, 'refs/tags/v')) }}
         with:
           tag_name: "snapshot-${{ steps.date.outputs.datetime }}"
           prerelease: true
           name: "Snapshot ${{ steps.date.outputs.datetime }}"
           files: |
             LICENSE
-            *.tar.gz
-
-      - name: Get the version
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
-        shell: bash
-
-      - name: Remove snapshot build and fix version number for release
-        run: |
-          rm *.tar.gz
-          cat imotionsApi/DESCRIPTION
-          sed -i "/^Version:/c\Version: ${{ steps.get_version.outputs.VERSION }}" imotionsApi/DESCRIPTION
-          cat imotionsApi/DESCRIPTION
-
-      - name: Build release package 
-        if: startsWith(github.ref, 'refs/tags/v')
-        run: |
-          devtools::build("imotionsApi")
-        shell: Rscript {0}
+            ./imotionsApi/check/*.tar.gz
 
       - name: Publish tagged release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: ${{ (github.event.pull_request.merged == true) && (startsWith(github.ref, 'refs/tags/v')) }}
         with:
           files: |
             LICENSE
-            *.tar.gz
+            ./imotionsApi/check/*.tar.gz
 
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action/composite@v1
         if: always()
         with:
-          files: test-results-tests.xml
-
-      - name: Publish linter results
-        uses: jwgmeligmeyling/checkstyle-github-action@master
-        if: always()
-        with:
-          name: Linter results
-          path: test-results-lintr.xml
+          files: './imotionsApi/check/imotionsApi.Rcheck/tests/test-results-tests.xml'

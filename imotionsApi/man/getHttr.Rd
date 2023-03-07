@@ -4,12 +4,15 @@
 \alias{getHttr}
 \title{Perform a GET HTTP request with authentication.}
 \usage{
-getHttr(connection, url)
+getHttr(connection, url, message = NULL)
 }
 \arguments{
 \item{connection}{An imConnection object as returned from \code{\link{imConnection}}.}
 
-\item{url}{The url/path where the JSON file is located.}
+\item{url}{The url/path where the file is located.}
+
+\item{message}{Optional - a short message indicating which steps are getting performed to get a more indicative
+error message.}
 }
 \value{
 The last response.

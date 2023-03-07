@@ -4,22 +4,29 @@
 \alias{imConnection}
 \title{Create a connection with the iMotions API.}
 \usage{
-imConnection(token, baseUrl = "https://my.imotions.com/api")
+imConnection(token, baseUrl = NULL, s3BaseUrl = NULL)
 }
 \arguments{
 \item{token}{The token to be used for authentication.}
 
-\item{baseUrl}{The iMotions server to connect to, normally you do not need to change the default.}
+\item{baseUrl}{Optional - The server to connect to in case of remote connection.}
+
+\item{s3BaseUrl}{Optional - The server to use to write back data in case of remote connection.}
 }
 \value{
 An imConnection object to be passed to other methods.
 }
 \description{
-Tokens can be found on a study's R Analysis page or given directly by the iMotions software
+Tokens can be obtained by right-clicking on an analysis in iMotions and clicking "Get token for R API connection".
 }
 \examples{
 \dontrun{
-myToken <- "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+# Local connection
+myToken <- "xxxxxxxx"
 connection <- imotionsApi::imConnection(myToken)
+
+# Remote connection
+myToken <- "token"
+connection <- imotionsApi::imConnection(myToken, "myBaseUrl", "myS3BaseUrl")
 }
 }
