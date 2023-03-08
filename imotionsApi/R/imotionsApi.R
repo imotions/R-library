@@ -903,7 +903,7 @@ getSensorsMetadata <- function(sensors) {
         metadata <- metadata[!lengths(metadata) == 0]
 
         metadata <- lapply(metadata, function(x) {
-            return(ifelse(length(x) > 1, list(x), x))
+            return(ifelse(length(x) > 1, list(x), type.convert(as.character(x), as.is = TRUE)))
         })
 
         processed_metadata <- as.data.table(metadata)
@@ -1530,7 +1530,7 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
 
 ## Uploading Data =====================================================================================================
 
-#' Create a new sensor for a specific respondent in a study.
+#' Create a new sensor for a specific respondent/segment in a study.
 #'
 #' Signals data.table (with a Timestamp column) can be uploaded.
 #' After processing, the sensor can then be viewed and exported locally through the iMotions Desktop.
@@ -1540,8 +1540,8 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
 #' @param params The list of parameters provided to the script - specific parameters value will be stored as metadata.
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param data A data.table containing the signals to upload (imData object are also accepted).
-#' @param target The target respondent for the sensor (an imRespondent object as returned from
-#'               \code{\link{getRespondents}}).
+#' @param target The target respondent/segment for the sensor (an imRespondent/imSegment object as returned from
+#'               \code{\link{getRespondents}} or \code{\link{getSegments}}).
 #'
 #' @param sensorName The name of the new sensor you would like to create.
 #' @param scriptName The name of the script used to produce these signals.
@@ -1549,7 +1549,7 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
 #'                 and there must be a row corresponding to each data column.
 #'
 #' @param stimulus Optional - an imStimulus object as returned from \code{\link{getStimuli}} to upload data specific to
-#'                 this stimulus.
+#'                 this stimulus. In case of a segment target, this parameter needs to be provided.
 #'
 #' @export
 #' @examples
@@ -1577,17 +1577,23 @@ uploadSensorData <- function(params, study, data, target, sensorName, scriptName
     assertValid(hasArg(params), "Please specify parameters used for your script")
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
     assertValid(hasArg(data), "Please specify a data.table with signals to upload")
-    assertValid(hasArg(target), "Please specify a target respondent loaded with `getRespondents()`")
+
+    assertValid(hasArg(target), paste("Please specify a target respondent/segment loaded with `getRespondents()` or",
+                                      "`getSegments()`"))
+
     assertValid(hasArg(sensorName), "Please specify a name for the new sensor to upload")
     assertValid(hasArg(scriptName), "Please specify the name of the script used to produce this data")
 
     assertClass(study, "imStudy", "`study` argument is not an imStudy object")
-    assertClass(target, "imRespondent", "`target` argument is not an imRespondent object")
+    assertClass(target, c("imRespondent", "imSegment"), "`target` argument is not an imRespondent or imSegment object")
     assertClass(stimulus, "imStimulus", "`stimulus` argument is not an imStimulus object")
-
 
     assertValid(exists("iMotionsVersion", params), "Required `iMotionsVersion` field in params")
     assertValid(exists("flowName", params), "Required `flowName` field in params")
+
+    if (inherits(target, "imSegment")) {
+        assertValid(!is.null(stimulus), "Please specify a stimulus to upload data to a segment target")
+    }
 
     # Verify that data is a data.table of the good format
     data <- checkDataFormat(data)
@@ -2262,6 +2268,16 @@ getSensorsUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
 }
 
 
+#' getSensorsUrl method to get the path/url to the sensors of a segment object.
+#'
+#' @inheritParams getSensorsUrl
+#'
+#' @keywords internal
+getSensorsUrl.imSegment <- function(study, imObject, stimulus = NULL) {
+    file.path(getStudyUrl(study), "stimuli", stimulus$id, "segment", imObject$id, "samples")
+}
+
+
 #' Return the path/url to the signals of a specific sensor.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
@@ -2270,7 +2286,7 @@ getSensorsUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
 #' @keywords internal
 getSensorDataUrl <- function(study, sensor) {
     # As the sensor dataUrl sometimes contains a forward slash, we ensure we only keep one of them
-    gsub("//", "/", file.path(getStudyS3BaseUrl(study), sensor$dataUrl))
+    gsub("//", "/", file.path(getStudyS3BaseUrl(study), sensor$dataUrl), fixed = TRUE)
 }
 
 
@@ -2297,6 +2313,18 @@ getUploadSensorsUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
         file.path(getSensorsUrl(study, imObject, stimulus), "data")
     } else {
         file.path(getStudyBaseUrl(study), "reportruns", "placeholder_reportId", "respondents", imObject$id)
+    }
+}
+
+
+#' getUploadSensorsUrl method to get the path/url to upload a sensor to this segment object.
+#'
+#' @inheritParams getUploadSensorsUrl
+#'
+#' @keywords internal
+getUploadSensorsUrl.imSegment <- function(study, imObject, stimulus = NULL) {
+    if (study$connection$localIM) {
+        file.path(getSensorsUrl(study, imObject, stimulus), "aggregateData")
     }
 }
 

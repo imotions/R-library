@@ -3,13 +3,16 @@ context("Testing `getUrls` functions")
 library("imotionsApi")
 library("mockery")
 
-# Load study and respondent
+# Load study, respondent, stimulus and segment
+studyId <- "af8c2165-4389-4cc3-8b1e-b2d3a4bd8be1"
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
 respondentId <- "09bd22e6-29b6-4a8a-8cc1-4780a5163e63"
 respondent <- getRespondent(study, respondentId)
 stimulusId <- "1000"
 stimulus <- getStimulus(study, stimulusId)
-studyId <- "af8c2165-4389-4cc3-8b1e-b2d3a4bd8be1"
+segmentId <- "1010"
+segment <- getSegment(study, segmentId)
+
 
 # Load sensor
 sensors <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorList.json")))
@@ -52,8 +55,10 @@ test_that("all getUrl function should work as expected for local connection", {
     #getSensorsUrl
     sensorsUrl <- paste0(studyUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63/samples")
     sensorStimulusUrl <- paste0(studyUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63/stimuli/1000/samples")
+    sensorsSegmentUrl <- paste0(studyUrl, "/stimuli/1000/segment/1010/samples")
     expect_identical(getSensorsUrl(study, respondent), sensorsUrl)
     expect_identical(getSensorsUrl(study, respondent, stimulus), sensorStimulusUrl)
+    expect_identical(getSensorsUrl(study, segment, stimulus), sensorsSegmentUrl)
     expect_identical(getSensorsUrl(remoteStudy, respondent), sensorsUrl)
     expect_identical(getSensorsUrl(remoteStudy, respondent, stimulus), sensorStimulusUrl)
 
@@ -66,6 +71,7 @@ test_that("all getUrl function should work as expected for local connection", {
     #getUploadSensorsUrl
     expect_identical(getUploadSensorsUrl(study, respondent), paste0(sensorsUrl, "/data"))
     expect_identical(getUploadSensorsUrl(study, respondent, stimulus), paste0(sensorStimulusUrl, "/data"))
+    expect_identical(getUploadSensorsUrl(study, segment, stimulus), paste0(sensorsSegmentUrl, "/aggregateData"))
     uploadCloudUrl <- "baseUrl/reportruns/placeholder_reportId/respondents/09bd22e6-29b6-4a8a-8cc1-4780a5163e63"
     expect_identical(getUploadSensorsUrl(remoteStudy, respondent), uploadCloudUrl)
 

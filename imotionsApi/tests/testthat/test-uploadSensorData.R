@@ -13,6 +13,7 @@ params <- list(token = "token", iMotionsVersion = "iMotionsVersion", flowName = 
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
 respondent <- getRespondent(study, "09bd22e6-29b6-4a8a-8cc1-4780a5163e63")
 stimulus <- getStimulus(study, "1000")
+segment <- getSegment(study, "1010")
 
 # Create data to upload
 data <- data.frame("Timestamp" = seq(1:100), "Thresholded value" = rep(0, 100), check.names = FALSE)
@@ -38,8 +39,8 @@ test_that("should throw errors if arguments are missing or not from the good cla
 
     # in case of missing target
     error <- capture_error(uploadSensorData(params, study, data))
-    expect_identical(error$message, "Please specify a target respondent loaded with `getRespondents()`",
-                     "missing `target` param not handled properly")
+    expect_identical(error$message, paste("Please specify a target respondent/segment loaded with `getRespondents()`",
+                                          "or `getSegments()`"), "missing `target` param not handled properly")
 
     # in case of missing sensorName
     error <- capture_error(uploadSensorData(params, study, data, respondent))
@@ -57,10 +58,10 @@ test_that("should throw errors if arguments are missing or not from the good cla
     expect_identical(error$message, "`study` argument is not an imStudy object",
                      "study not being an imStudy object should throw an error")
 
-    # in case of target that is not an imRespondent object
+    # in case of target that is not an imRespondent/imSegment object
     error <- capture_error(uploadSensorData(params, study, data, target = "whatever", sensorName, scriptName))
-    expect_identical(error$message, "`target` argument is not an imRespondent object",
-                     "target not being an imRespondent object should throw an error")
+    expect_identical(error$message, "`target` argument is not an imRespondent or imSegment object",
+                     "target not being an imRespondent/imSegment object should throw an error")
 
     # in case of stimulus that is not an imStimulus object
     error <- capture_error(uploadSensorData(params, study, data, respondent, sensorName, scriptName,
@@ -79,6 +80,11 @@ test_that("should throw errors if arguments are missing or not from the good cla
     error <- capture_error(uploadSensorData(wrongParams, study, data, respondent, sensorName, scriptName))
     expect_identical(error$message, "Required `flowName` field in params",
                      "missing `flowName` field in params not handled properly")
+
+    # in case of stimulus missing for a segment target
+    error <- capture_error(uploadSensorData(params, study, data, segment, sensorName, scriptName))
+    expect_identical(error$message, "Please specify a stimulus to upload data to a segment target",
+                     "missing `stimulus` param for segment target not handled properly")
 
     # in case of wrong data format
     wrongData <- data.table(Timestamp = integer(), variableTest = numeric())
