@@ -291,8 +291,10 @@ getStimuli <- function(study, respondent = NULL, relevant = TRUE) {
 
     stimuli$relevant <- !unlist(grepl("non-relevant", stimuli$tags, fixed = TRUE))
     stimuli$parentId <- stimuli$parentStimuli
+    stimuli[, c("tags", "parentStimuli")] <- NULL
 
-    stimuli[, c("respondentData", "tags", "parentStimuli")] <- NULL
+    # Remove list or data.frame to make the table readable
+    stimuli[, which(sapply(stimuli, class) %in% c("list", "data.frame"))] <- NULL
 
     # Make sure stimuli attached to another stimulus don't have a parent id
     stimuli$parentId[!stimuli$type %like% "_SCENE"] <- NA_character_

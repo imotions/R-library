@@ -9,6 +9,9 @@ study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
 # Load second study
 study_one_stimulus <- jsonlite::unserializeJSON(readLines("../data/imStudy_oneofeach.json"))
 
+# Load third study (cloud)
+study_cloud <- jsonlite::unserializeJSON(readLines("../data/imStudy_cloud.json"))
+
 test_that("should throw errors if arguments are missing or not from the good class", {
     # in case of missing study
     error <- capture_error(getStimuli())
@@ -34,7 +37,6 @@ test_that("should return all stimuli from this study", {
     stimuli <- getStimuli(study)
     expect_true(inherits(stimuli, "imStimulusList"), "`stimuli` should be an imStimulusList object")
     expect(nrow(stimuli) == 6, "stimuli should contain 6 stimuli")
-
     expect_identical(colnames(stimuli), expected_column_names, "stimuli infos not matching")
 
     # check that taking only one stimulus changes the class of the object
@@ -53,6 +55,14 @@ test_that("getStimuli() in case of only one stimulus should return an imStimulus
     expect(nrow(stimuli) == 1, "stimuli should only contain a single stimulus")
     expect_identical(stimuli$name, c("AntiSmoking40Sec"), "stimulus name is not matching")
     expect_identical(stimuli$id, c("1000"), "stimulus id is not matching")
+})
+
+test_that("getStimuli() should work on study coming from the cloud", {
+    stimuli <- getStimuli(study_cloud)
+
+    expect_true(inherits(stimuli, "imStimulusList"), "`stimuli` should be an imStimulusList object")
+    expect(nrow(stimuli) == 5, "stimuli should contain 5 stimuli")
+    expect(ncol(stimuli) == 21, "stimuli should have 21 properties")
 })
 
 test_that("getStimuli() by respondent", {
