@@ -1569,31 +1569,31 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
 #' @export
 #' @examples
 #' \dontrun{
-# connection <- imotionsApi::imConnection("xxxxxxxx")
-# studies <- imotionsApi::listStudies(connection)
-# study <- imotionsApi::imStudy(connection, studies$id[1])
-# respondents <- imotionsApi::getRespondents(study)
-# segments <- imotionsApi::getSegments(study)
-# data <- data.frame("Timestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
-# params <- list("iMotionsVersion" = 8, "flowName" = "Test")
-#
-# uploadSensorData(params, study, data, respondents[1, ], sensorName = "New sensor",
-#                  scriptName = "Example Script")
-#
-# # Uploading data to a specific stimulus
-# stimuli <- imotionsApi::getStimuli(study)
-# uploadSensorData(params, study, data, respondents[1, ], sensorName = "New sensor",
-#                  scriptName = "Example Script", stimulus = stimuli[1, ])
-#
-# # Uploading data to a specific segment/stimulus
-# stimuli <- imotionsApi::getStimuli(study)
-# uploadSensorData(params, study, data, segments[1, ], sensorName = "New sensor",
-#                  scriptName = "Example Script", stimulus = stimuli[1, ])
-#
-# # Adding some metadata to the data
-# metadata <- data.table("Units" = c("ms", ""), "Show" = c("FALSE", "TRUE"))
-# uploadSensorData(params, study, data, respondents[1, ], sensorName = "New sensor",
-#                  scriptName = "Example Script", metadata)
+#' connection <- imotionsApi::imConnection("xxxxxxxx")
+#' studies <- imotionsApi::listStudies(connection)
+#' study <- imotionsApi::imStudy(connection, studies$id[1])
+#' respondents <- imotionsApi::getRespondents(study)
+#' segments <- imotionsApi::getSegments(study)
+#' data <- data.frame("Timestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
+#' params <- list("iMotionsVersion" = 8, "flowName" = "Test")
+#'
+#' uploadSensorData(params, study, data, respondents[1, ], sensorName = "New sensor",
+#'                  scriptName = "Example Script")
+#'
+#' # Uploading data to a specific stimulus
+#' stimuli <- imotionsApi::getStimuli(study)
+#' uploadSensorData(params, study, data, respondents[1, ], sensorName = "New sensor",
+#'                  scriptName = "Example Script", stimulus = stimuli[1, ])
+#'
+#' # Uploading data to a specific segment/stimulus
+#' stimuli <- imotionsApi::getStimuli(study)
+#' uploadSensorData(params, study, data, segments[1, ], sensorName = "New sensor",
+#'                  scriptName = "Example Script", stimulus = stimuli[1, ])
+#'
+#' # Adding some metadata to the data
+#' metadata <- data.table("Units" = c("ms", ""), "Show" = c("FALSE", "TRUE"))
+#' uploadSensorData(params, study, data, respondents[1, ], sensorName = "New sensor",
+#'                  scriptName = "Example Script", metadata)
 #' }
 uploadSensorData <- function(params, study, data, target, sensorName, scriptName, metadata = NULL, stimulus = NULL) {
     assertValid(hasArg(params), "Please specify parameters used for your script")
