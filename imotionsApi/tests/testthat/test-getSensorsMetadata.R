@@ -8,12 +8,12 @@ library("arrow")
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
 respondent <- getRespondent(study, "09bd22e6-29b6-4a8a-8cc1-4780a5163e63")
 
-mockedGetRespondentSensors <- function(study, respondent, stimulus = NULL) {
+mockedGetSensors <- function(study, respondent, stimulus = NULL) {
     getJSON_Stub <- mock(jsonlite::fromJSON("../data/respondentSensors.json", simplifyDataFrame = FALSE))
 
     sensors <- mockr::with_mock(
         getJSON = getJSON_Stub, {
-            getRespondentSensors(study, respondent, stimulus)
+            getSensors(study, respondent, stimulus)
         })
 
     return(sensors)
@@ -23,7 +23,7 @@ mockedGetRespondentSensors <- function(study, respondent, stimulus = NULL) {
 test_that("should throw errors if arguments are missing or not from the good class", {
     # in case of missing sensor
     error <- capture_error(getSensorsMetadata())
-    expect_identical(error$message, "Please specify sensors loaded with `getRespondentSensors()`",
+    expect_identical(error$message, "Please specify sensors loaded with `getSensors()`",
                      "missing `sensor` param not handled properly")
 
     # in case of sensor that is not an imSensor object
@@ -33,7 +33,7 @@ test_that("should throw errors if arguments are missing or not from the good cla
 })
 
 test_that("should return sensor metadata for a single sensor", {
-    sensors <- mockedGetRespondentSensors(study, respondent)
+    sensors <- mockedGetSensors(study, respondent)
     sensor <- sensors[3, ]
     metadata <- getSensorsMetadata(sensor)
 
@@ -44,7 +44,7 @@ test_that("should return sensor metadata for a single sensor", {
 })
 
 test_that("should return sensors metadata for all sensors", {
-    sensors <- mockedGetRespondentSensors(study, respondent)
+    sensors <- mockedGetSensors(study, respondent)
     metadata <- getSensorsMetadata(sensors)
 
     # check sensor metadata

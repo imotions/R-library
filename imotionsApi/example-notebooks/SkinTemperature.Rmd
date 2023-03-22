@@ -58,7 +58,7 @@ temp_scale <- params$TemperatureScaleSelection
 #' @return A data.table containing the requested skin temperature data
 getSkintempData <- function(study, respondent, selectedSensorName) {
     # Now it retrieves all sensors for a respondent of interest
-    rSensors <- getRespondentSensors(study, respondent)
+    rSensors <- getSensors(study, respondent)
 
     rSensors <- rSensors[!sensor == "R Analysis" & eventSourceType == "Sensor", ]
 

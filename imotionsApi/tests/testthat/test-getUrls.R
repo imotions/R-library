@@ -55,7 +55,7 @@ test_that("all getUrl function should work as expected for local connection", {
     #getSensorsUrl
     sensorsUrl <- paste0(studyUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63/samples")
     sensorStimulusUrl <- paste0(studyUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63/stimuli/1000/samples")
-    sensorsSegmentUrl <- paste0(studyUrl, "/stimuli/1000/segment/1010/samples")
+    sensorsSegmentUrl <- paste0(studyUrl, "/segment/1010/stimuli/1000/samples")
     expect_identical(getSensorsUrl(study, respondent), sensorsUrl)
     expect_identical(getSensorsUrl(study, respondent, stimulus), sensorStimulusUrl)
     expect_identical(getSensorsUrl(study, segment, stimulus), sensorsSegmentUrl)
@@ -71,7 +71,7 @@ test_that("all getUrl function should work as expected for local connection", {
     #getUploadSensorsUrl
     expect_identical(getUploadSensorsUrl(study, respondent), paste0(sensorsUrl, "/data"))
     expect_identical(getUploadSensorsUrl(study, respondent, stimulus), paste0(sensorStimulusUrl, "/data"))
-    expect_identical(getUploadSensorsUrl(study, segment, stimulus), paste0(sensorsSegmentUrl, "/aggregateData"))
+    expect_identical(getUploadSensorsUrl(study, segment, stimulus), paste0(sensorsSegmentUrl, "/data"))
     uploadCloudUrl <- "baseUrl/reportruns/placeholder_reportId/respondents/09bd22e6-29b6-4a8a-8cc1-4780a5163e63"
     expect_identical(getUploadSensorsUrl(remoteStudy, respondent), uploadCloudUrl)
 

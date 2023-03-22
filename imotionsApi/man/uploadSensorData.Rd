@@ -2,7 +2,7 @@
 % Please edit documentation in R/imotionsApi.R
 \name{uploadSensorData}
 \alias{uploadSensorData}
-\title{Create a new sensor for a specific respondent in a study.}
+\title{Create a new sensor for a specific respondent/segment in a study.}
 \usage{
 uploadSensorData(
   params,
@@ -22,8 +22,8 @@ uploadSensorData(
 
 \item{data}{A data.table containing the signals to upload (imData object are also accepted).}
 
-\item{target}{The target respondent for the sensor (an imRespondent object as returned from
-\code{\link{getRespondents}}).}
+\item{target}{The target respondent/segment for the sensor (an imRespondent/imSegment object as returned from
+\code{\link{getRespondents}} or \code{\link{getSegments}}).}
 
 \item{sensorName}{The name of the new sensor you would like to create.}
 
@@ -33,7 +33,7 @@ uploadSensorData(
 and there must be a row corresponding to each data column.}
 
 \item{stimulus}{Optional - an imStimulus object as returned from \code{\link{getStimuli}} to upload data specific to
-this stimulus.}
+this stimulus. In case of a segment target, this parameter needs to be provided.}
 }
 \description{
 Signals data.table (with a Timestamp column) can be uploaded.
@@ -44,23 +44,5 @@ Params required field are "iMotionsVersion" and "flowName" (flow name will be us
 }
 \examples{
 \dontrun{
-connection <- imotionsApi::imConnection("xxxxxxxx")
-studies <- imotionsApi::listStudies(connection)
-study <- imotionsApi::imStudy(connection, studies$id[1])
-respondents <- imotionsApi::getRespondents(study)
-data <- data.frame("Timestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
-params <- list("iMotionsVersion" = 8, "flowName" = "Test")
-uploadSensorData(params, study, data, respondents[1, ], sensorName = "New sensor",
-                 scriptName = "Example Script")
-
-# Uploading data to a specific stimulus
-stimuli <- imotionsApi::getStimuli(study)
-uploadSensorData(params, study, data, respondents[1, ], sensorName = "New sensor",
-                 scriptName = "Example Script", stimulus = stimuli[1, ])
-
-# Adding some metadata to the data
-metadata <- data.table("Units" = c("ms", ""), "Show" = c("FALSE", "TRUE"))
-uploadSensorData(params, study, data, respondents[1, ], sensorName = "New sensor",
-                 scriptName = "Example Script", metadata)
 }
 }

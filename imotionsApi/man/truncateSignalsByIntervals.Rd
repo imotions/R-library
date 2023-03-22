@@ -29,7 +29,7 @@ connection <- imotionsApi::imConnection("xxxxxxxx")
 studies <- imotionsApi::listStudies(connection)
 study <- imotionsApi::imStudy(connection, studies$id[1])
 respondents <- imotionsApi::getRespondents(study)
-sensors <- imotionsApi::getRespondentSensors(study, respondents[1, ])
+sensors <- imotionsApi::getSensors(study, respondents[1, ])
 signals <- imotionsApi::getSensorData(study, sensors[3, ])
 intervals <- imotionsApi::getRespondentIntervals(study, respondents[1, ])
 

@@ -196,7 +196,7 @@ temp_scale <- params$TemperatureScaleSelection
 #' @return A data.table containing the requested skin temperature data for a given respondent
 getSkintempSample <- function(study, respondent, selectedSensorName) {
     # Retrieves all sensors for a respondent of interest
-    rSensors <- getRespondentSensors(study, respondent)
+    rSensors <- getSensors(study, respondent)
     rSensors <- rSensors[!sensor == "R Analysis" & eventSourceType == "Sensor", ]
 
     # in case of empty selectedSensorName (cloud data), the function will autodetect it
