@@ -9,7 +9,7 @@ privateDownloadData(study, sensor, signalsName = NULL)
 \arguments{
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
-\item{sensor}{An imSensor object as returned from \code{\link{getRespondentSensors}}.}
+\item{sensor}{An imSensor object as returned from \code{\link{getSensors}}.}
 
 \item{signalsName}{Optional - A vector of specific signals name you would like to return.}
 }

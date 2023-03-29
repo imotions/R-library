@@ -85,6 +85,7 @@ test_that("privateDownloadData() should return the correct signals file during r
     expect_identical(colnames(signal), c("Timestamp", signalToKeep), "incorrect columns name")
 })
 
+
 context("getSensorData()")
 
 # Load signals
@@ -109,7 +110,7 @@ test_that("should throw errors if arguments are missing or not from the good cla
 
     # in case of missing sensor
     error <- capture_error(getSensorData(study))
-    expect_identical(error$message, "Please specify a sensor loaded with `getRespondentSensors()`",
+    expect_identical(error$message, "Please specify a sensor loaded with `getSensors()`",
                      "missing `sensor` param not handled properly")
 
     # in case of study that is not an imStudy object
@@ -144,6 +145,12 @@ test_that("should return truncated signals data for this sensor and pass signals
     error <- capture_error(mockedGetSensorData(study, sensor, intervals = intervals, signals = signals))
     expect_identical(error$message, "sensor and intervals must correspond to the same respondent",
                      "intervals come from a different respondent than the sensor respondent")
+
+    # Should throw an error if the sensor comes from a segment
+    sensor_segment <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorSegment.json")))
+    error <- capture_error(mockedGetSensorData(study, sensor_segment, intervals = intervals, signals = signals))
+    expect_identical(error$message, "truncating signals by intervals is not available for sensors at the segment level",
+                     "sensor comes from a segment and not a respondent")
 
     # Should pass signalsName information to privateDownloadData (check inside mockedGetSensorData)
     signals <- mockedGetSensorData(study, sensor, signalsName = c("Signal1", "Signal2"), signals = signals)

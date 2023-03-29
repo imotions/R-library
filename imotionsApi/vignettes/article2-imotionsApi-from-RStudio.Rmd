@@ -120,7 +120,7 @@ First retrieves all sensors information for a respondent of interest with the co
 
 
 ```{r, eval=F, echo=T}
-rSensors <-  imotionsApi::getRespondentSensors(study, respondent)[!sensor == "R Analysis" & eventSourceType == "Sensor", ]
+rSensors <-  imotionsApi::getSensors(study, respondent)[!sensor == "R Analysis" & eventSourceType == "Sensor", ]
 ```
 
 In this example, the 4th row’s sensor information is what we want to extract from the returned rSensors:

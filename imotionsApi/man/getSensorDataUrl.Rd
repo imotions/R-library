@@ -9,7 +9,7 @@ getSensorDataUrl(study, sensor)
 \arguments{
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
-\item{sensor}{An imSensor object as returned from \code{\link{getRespondentSensors}}.}
+\item{sensor}{An imSensor object as returned from \code{\link{getSensors}}.}
 }
 \description{
 Return the path/url to the signals of a specific sensor.

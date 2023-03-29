@@ -9,22 +9,22 @@ getSensorData(study, sensor, signalsName = NULL, intervals = NULL)
 \arguments{
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
-\item{sensor}{An imSensor object as returned from \code{\link{getRespondentSensors}}.}
+\item{sensor}{An imSensor object as returned from \code{\link{getSensors}}.}
 
 \item{signalsName}{Optional - A vector of specific signals name you would like to return.}
 
 \item{intervals}{Optional - An imInterval or imIntervalList object with start/end of data to subset as given by
-\code{\link{getRespondentIntervals}}.}
+\code{\link{getRespondentIntervals}}. In case of segment sensor, this is not possible.}
 }
 \value{
 An imData object (data.table) containing the signals (imSignals) or metrics (imMetrics) for the sensor of
         interest.
 }
 \description{
-Available sensors in your study can be listed using the \code{\link{getRespondentSensors}}.
+Available sensors in your study can be listed using the \code{\link{getSensors}}.
 }
 \details{
-Signals always have a "Timestamp" column and are unique to a given respondent and a given sensor source.
+Signals always have a "Timestamp" column and are unique to a given respondent/segment and a given sensor source.
 Metrics are stored as a special sensor, also specific to a given respondent.
 }
 \examples{
@@ -33,7 +33,7 @@ connection <- imotionsApi::imConnection("xxxxxxxx")
 studies <- imotionsApi::listStudies(connection)
 study <- imotionsApi::imStudy(connection, studies$id[1])
 respondents <- imotionsApi::getRespondents(study)
-sensors <- imotionsApi::getRespondentSensors(study, respondents[1, ])
+sensors <- imotionsApi::getSensors(study, respondents[1, ])
 data <- imotionsApi::getSensorData(study, sensors[1, ])
 }
 }

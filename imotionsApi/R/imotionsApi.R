@@ -797,14 +797,15 @@ getRespondent <- function(study, respondentId) {
 
 ## Sensor =============================================================================================================
 
-#' Get all sensors available for a given respondent.
+#' Get all sensors available for a given respondent/segment.
 #'
-#' Retrieves detailed information about sensors available for a given respondent.
+#' Retrieves detailed information about sensors available for a given respondent/segment.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
+#' @param target The target respondent/segment (an imRespondent/imSegment object as returned from
+#'               \code{\link{getRespondents}} or \code{\link{getSegments}}).
 #' @param stimulus Optional - an imStimulus object as returned from \code{\link{getStimuli}} to retrieve sensors
-#'        specific to this stimulus.
+#'                 specific to this stimulus. In case of a segment target, this parameter needs to be provided.
 #'
 #' @return An imSensorList object (data.table) with all sensors collected for the respondent of interest.
 #' @export
@@ -814,25 +815,37 @@ getRespondent <- function(study, respondentId) {
 #' studies <- imotionsApi::listStudies(connection)
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
 #' respondents <- imotionsApi::getRespondents(study)
-#' sensors <- imotionsApi::getRespondentSensors(study, respondents[1, ])
+#' segments <- imotionsApi::getSegments(study)
+#' sensors <- imotionsApi::getSensors(study, respondents[1, ])
 #'
 #' # Get sensors for a specific stimulus
 #' stimuli <- imotionsApi::getStimuli(study)
-#' sensors <- imotionsApi::getRespondentSensors(study, respondents[1, ], stimuli[1, ])
+#' sensors <- imotionsApi::getSensors(study, respondents[1, ], stimuli[1, ])
+#'
+#' # Get sensors for a specific segment/Stimulus
+#' stimuli <- imotionsApi::getStimuli(study)
+#' sensors <- imotionsApi::getSensors(study, segments[1, ], stimuli[1, ])
 #' }
-getRespondentSensors <- function(study, respondent, stimulus = NULL) {
+getSensors <- function(study, target, stimulus = NULL) {
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
-    assertValid(hasArg(respondent), "Please specify a respondent loaded with `getRespondents()`")
+    assertValid(hasArg(target), paste("Please specify a target respondent/segment loaded with `getRespondents()` or",
+                                      "`getSegments()`"))
+
     assertClass(study, "imStudy", "`study` argument is not an imStudy object")
-    assertClass(respondent, "imRespondent", "`respondent` argument is not an imRespondent object")
+    assertClass(target, c("imRespondent", "imSegment"), "`target` argument is not an imRespondent or imSegment object")
     assertClass(stimulus, "imStimulus", "`stimulus` argument is not an imStimulus object")
 
-    endpoint <- paste("respondent:", respondent$name)
-    if (!is.null(stimulus)) {
-        endpoint <- paste(endpoint, "stimulus:", stimulus$name)
+    if (inherits(target, "imSegment")) {
+        assertValid(!is.null(stimulus), "Please specify a stimulus to get sensors available for a segment target")
     }
 
-    sensors <- getJSON(study$connection, getSensorsUrl(study, respondent, stimulus),
+    type <- tolower(gsub("^im|List", "", class(target)[1]))
+    endpoint <- paste0(type, ": ", target$name)
+    if (!is.null(stimulus)) {
+        endpoint <- paste0(endpoint, ", stimulus: ", stimulus$name)
+    }
+
+    sensors <- getJSON(study$connection, getSensorsUrl(study, target, stimulus),
                        message = paste("Retrieving sensors for", endpoint), simplifyDataFrame = FALSE)
 
     assertValid(length(sensors) > 0, paste("No sensors found for", endpoint))
@@ -854,18 +867,15 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
         }
     }
 
-    suppressWarnings(sensors <- rbindlist(sensors, fill = TRUE))
+    sensors <- suppressWarnings(rbindlist(sensors, fill = TRUE))
     sensors$signals <- signals
     sensors$signalsMetaData <- signalsMetaData
 
-    sensors <- cbind(sensors, "respondent" = list(respondent))
+    sensors[[type]] <- list(target)
     sensors <- reorderSensorColumns(sensors)
-
     sensors <- createImObject(sensors, "Sensor")
     return(sensors)
 }
-
-
 
 
 
@@ -873,10 +883,10 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
 
 #' Get sensors specific metadata.
 #'
-#' Available sensors in your study can be listed using the \code{\link{getRespondentSensors}}.
+#' Available sensors in your study can be listed using the \code{\link{getSensors}}.
 #'
 #'
-#' @param sensors An imSensorList object as returned from \code{\link{getRespondentSensors}}.
+#' @param sensors An imSensorList object as returned from \code{\link{getSensors}}.
 #'
 #' @importFrom utils URLdecode
 #' @importFrom dplyr bind_rows
@@ -888,11 +898,11 @@ getRespondentSensors <- function(study, respondent, stimulus = NULL) {
 #' studies <- imotionsApi::listStudies(connection)
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
 #' respondents <- imotionsApi::getRespondents(study)
-#' sensors <- imotionsApi::getRespondentSensors(study, respondents[1, ])
+#' sensors <- imotionsApi::getSensors(study, respondents[1, ])
 #' metadata <- imotionsApi::getSensorsMetadata(study, sensors)
 #' }
 getSensorsMetadata <- function(sensors) {
-    assertValid(hasArg(sensors), "Please specify sensors loaded with `getRespondentSensors()`")
+    assertValid(hasArg(sensors), "Please specify sensors loaded with `getSensors()`")
     assertClass(sensors, c("imSensor", "imSensorList"), "`sensors` argument is not an imSensor or imSensorList object")
 
     sensors_metadata <- bind_rows(lapply(sensors$sensorSpecific, function(sensor) {
@@ -905,7 +915,7 @@ getSensorsMetadata <- function(sensors) {
         metadata <- metadata[!lengths(metadata) == 0]
 
         metadata <- lapply(metadata, function(x) {
-            return(ifelse(length(x) > 1, list(x), x))
+            return(ifelse(length(x) > 1, list(x), type.convert(as.character(x), as.is = TRUE)))
         })
 
         processed_metadata <- as.data.table(metadata)
@@ -989,7 +999,7 @@ getRespondentIntervals <- function(study, respondent, type = c("Stimulus", "Scen
 #' @return A data.table composed of the start, end, duration, id and name of each stimulus.
 #' @keywords internal
 privateGetIntervalsForStimuli <- function(study, respondent, stimuli) {
-    sensors <- getRespondentSensors(study, respondent)
+    sensors <- getSensors(study, respondent)
     sensor <- sensors[name == "SlideEvents", ]
 
     if (nrow(sensor) != 1) {
@@ -1141,7 +1151,7 @@ privateGetIntervalsForAnnotations <- function(study, respondent, stimuli) {
 #' studies <- imotionsApi::listStudies(connection)
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
 #' respondents <- imotionsApi::getRespondents(study)
-#' sensors <- imotionsApi::getRespondentSensors(study, respondents[1, ])
+#' sensors <- imotionsApi::getSensors(study, respondents[1, ])
 #' signals <- imotionsApi::getSensorData(study, sensors[3, ])
 #' intervals <- imotionsApi::getRespondentIntervals(study, respondents[1, ])
 #'
@@ -1208,7 +1218,7 @@ truncateSignalsByIntervals <- function(signals, intervals, dropIntervals = FALSE
 #' studies <- imotionsApi::listStudies(connection)
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
 #' respondents <- imotionsApi::getRespondents(study)
-#' sensors <- imotionsApi::getRespondentSensors(study, respondents[1, ])
+#' sensors <- imotionsApi::getSensors(study, respondents[1, ])
 #' signals <- imotionsApi::getSensorData(study, sensors[3, ])
 #' intervals <- imotionsApi::getRespondentIntervals(study, respondents[1, ])
 #'
@@ -1258,16 +1268,16 @@ convertRecordingTsToIntervals <- function(recordingTs, intervals) {
 
 #' Download data corresponding to a specific sensor (signals/metrics).
 #'
-#' Available sensors in your study can be listed using the \code{\link{getRespondentSensors}}.
+#' Available sensors in your study can be listed using the \code{\link{getSensors}}.
 #'
-#' Signals always have a "Timestamp" column and are unique to a given respondent and a given sensor source.
+#' Signals always have a "Timestamp" column and are unique to a given respondent/segment and a given sensor source.
 #' Metrics are stored as a special sensor, also specific to a given respondent.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#' @param sensor An imSensor object as returned from \code{\link{getRespondentSensors}}.
+#' @param sensor An imSensor object as returned from \code{\link{getSensors}}.
 #' @param signalsName Optional - A vector of specific signals name you would like to return.
 #' @param intervals Optional - An imInterval or imIntervalList object with start/end of data to subset as given by
-#'                  \code{\link{getRespondentIntervals}}.
+#'                  \code{\link{getRespondentIntervals}}. In case of segment sensor, this is not possible.
 #'
 #' @return An imData object (data.table) containing the signals (imSignals) or metrics (imMetrics) for the sensor of
 #'         interest.
@@ -1278,13 +1288,13 @@ convertRecordingTsToIntervals <- function(recordingTs, intervals) {
 #' studies <- imotionsApi::listStudies(connection)
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
 #' respondents <- imotionsApi::getRespondents(study)
-#' sensors <- imotionsApi::getRespondentSensors(study, respondents[1, ])
+#' sensors <- imotionsApi::getSensors(study, respondents[1, ])
 #' data <- imotionsApi::getSensorData(study, sensors[1, ])
 #' }
 getSensorData <- function(study, sensor, signalsName = NULL, intervals = NULL) {
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
     assertClass(study, "imStudy", "`study` argument is not an imStudy object")
-    assertValid(hasArg(sensor), "Please specify a sensor loaded with `getRespondentSensors()`")
+    assertValid(hasArg(sensor), "Please specify a sensor loaded with `getSensors()`")
     assertClass(sensor, "imSensor", "`sensor` argument is not an imSensor object")
 
     data <- privateDownloadData(study, sensor, signalsName = signalsName)
@@ -1295,6 +1305,9 @@ getSensorData <- function(study, sensor, signalsName = NULL, intervals = NULL) {
     if (inherits(data, "imSignals")) {
         # in case an imInterval or imIntervalList object has been given - filter the data accordingly
         if (!is.null(intervals)) {
+            assertValid(exists("respondent", sensor),
+                        "truncating signals by intervals is not available for sensors at the segment level")
+
             assertValid(intervals[1, ]$respondent[[1]]$id == sensor$respondent[[1]]$id,
                         "sensor and intervals must correspond to the same respondent")
 
@@ -1443,7 +1456,7 @@ getAOIRespondentMetrics <- function(study, AOI, respondent) {
 #' Return metrics / signals (with modified Timestamp if needed) for the sensor of interest.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#' @param sensor An imSensor object as returned from \code{\link{getRespondentSensors}}.
+#' @param sensor An imSensor object as returned from \code{\link{getSensors}}.
 #' @param signalsName Optional - A vector of specific signals name you would like to return.
 #'
 #' @importFrom arrow read_parquet set_cpu_count
@@ -1532,7 +1545,7 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
 
 ## Uploading Data =====================================================================================================
 
-#' Create a new sensor for a specific respondent in a study.
+#' Create a new sensor for a specific respondent/segment in a study.
 #'
 #' Signals data.table (with a Timestamp column) can be uploaded.
 #' After processing, the sensor can then be viewed and exported locally through the iMotions Desktop.
@@ -1542,8 +1555,8 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
 #' @param params The list of parameters provided to the script - specific parameters value will be stored as metadata.
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param data A data.table containing the signals to upload (imData object are also accepted).
-#' @param target The target respondent for the sensor (an imRespondent object as returned from
-#'               \code{\link{getRespondents}}).
+#' @param target The target respondent/segment for the sensor (an imRespondent/imSegment object as returned from
+#'               \code{\link{getRespondents}} or \code{\link{getSegments}}).
 #'
 #' @param sensorName The name of the new sensor you would like to create.
 #' @param scriptName The name of the script used to produce these signals.
@@ -1551,7 +1564,7 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
 #'                 and there must be a row corresponding to each data column.
 #'
 #' @param stimulus Optional - an imStimulus object as returned from \code{\link{getStimuli}} to upload data specific to
-#'                 this stimulus.
+#'                 this stimulus. In case of a segment target, this parameter needs to be provided.
 #'
 #' @export
 #' @examples
@@ -1560,14 +1573,21 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
 #' studies <- imotionsApi::listStudies(connection)
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
 #' respondents <- imotionsApi::getRespondents(study)
+#' segments <- imotionsApi::getSegments(study)
 #' data <- data.frame("Timestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
 #' params <- list("iMotionsVersion" = 8, "flowName" = "Test")
+#'
 #' uploadSensorData(params, study, data, respondents[1, ], sensorName = "New sensor",
 #'                  scriptName = "Example Script")
 #'
 #' # Uploading data to a specific stimulus
 #' stimuli <- imotionsApi::getStimuli(study)
 #' uploadSensorData(params, study, data, respondents[1, ], sensorName = "New sensor",
+#'                  scriptName = "Example Script", stimulus = stimuli[1, ])
+#'
+#' # Uploading data to a specific segment/stimulus
+#' stimuli <- imotionsApi::getStimuli(study)
+#' uploadSensorData(params, study, data, segments[1, ], sensorName = "New sensor",
 #'                  scriptName = "Example Script", stimulus = stimuli[1, ])
 #'
 #' # Adding some metadata to the data
@@ -1579,17 +1599,23 @@ uploadSensorData <- function(params, study, data, target, sensorName, scriptName
     assertValid(hasArg(params), "Please specify parameters used for your script")
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
     assertValid(hasArg(data), "Please specify a data.table with signals to upload")
-    assertValid(hasArg(target), "Please specify a target respondent loaded with `getRespondents()`")
+
+    assertValid(hasArg(target), paste("Please specify a target respondent/segment loaded with `getRespondents()` or",
+                                      "`getSegments()`"))
+
     assertValid(hasArg(sensorName), "Please specify a name for the new sensor to upload")
     assertValid(hasArg(scriptName), "Please specify the name of the script used to produce this data")
 
     assertClass(study, "imStudy", "`study` argument is not an imStudy object")
-    assertClass(target, "imRespondent", "`target` argument is not an imRespondent object")
+    assertClass(target, c("imRespondent", "imSegment"), "`target` argument is not an imRespondent or imSegment object")
     assertClass(stimulus, "imStimulus", "`stimulus` argument is not an imStimulus object")
-
 
     assertValid(exists("iMotionsVersion", params), "Required `iMotionsVersion` field in params")
     assertValid(exists("flowName", params), "Required `flowName` field in params")
+
+    if (inherits(target, "imSegment")) {
+        assertValid(!is.null(stimulus), "Please specify a stimulus to upload data to a segment target")
+    }
 
     # Verify that data is a data.table of the good format
     data <- checkDataFormat(data)
@@ -1825,7 +1851,8 @@ privateUpload <- function(params, study, data, target, sampleName, scriptName, m
         endpoint_data <- "metrics"
     }
 
-    endpoint <- paste("target:", target$name)
+    type <- tolower(gsub("^im|List", "", class(target)[1]))
+    endpoint <- paste0(type, ": ", target$name)
     if (!is.null(stimulus)) {
         endpoint <- paste0(endpoint, ", stimulus: ", stimulus$name)
     }
@@ -2264,15 +2291,25 @@ getSensorsUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
 }
 
 
+#' getSensorsUrl method to get the path/url to the sensors of a segment object.
+#'
+#' @inheritParams getSensorsUrl
+#'
+#' @keywords internal
+getSensorsUrl.imSegment <- function(study, imObject, stimulus = NULL) {
+    file.path(getStudyUrl(study), "segment", imObject$id, "stimuli", stimulus$id, "samples")
+}
+
+
 #' Return the path/url to the signals of a specific sensor.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#' @param sensor An imSensor object as returned from \code{\link{getRespondentSensors}}.
+#' @param sensor An imSensor object as returned from \code{\link{getSensors}}.
 #'
 #' @keywords internal
 getSensorDataUrl <- function(study, sensor) {
     # As the sensor dataUrl sometimes contains a forward slash, we ensure we only keep one of them
-    gsub("//", "/", file.path(getStudyS3BaseUrl(study), sensor$dataUrl))
+    gsub("//", "/", file.path(getStudyS3BaseUrl(study), sensor$dataUrl), fixed = TRUE)
 }
 
 
@@ -2299,6 +2336,18 @@ getUploadSensorsUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
         file.path(getSensorsUrl(study, imObject, stimulus), "data")
     } else {
         file.path(getStudyBaseUrl(study), "reportruns", "placeholder_reportId", "respondents", imObject$id)
+    }
+}
+
+
+#' getUploadSensorsUrl method to get the path/url to upload a sensor to this segment object.
+#'
+#' @inheritParams getUploadSensorsUrl
+#'
+#' @keywords internal
+getUploadSensorsUrl.imSegment <- function(study, imObject, stimulus = NULL) {
+    if (study$connection$localIM) {
+        file.path(getSensorsUrl(study, imObject, stimulus), "data")
     }
 }
 
@@ -2734,7 +2783,7 @@ reorderColnames <- function(data, explicitlyOrdered) {
 #' @keywords internal
 reorderSensorColumns <- function(sensors) {
     reorderColnames(sensors, c("eventSourceType", "name", "signals", "sensor", "instance", "dataUrl", "respondent",
-                               "sensorSpecific", "signalsMetaData"))
+                               "segment", "sensorSpecific", "signalsMetaData"))
 }
 
 

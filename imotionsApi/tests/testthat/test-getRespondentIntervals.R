@@ -21,15 +21,15 @@ sensors <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSenso
 mockedPrivateGetIntervalsForStimuli <- function(study, respondent, stimuli, slideEvents, sensors,
                                                 expectedDataCall = 1) {
 
-    getRespondentSensors_Stub <- mock(sensors)
+    getSensors_Stub <- mock(sensors)
     getSensorData_Stub <- mock(slideEvents)
 
-    stimIntervals <- mockr::with_mock(getRespondentSensors = getRespondentSensors_Stub,
+    stimIntervals <- mockr::with_mock(getSensors = getSensors_Stub,
                                       getSensorData = getSensorData_Stub, {
                                           privateGetIntervalsForStimuli(study, respondent, stimuli)
                                       })
 
-    expect_args(getRespondentSensors_Stub, 1, study = study, respondent = respondent)
+    expect_args(getSensors_Stub, 1, study = study, respondent = respondent)
 
     if (expectedDataCall > 0) {
         expect_args(getSensorData_Stub, 1, study = study, sensor = sensors[1, ])

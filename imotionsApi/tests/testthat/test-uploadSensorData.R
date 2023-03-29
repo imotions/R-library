@@ -13,6 +13,7 @@ params <- list(token = "token", iMotionsVersion = "iMotionsVersion", flowName = 
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
 respondent <- getRespondent(study, "09bd22e6-29b6-4a8a-8cc1-4780a5163e63")
 stimulus <- getStimulus(study, "1000")
+segment <- getSegment(study, "1010")
 
 # Create data to upload
 data <- data.frame("Timestamp" = seq(1:100), "Thresholded value" = rep(0, 100), check.names = FALSE)
@@ -38,8 +39,8 @@ test_that("should throw errors if arguments are missing or not from the good cla
 
     # in case of missing target
     error <- capture_error(uploadSensorData(params, study, data))
-    expect_identical(error$message, "Please specify a target respondent loaded with `getRespondents()`",
-                     "missing `target` param not handled properly")
+    expect_identical(error$message, paste("Please specify a target respondent/segment loaded with `getRespondents()`",
+                                          "or `getSegments()`"), "missing `target` param not handled properly")
 
     # in case of missing sensorName
     error <- capture_error(uploadSensorData(params, study, data, respondent))
@@ -57,10 +58,10 @@ test_that("should throw errors if arguments are missing or not from the good cla
     expect_identical(error$message, "`study` argument is not an imStudy object",
                      "study not being an imStudy object should throw an error")
 
-    # in case of target that is not an imRespondent object
+    # in case of target that is not an imRespondent/imSegment object
     error <- capture_error(uploadSensorData(params, study, data, target = "whatever", sensorName, scriptName))
-    expect_identical(error$message, "`target` argument is not an imRespondent object",
-                     "target not being an imRespondent object should throw an error")
+    expect_identical(error$message, "`target` argument is not an imRespondent or imSegment object",
+                     "target not being an imRespondent/imSegment object should throw an error")
 
     # in case of stimulus that is not an imStimulus object
     error <- capture_error(uploadSensorData(params, study, data, respondent, sensorName, scriptName,
@@ -79,6 +80,11 @@ test_that("should throw errors if arguments are missing or not from the good cla
     error <- capture_error(uploadSensorData(wrongParams, study, data, respondent, sensorName, scriptName))
     expect_identical(error$message, "Required `flowName` field in params",
                      "missing `flowName` field in params not handled properly")
+
+    # in case of stimulus missing for a segment target
+    error <- capture_error(uploadSensorData(params, study, data, segment, sensorName, scriptName))
+    expect_identical(error$message, "Please specify a stimulus to upload data to a segment target",
+                     "missing `stimulus` param for segment target not handled properly")
 
     # in case of wrong data format
     wrongData <- data.table(Timestamp = integer(), variableTest = numeric())
@@ -415,12 +421,13 @@ test_that("should not call privateUpload if data is of wrong format", {
 
 context("privateUpload()")
 
-uploadUrlStudyPath <- "uploadUrlStudy"
+uploadUrlRespondentPath <- "uploadUrlRespondent"
 uploadUrlStimulusPath <- "uploadUrlStimulus"
+uploadUrlSegmentPath <- "uploadUrlSegment"
 uploadUrlEventPath <- "uploadUrlEvent"
 uploadUrlMetricsPath <- "uploadUrlMetrics"
 
-mockedPrivateUpload <- function(params, study, data, respondent, expectedBody, expectedEndpoint, sensorName = NULL,
+mockedPrivateUpload <- function(params, study, data, target, expectedBody, expectedEndpoint, sensorName = NULL,
                                 scriptName = NULL, metadata = NULL, stimulus = NULL) {
 
     class(expectedBody) <- "json"
@@ -428,17 +435,21 @@ mockedPrivateUpload <- function(params, study, data, respondent, expectedBody, e
 
     # Replace url to load test data
     mockUrl <- function(url) {
-         if (grepl("stimuli", url)) {
-            return(uploadUrlStimulusPath)
+         if (grepl("respondent", url)) {
+             if (grepl("stimuli", url)) {
+                 return(uploadUrlStimulusPath)
+             } else {
+                 return(uploadUrlRespondentPath)
+             }
         } else if (grepl("reportruns", url)) {
             return(url)
         } else {
-            return(uploadUrlStudyPath)
+            return(uploadUrlSegmentPath)
         }
     }
 
     if (inherits(data, "imSignals")) {
-        expectedUrl <- mockUrl(getUploadSensorsUrl(study = study, imObject = respondent, stimulus = stimulus))
+        expectedUrl <- mockUrl(getUploadSensorsUrl(study = study, imObject = target, stimulus = stimulus))
     } else if (inherits(data, "imEvents")) {
         expectedUrl <- uploadUrlEventPath
     } else if (inherits(data, "imMetrics")) {
@@ -465,16 +476,16 @@ mockedPrivateUpload <- function(params, study, data, respondent, expectedBody, e
                             getUploadMetricsUrl = getUploadMetricsUrl_Stub,
                             postJSON = postJSON_Stub,
                             putHttr = putHttr_Stub, {
-                                privateUpload(params, study, data, respondent, sensorName, scriptName, metadata,
+                                privateUpload(params, study, data, target, sensorName, scriptName, metadata,
                                               stimulus)
                             })
 
     if (inherits(data, "imSignals")) {
-        expect_args(getUploadSensorsUrl_Stub, 1, study = study, imObject = respondent, stimulus = stimulus)
+        expect_args(getUploadSensorsUrl_Stub, 1, study = study, imObject = target, stimulus = stimulus)
     } else if (inherits(data, "imEvents")) {
-        expect_args(getUploadEventsUrl_Stub, 1, study = study, imObject = respondent)
+        expect_args(getUploadEventsUrl_Stub, 1, study = study, imObject = target)
     } else if (inherits(data, "imMetrics")) {
-        expect_args(getUploadMetricsUrl_Stub, 1, study = study, imObject = respondent)
+        expect_args(getUploadMetricsUrl_Stub, 1, study = study, imObject = target)
     }
 
     expect_args(privateSaveToFile_Stub, 1, params = params, data = data, sampleName = sensorName,
@@ -488,7 +499,7 @@ mockedPrivateUpload <- function(params, study, data, respondent, expectedBody, e
                                "verylongqueryparamshere?Z-Amz-Credential=ADFFKAHDKFH")
 
         expect_args(putHttr_Stub, 1, connection = study$connection, presignedUrl, fileName = "../data/testFile.csv",
-                    message = "Uploading sensor data for target: Wendy")
+                    message = "Uploading sensor data for respondent: Wendy")
 
         expectedUrl <- paste0(expectedUrl, "/samples/1e0c8d99-4aa1-4916-adf8-b6950db40d67")
         expect_args(putHttr_Stub, 2, connection = study$connection, expectedUrl, message = "Upload confirmed")
@@ -501,17 +512,24 @@ mockedPrivateUpload <- function(params, study, data, respondent, expectedBody, e
 test_that("Local study - should upload signals to a given respondent/segment if a good request has been sent", {
     data <- checkDataFormat(data)
     expectedBody <- '{"flowName":"flowName","sampleName":"TestSensor","fileName":"../data/testFile.csv"}'
-    expectedEndpoint <- "Uploading sensor data for target: Wendy"
+    expectedEndpoint <- "Uploading sensor data for respondent: Wendy"
 
     res <- mockedPrivateUpload(params, study, data, respondent, expectedBody, expectedEndpoint, sensorName, scriptName)
-    expect_identical(res$filePath, uploadUrlStudyPath, info = "wrong path returned")
+    expect_identical(res$filePath, uploadUrlRespondentPath, info = "wrong path returned")
 
     # Also when a stimulus is provided
-    expectedEndpoint <- "Uploading sensor data for target: Wendy, stimulus: AntiSmoking40Sec"
+    expectedEndpoint <- "Uploading sensor data for respondent: Wendy, stimulus: AntiSmoking40Sec"
     res <- mockedPrivateUpload(params, study, data, respondent, expectedBody, expectedEndpoint, sensorName, scriptName,
                                stimulus = stimulus)
 
     expect_identical(res$filePath, uploadUrlStimulusPath, info = "wrong path returned")
+
+    # Also when a segment is provided
+    expectedEndpoint <- "Uploading sensor data for segment: 2 GSR 81-1, stimulus: AntiSmoking40Sec"
+    res <- mockedPrivateUpload(params, study, data, segment, expectedBody, expectedEndpoint, sensorName, scriptName,
+                               stimulus = stimulus)
+
+    expect_identical(res$filePath, uploadUrlSegmentPath, info = "wrong path returned")
 })
 
 test_that("Remote study - should throw an error if missing reportRunId parameter", {
@@ -540,7 +558,7 @@ test_that("Remote study - should upload signals to a given respondent/segment if
 test_that("should upload events to a given respondent/segment if a good request has been sent", {
     dataEvents <- checkDataFormat(dataEvents)
     expectedBody <- '{"flowName":"flowName","sampleName":"ET_REventApi","fileName":"../data/testFile.csv"}'
-    expectedEndpoint <- "Uploading events for target: Wendy"
+    expectedEndpoint <- "Uploading events for respondent: Wendy"
 
     res <- mockedPrivateUpload(params, study, dataEvents, respondent, expectedBody, expectedEndpoint)
     expect_identical(res$filePath, uploadUrlEventPath, info = "wrong path returned")
@@ -550,7 +568,7 @@ test_that("should upload events to a given respondent/segment if a good request 
 test_that("should upload metrics to a given respondent/segment if a good request has been sent", {
     dataMetrics <- checkDataFormat(dataMetrics)
     expectedBody <- '{"flowName":"flowName","sampleName":"ET_RMetricsApi","fileName":"../data/testFile.csv"}'
-    expectedEndpoint <- "Uploading metrics for target: Wendy"
+    expectedEndpoint <- "Uploading metrics for respondent: Wendy"
 
     res <- mockedPrivateUpload(params, study, dataMetrics, respondent, expectedBody, expectedEndpoint)
     expect_identical(res$filePath, uploadUrlMetricsPath, info = "wrong path returned")
