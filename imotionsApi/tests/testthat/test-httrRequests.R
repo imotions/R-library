@@ -1,83 +1,123 @@
 context("Testing `httrRequests` functions")
+# stopOnHttpError =====================================================================================================
 context("stopOnHttpError()")
 
-library("imotionsApi")
-library("mockery")
+library(mockery)
 
 mockResponse <- list(status_code = 200)
 
 mockedStopOnHttpError <- function(response) {
-    getHttrStatusCode_Stub <- mock(response)
+    status_code_Stub <- mock(response)
 
-    mockr::with_mock(getHttrStatusCode = getHttrStatusCode_Stub, {
+    mockr::with_mock(status_code = status_code_Stub, {
         stopOnHttpError(mockResponse, "Test API")
         })
 }
 
-test_that("should throw an error when token is not authorized", {
-    error <- capture_error(mockedStopOnHttpError(response = 401))
-
-    expect_identical(error$message, "Test API - Token not authorized to access requested resource",
-                     "error 401 is not handled properly")
+test_that("error - token is not authorized", {
+    expect_error(mockedStopOnHttpError(response = 401), "Test API - Token not authorized to access requested resource",
+                 info = "error 401 is not handled properly")
 })
 
-test_that("should throw an error when resource is not found", {
-    error <- capture_error(mockedStopOnHttpError(response = 404))
-    expect_identical(error$message, "Test API - Resource not found", "error 404 is not handled properly")
+test_that("error - resource is not found", {
+    expect_error(mockedStopOnHttpError(response = 404), "Test API - Resource not found",
+                 info = "error 404 is not handled properly")
 })
 
-test_that("should throw an error if something unexpected happens", {
-    error <- capture_error(mockedStopOnHttpError(response = 135))
-    expect_identical(error$message, "Test API - unexpected response status (135)",
-                     "unexpected error is not handled properly")
+test_that("error - something unexpected happened", {
+    expect_error(mockedStopOnHttpError(response = 135), "Test API - unexpected response status (135)",
+                 fixed = TRUE, info = "unexpected error is not handled properly")
 })
 
-test_that("should work correctly in case of remote/local connection", {
+test_that("remote/local check - should work correctly", {
     # Local connection
-    error <- capture_error(mockedStopOnHttpError(response = 200))
-    expect_null(error, info =  "should not produce an error")
+    error <- mockedStopOnHttpError(response = 200)
+    expect_null(error, info = "should not produce an error")
 
     # Remote connection
-    error <- capture_error(mockedStopOnHttpError(response = 204))
-    expect_null(error, info =  "should not produce an error")
+    error <- mockedStopOnHttpError(response = 204)
+    expect_null(error, info = "should not produce an error")
 })
 
-context("getHttr()")
+# retryHttr ===========================================================================================================
+context("retryHttr()")
 
-connection <- list(token = "whatever", baseUrl = "nonsense", localIM = TRUE)
-class(connection) <- c("imConnection", "list")
-config <- tokenHeaders(connection$token)
+connection <- jsonlite::unserializeJSON(readLines("../data/imConnection.json"))
+connection_cloud <- jsonlite::unserializeJSON(readLines("../data/imConnection_cloud.json"))
 terminate_on <- 404
+config <- tokenHeaders(connection$token)
 
-mockedGetHttr <- function(connection, url, mockResponse, config, terminate_on) {
-    RETRY_Stub <- mock(mockResponse)
-    stopOnHttpError_Stub <- mock()
 
-    response <- mockr::with_mock(RETRY = RETRY_Stub,
-                                 stopOnHttpError = stopOnHttpError_Stub, {
-                                     getHttr(connection, url, "Test API")
+mockedRetryHttr <- function(message, url, mockResponse) {
+    if (mockResponse == "error") {
+        RETRY_Stub <- mock(stop("Error"))
+    } else {
+        RETRY_Stub <- mock(mockResponse)
+    }
+
+    response <- mockr::with_mock(RETRY = RETRY_Stub, {
+                                     retryHttr(message, "GET", url, config, terminate_on)
                                  })
 
-    expect_args(RETRY_Stub, 1, "GET", url, config, terminate_on)
-    expect_args(stopOnHttpError_Stub, 1, mockResponse, "Test API")
+    expect_args(RETRY_Stub, 1, "GET", url, config, terminate_on, 3, 2, 60, 1, FALSE)
     return(response)
 }
 
-test_that("should work correctly in case of remote/local connection", {
+test_that("return - a valid response in case of a valid request", {
+    mockResponse$status_code <- 200
+    class(mockResponse) <- "response"
+    response <- mockedRetryHttr("Test Message", "testurl", mockResponse)
+    expect_identical(response, mockResponse, "response should not have been modified")
+
+})
+
+test_that("error - non existing url should throw an error", {
+    mockResponse <- "error"
+
+    expect_error(mockedRetryHttr("Test Message", "testurl", mockResponse),
+                 "Test Message - Cannot access: testurl",
+                 info = "should handle error from the RETRY function")
+})
+
+test_that("error - invalid response", {
+    mockResponse$status_code <- 404
+    class(mockResponse) <- "response"
+
+    expect_error(mockedRetryHttr("Test Message", "testurl", mockResponse),
+                 "Test Message - url: testurl - Resource not found",
+                 info = "should handle error from the stopOnHttpError function")
+})
+
+# getHttr =============================================================================================================
+context("getHttr()")
+
+mockedGetHttr <- function(connection, url, mockResponse, terminate_on) {
+    config <- tokenHeaders(connection$token)
+    retryHttr_Stub <- mock(mockResponse)
+
+    response <- mockr::with_mock(retryHttr = retryHttr_Stub, {
+                                     getHttr(connection, url, "Test API")
+                                 })
+
+    expect_args(retryHttr_Stub, 1, "Test API", "GET", url, config, terminate_on)
+    return(response)
+}
+
+test_that("remote/local check - should work correctly", {
     # Local connection
     mockResponse$status_code <- 200
     class(mockResponse) <- "response"
-    response <- mockedGetHttr(connection, "url", mockResponse, config, terminate_on)
+    response <- mockedGetHttr(connection, "url", mockResponse, terminate_on)
     expect_identical(response, mockResponse, "response should not have been modified")
 
     # Remote connection
     mockResponse$status_code <- 204
     class(mockResponse) <- "response"
-    connection$localIM <- FALSE
-    response <- mockedGetHttr(connection, "url", mockResponse, config, terminate_on = NULL)
+    response <- mockedGetHttr(connection_cloud, "url", mockResponse, terminate_on = NULL)
     expect_identical(response, mockResponse, "response should not have been modified")
 })
 
+# getJSON =============================================================================================================
 context("getJSON()")
 
 mockedGetJSON <- function(connection, url, mockResponse) {
@@ -91,7 +131,7 @@ mockedGetJSON <- function(connection, url, mockResponse) {
     return(data)
 }
 
-test_that("should return a JSON file if a good request has been sent", {
+test_that("return - JSON file if a good request has been sent", {
     mockData <- '{"userId":1,"id":1,"title":"delectus aut autem"}'
     mockResponse <- list(status_code = 200, content = charToRaw(mockData))
     class(mockResponse) <- "response"
@@ -103,10 +143,11 @@ test_that("should return a JSON file if a good request has been sent", {
     expect_equal(data, expectedReturn, info = "wrong object returned")
 })
 
+# getFile =============================================================================================================
 context("getFile()")
 
 # Get the sensors through the cloud
-sensors_cloud <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorListCloud.json")))
+sensors_cloud <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorList_cloud.json")))
 
 mockedGetFile <- function(connection, url, mockResponse, fileName) {
     getHttr_Stub <- mock(mockResponse)
@@ -119,14 +160,14 @@ mockedGetFile <- function(connection, url, mockResponse, fileName) {
     return(fileInfos)
 }
 
-test_that("getFile() should return the correct paths during remote cloud connection", {
+test_that("remote return - correct paths to the file", {
     # Case with eyetracking data (zip file)
     eyetracking_fileName <- sensors_cloud[2, ]$fileName
     url <- "file://../data/example_data_cloud.zip"
     mockResponse <- list(headers = list("content-type" = "application/zip"), url = url)
     class(mockResponse) <- "response"
 
-    fileInfos <- mockedGetFile(connection, url, mockResponse, eyetracking_fileName)
+    fileInfos <- mockedGetFile(connection_cloud, url, mockResponse, eyetracking_fileName)
 
     expected_path <- paste0("ProgramData/iMotions/Lab_NG/Data/RRRock The R/Signals/",
                             "20e73a6c-f2ae-4146-90f7-1430bbc9857b/ET_Eyetracker.csv")
@@ -135,7 +176,7 @@ test_that("getFile() should return the correct paths during remote cloud connect
                      "wrong file found")
 
     expect_true(file.exists(fileInfos$file_path), info = "file should exists")
-    unlink(file.path(fileInfos$tmp_dir, "*"), recursive = TRUE)
+    unlink(c(fileInfos$file_path, file.path(fileInfos$tmp_dir, "ProgramData")), recursive = TRUE)
     expect_false(file.exists(fileInfos$file_path), info = "file should have been deleted")
 
     # Case with slideEvents data (csv file)
@@ -144,51 +185,49 @@ test_that("getFile() should return the correct paths during remote cloud connect
     mockResponse <- list(headers = list("content-type" = "application/octet-stream"), url = url)
     class(mockResponse) <- "response"
 
-    fileInfos <- mockedGetFile(connection, url, mockResponse, events_fileName)
+    fileInfos <- mockedGetFile(connection_cloud, url, mockResponse, events_fileName)
 
     expected_path <- "tmp_data.csv"
     expect_identical(fileInfos$file_path, file.path(fileInfos$tmp_dir, expected_path), "wrong file found")
 
     expect_true(file.exists(fileInfos$file_path), info = "file should exists")
-    unlink(file.path(fileInfos$tmp_dir, "*"), recursive = TRUE)
+    unlink(c(fileInfos$file_path, file.path(fileInfos$tmp_dir, "ProgramData")), recursive = TRUE)
     expect_false(file.exists(fileInfos$file_path), info = "file should have been deleted")
 })
 
-
+# postHttr ============================================================================================================
 context("postHttr()")
 
 body <- '{"flowName":"flowName","sampleName":"TestSensor","fileName":"../data/testFile.csv"}'
 class(body) <- "json"
 
-mockedPostHttr <- function(connection, url, mockResponse, body, config) {
-    RETRY_Stub <- mock(mockResponse)
-    stopOnHttpError_Stub <- mock()
+mockedPostHttr <- function(connection, url, mockResponse, body) {
+    config <- tokenHeaders(connection$token)
+    retryHttr_Stub <- mock(mockResponse)
 
-    response <- mockr::with_mock(RETRY = RETRY_Stub,
-                                 stopOnHttpError = stopOnHttpError_Stub, {
+    response <- mockr::with_mock(retryHttr = retryHttr_Stub, {
                                      postHttr(connection, url, body, "Test API")
                                  })
 
-    expect_args(RETRY_Stub, 1, "POST", url, body, config, jsonHeaders(), "json")
-    expect_args(stopOnHttpError_Stub, 1, mockResponse, "Test API")
+    expect_args(retryHttr_Stub, 1, "Test API", "POST", url, body, config, jsonHeaders(), "json")
     return(response)
 }
 
-test_that("should work correctly in case of remote/local connection", {
+test_that("remote/local check - should work correctly", {
     # Local connection
     mockResponse$status_code <- 200
     class(mockResponse) <- "response"
-    response <- mockedPostHttr(connection, "url", mockResponse, body, config)
+    response <- mockedPostHttr(connection, "url", mockResponse, body)
     expect_identical(response, mockResponse, "response should not have been modified")
 
     # Remote connection
     mockResponse$status_code <- 204
     class(mockResponse) <- "response"
-    connection$localIM <- FALSE
-    response <- mockedPostHttr(connection, "url", mockResponse, body, config)
+    response <- mockedPostHttr(connection_cloud, "url", mockResponse, body)
     expect_identical(response, mockResponse, "response should not have been modified")
 })
 
+# postJSON ============================================================================================================
 context("postJSON()")
 
 mockedPostJSON <- function(connection, url, body, mockResponse = NULL) {
@@ -202,7 +241,7 @@ mockedPostJSON <- function(connection, url, body, mockResponse = NULL) {
     return(fileInfos)
 }
 
-test_that("should upload a JSON file if a good request has been sent with local connection", {
+test_that("local check - should upload a JSON file if a good request has been sent", {
     # prepare mock results
     mockData <- '{"filePath":"C:\\\\Users\\\\exampleUrls"}'
     mockResponse <- list(status_code = 200, content = charToRaw(mockData))
@@ -211,51 +250,55 @@ test_that("should upload a JSON file if a good request has been sent with local 
     # in case of good request - send back the url
     expectedReturn <- list(filePath = "C:\\Users\\exampleUrls")
     fileInfos <- mockedPostJSON(connection, "url", body, mockResponse)
-
     expect_identical(fileInfos, expectedReturn, info = "wrong object returned")
 })
 
 
-test_that("should get back correct information if asking for credential using remote connection", {
+test_that("remote check - should get back correct information if asking for credential", {
     # prepare mock results
-    expectedReturn <- fromJSON("../data/uploadCredentialCloud.json")
+    expectedReturn <- fromJSON("../data/uploadCredential_cloud.json")
     mockData <- as.character(toJSON(expectedReturn))
     mockResponse <- list(status_code = 200, content = charToRaw(mockData))
     class(mockResponse) <- "response"
 
     # in case of good request - send back the whole table
-    fileInfos <- mockedPostJSON(connection, "url", body, mockResponse)
+    fileInfos <- mockedPostJSON(connection_cloud, "url", body, mockResponse)
     expect_identical(fileInfos, expectedReturn, info = "wrong object returned")
 })
 
-
+# putHttr =============================================================================================================
 context("putHttr()")
 
-mockedPutHttr <- function(connection, url, mockResponse, fileName = NULL, config = list(), expectedBody = NULL) {
-    RETRY_Stub <- mock(mockResponse)
-    stopOnHttpError_Stub <- mock()
+mockedPutHttr <- function(connection, url, mockResponse, fileName = NULL, reqBody = NULL, expectedBody = NULL,
+                          expectedConfig = NULL) {
 
-    mockr::with_mock(RETRY = RETRY_Stub,
-                     stopOnHttpError = stopOnHttpError_Stub, {
-                        putHttr(connection, url, fileName, "Test Put API")
+    retryHttr_Stub <- mock(mockResponse)
+
+    mockr::with_mock(retryHttr = retryHttr_Stub, {
+                        putHttr(connection, url, fileName, reqBody, "Test Put API")
                      })
 
-    expect_args(RETRY_Stub, 1, "PUT", url, expectedBody, config)
-    expect_args(stopOnHttpError_Stub, 1, mockResponse, "Test Put API")
+    expect_args(retryHttr_Stub, 1, "Test Put API", "PUT", url, body = expectedBody, config = expectedConfig)
 }
 
-test_that("should work correctly in case of remote connection", {
+test_that("remote check - should work correctly", {
     # With a file pushed
     mockResponse$status_code <- 200
     class(mockResponse) <- "response"
     config <- csvHeaders()
     fileName <- "../data/testFile.csv"
     expectedBody <- httr::upload_file(fileName)
-    mockedPutHttr(connection, "url", mockResponse, fileName, config, expectedBody)
+    mockedPutHttr(connection_cloud, "url", mockResponse, fileName, expectedBody = expectedBody, expectedConfig = config)
 
     #  With no file pushed
     mockResponse$status_code <- 204
     class(mockResponse) <- "response"
-    config <- tokenHeaders(connection$token)
-    mockedPutHttr(connection, "url", mockResponse, config = config)
+    config <- tokenHeaders(connection_cloud$token)
+    mockedPutHttr(connection_cloud, "url", mockResponse, expectedConfig = config)
+
+    #  With a json object pushed
+    config <- c(tokenHeaders(connection_cloud$token), jsonHeaders())
+    expectedBody <- "test"
+    mockedPutHttr(connection_cloud, "url", mockResponse, reqBody = "test", expectedBody = expectedBody,
+                  expectedConfig = config)
 })

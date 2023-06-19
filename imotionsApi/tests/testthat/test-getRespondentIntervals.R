@@ -1,9 +1,7 @@
 # privateGetIntervalsForStimuli =======================================================================================
 context("privateGetIntervalsForStimuli()")
 
-library("imotionsApi")
-library("mockery")
-library("data.table")
+library(mockery)
 
 # Load study, respondent and stimuli
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
@@ -17,6 +15,11 @@ annotationsEvents <- jsonlite::fromJSON("../data/annotations.json")
 
 # Load sensors
 sensors <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorList.json")))
+
+# Load remote study and slideEvents results
+study_cloud <- jsonlite::unserializeJSON(readLines("../data/imStudy_cloud.json"))
+sensors_cloud <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorList_cloud.json")))
+slideEvents_cloud <- jsonlite::fromJSON("../data/Native_SlideEvents_processed.json")
 
 mockedPrivateGetIntervalsForStimuli <- function(study, respondent, stimuli, slideEvents, sensors,
                                                 expectedDataCall = 1) {
@@ -32,13 +35,13 @@ mockedPrivateGetIntervalsForStimuli <- function(study, respondent, stimuli, slid
     expect_args(getSensors_Stub, 1, study = study, respondent = respondent)
 
     if (expectedDataCall > 0) {
-        expect_args(getSensorData_Stub, 1, study = study, sensor = sensors[1, ])
+        expect_args(getSensorData_Stub, 1, study = study, sensor = sensors[sensors$name == "SlideEvents", ])
     }
 
     return(stimIntervals)
 }
 
-test_that("should return a data.table of the good format", {
+test_that("local return - data.table of the good format", {
     # Retrieve stimulus intervals
     stimIntervals <- mockedPrivateGetIntervalsForStimuli(study, respondent, stimuli, slideEvents, sensors)
 
@@ -64,31 +67,83 @@ test_that("should return a data.table of the good format", {
     expect_identical(unique(stimIntervals$text), NA_character_, "stimulus intervals should have no text")
 })
 
-test_that("should return NULL if no slideEvents sensors available", {
+
+test_that("remote return - data.table of the good format", {
+    respondent <- getRespondents(study_cloud)[1, ]
+    stimuli <- getStimuli(study_cloud)
+
+    # Retrieve stimulus intervals
+    stimIntervals <- mockedPrivateGetIntervalsForStimuli(study_cloud, respondent, stimuli, slideEvents_cloud,
+                                                         sensors_cloud)
+
+    expect_equal(ncol(stimIntervals), 9, info = "stimulus intervals should have 9 columns")
+    expect_equal(nrow(stimIntervals), 28, info = "stimulus intervals should have 28 stimuli")
+    expect_identical(unique(stimIntervals$type), "Stimulus", "intervals should all be of stimulus type")
+    expect_identical(unique(stimIntervals$parentId), NA_character_, "stimulus intervals should have no parent")
+    expect_identical(unique(stimIntervals$parentName), "", "stimulus intervals should have no parent")
+
+    # Subset and take only 4 stimuli to check values
+    stimIntervals <- stimIntervals [1:4, ]
+
+    expect_identical(stimIntervals$name, c("PREcalib_0_320x180.png", "PREcalib_1_960x180.png",
+                                           "PREcalib_2_1600x180.png", "PREcalib_3_320x540.png"), "wrong stimuli name")
+
+    expect_equal(stimIntervals$fragments.start, c(1.2, 4038.1, 8053.4, 12059.4), 1e-2,
+                 info = "wrong fragments start")
+
+    expect_equal(stimIntervals$fragments.end, c(4036.6, 8046.0, 12054.0, 16076.5), 1e-2,
+                 info = "wrong fragments end")
+
+    expect_equal(stimIntervals$fragments.duration, c(4035.4, 4007.9, 4000.6, 4017.1), 1e-2,
+                 info = "wrong fragments duration")
+
+    expect_identical(stimIntervals$id,
+                     c("3014c850-f3bd-4d7b-acc7-b7792bb1af68", "0058eb32-f506-4fe6-83b5-ec2ab4b30d5f",
+                       "8fff2349-a8d4-4c45-8cf6-4699e85849cd", "ef3c1737-adaf-4491-ab62-434bc221ba04"), "wrong id")
+
+    expect_identical(unique(stimIntervals$text), NA_character_, "stimulus intervals should have no text")
+})
+
+test_that("local return - NULL if no slideEvents sensors available", {
+    # Retrieve stimulus intervals and check returned value
     sensors <- sensors[2, ]
+    stimIntervals <- mockedPrivateGetIntervalsForStimuli(study, respondent, stimuli, slideEvents, sensors, 0)
+
+    expect_null(stimIntervals, "no intervals should have been found")
+})
+
+
+test_that("remote return - NULL if no slideEvents sensors available", {
+    respondent <- getRespondents(study_cloud)[1, ]
+    stimuli <- getStimuli(study_cloud)
+    sensors_cloud <- sensors[2, ]
 
     # Retrieve stimulus intervals and check returned value
-    stimIntervals <- mockedPrivateGetIntervalsForStimuli(study, respondent, stimuli, slideEvents, sensors, 0)
+    stimIntervals <- mockedPrivateGetIntervalsForStimuli(study_cloud, respondent, stimuli, slideEvents_cloud,
+                                                         sensors_cloud, 0)
+
     expect_null(stimIntervals, "no intervals should have been found")
 })
 
 # privateGetIntervalsForScenes ========================================================================================
 context("privateGetIntervalsForScenes()")
 
-mockedPrivateGetIntervalsForScenes <- function(study, respondent, stimuli, scenesEvents) {
+mockedPrivateGetIntervalsForScenes <- function(study, respondent, stimuli, scenesEvents, expectedDataCall = 1) {
     getJSON_Stub <- mock(scenesEvents)
 
     sceneIntervals <- mockr::with_mock(getJSON = getJSON_Stub, {
         privateGetIntervalsForScenes(study, respondent, stimuli)
     })
 
-    expect_args(getJSON_Stub, 1, connection = study$connection, url = getRespondentScenesUrl(study, respondent),
-                message = "Retrieving scenes for respondent Wendy")
+    if (expectedDataCall > 0) {
+        expect_args(getJSON_Stub, 1, connection = study$connection, url = getRespondentScenesUrl(study, respondent),
+                    message = "Retrieving scenes for respondent Wendy")
+    }
 
     return(sceneIntervals)
 }
 
-test_that("should return a data.table of the good format and filter for not included scenes", {
+test_that("local return - data.table only containing scenes included in the analysis", {
     # Retrieve scenes intervals
     scenesIntervals <- mockedPrivateGetIntervalsForScenes(study, respondent, stimuli, scenesEvents)
 
@@ -104,30 +159,43 @@ test_that("should return a data.table of the good format and filter for not incl
     expect_identical(unique(scenesIntervals$text), NA_character_, "scenes intervals should have no text")
 })
 
-test_that("should return NULL if no scenes available", {
+test_that("local return - NULL if no scenes available", {
     # Retrieve scenes intervals and check returned value
     scenesEvents <- jsonlite::fromJSON("../data/no_scenes_annotations_aoidetails.json")
     scenesIntervals <- mockedPrivateGetIntervalsForScenes(study, respondent, stimuli, scenesEvents)
+
+    expect_null(scenesIntervals, "no scenes should have been found")
+})
+
+test_that("remote return - NULL as not supported", {
+    # Retrieve scenes intervals and check returned value
+    scenesIntervals <- mockedPrivateGetIntervalsForScenes(study_cloud, respondent, stimuli, scenesEvents, 0)
+
     expect_null(scenesIntervals, "no scenes should have been found")
 })
 
 # privateGetIntervalsForAnnotations ===================================================================================
 context("privateGetIntervalsForAnnotations()")
 
-mockedPrivateGetIntervalsForAnnotations <- function(study, respondent, stimuli, annotationsEvents) {
+mockedPrivateGetIntervalsForAnnotations <- function(study, respondent, stimuli, annotationsEvents,
+                                                    expectedDataCall = 1) {
+
     getJSON_Stub <- mock(annotationsEvents)
 
     annotationsIntervals <- mockr::with_mock(getJSON = getJSON_Stub, {
         privateGetIntervalsForAnnotations(study, respondent, stimuli)
     })
 
-    expect_args(getJSON_Stub, 1, connection = study$connection, url = getRespondentAnnotationsUrl(study, respondent),
-                message = "Retrieving annotations for respondent Wendy")
+    if (expectedDataCall > 0) {
+        expect_args(getJSON_Stub, 1, connection = study$connection,
+                    url = getRespondentAnnotationsUrl(study, respondent),
+                    message = "Retrieving annotations for respondent Wendy")
+    }
 
     return(annotationsIntervals)
 }
 
-test_that("should return a data.table of the good format and filter for not included annotations", {
+test_that("local return - data.table only containing annotations included in the analysis", {
     # Retrieve annotations intervals
     annotationsIntervals <- mockedPrivateGetIntervalsForAnnotations(study, respondent, stimuli, annotationsEvents)
 
@@ -157,10 +225,19 @@ test_that("should return a data.table of the good format and filter for not incl
     expect_identical(unique(annotationsIntervals$text), c("", "Test comment"), "annotation intervals should have text")
 })
 
-test_that("should return NULL if no annotations available", {
+test_that("local return - NULL if no annotations available", {
     # Retrieve scenes intervals and check returned value
     annotationsEvents <- jsonlite::fromJSON("../data/no_scenes_annotations_aoidetails.json")
     annotationsIntervals <- mockedPrivateGetIntervalsForAnnotations(study, respondent, stimuli, annotationsEvents)
+
+    expect_null(annotationsIntervals, "no annotations should have been found")
+})
+
+test_that("remote return - NULL as not supported", {
+    # Retrieve scenes intervals and check returned value
+    annotationsIntervals <- mockedPrivateGetIntervalsForAnnotations(study_cloud, respondent, stimuli,
+                                                                    annotationsEvents, 0)
+
     expect_null(annotationsIntervals, "no annotations should have been found")
 })
 
@@ -183,89 +260,88 @@ mockedGetRespondentIntervals <- function(study, respondent, type = c("Stimulus",
     return(intervals)
 }
 
-test_that("should throw errors if arguments are missing or not from the good class", {
+test_that("error - arguments are missing or not from the good class", {
     # in case of missing study
-    error <- capture_error(getRespondentIntervals())
-    expect_identical(error$message, "Please specify a study loaded with `imStudy()`",
-                     "missing `study` param not handled properly")
+    expect_error(getRespondentIntervals(), "Please specify a study loaded with `imStudy()`", fixed = TRUE,
+                 info = "missing `study` param not handled properly")
 
     # in case of missing respondent
-    error <- capture_error(getRespondentIntervals(study))
-    expect_identical(error$message, "Please specify a respondent loaded with `getRespondents()`",
-                     "missing `respondent` param not handled properly")
+    expect_error(getRespondentIntervals(study), "Please specify a respondent loaded with `getRespondents()`",
+                 fixed = TRUE, info = "missing `respondent` param not handled properly")
 
     # in case of study that is not an imStudy object
-    error <- capture_error(getRespondentIntervals(study = "whatever", respondent))
-    expect_identical(error$message, "`study` argument is not an imStudy object",
-                     "study not being an imStudy object should throw an error")
+    expect_error(getRespondentIntervals(study = "whatever", respondent), "`study` argument is not an imStudy object",
+                 info = "study not being an imStudy object should throw an error")
 
     # in case of respondent that is not an imRespondent object
-    error <- capture_error(getRespondentIntervals(study, respondent = "whatever"))
-    expect_identical(error$message, "`respondent` argument is not an imRespondent object",
-                     "respondent not being an imRespondent object should throw an error")
+    expect_error(getRespondentIntervals(study, respondent = "whatever"),
+                 "`respondent` argument is not an imRespondent object",
+                 info = "respondent not being an imRespondent object should throw an error")
 
     # in case of type not in Stimulus, Scene and/or Annotation
-    error <- capture_error(getRespondentIntervals(study, respondent, type = c("Stimulus", "whatever")))
-    expect_identical(error$message, "`type` argument can only be set to Stimulus, Scene and/or Annotation",
-                     "type not set properly should throw an error")
+    expect_error(getRespondentIntervals(study, respondent, type = c("Stimulus", "whatever")),
+                 "`type` argument can only be set to Stimulus, Scene and/or Annotation",
+                 info = "type not set properly should throw an error")
 })
 
 checkImIntervalList <- function(intervals, respondent, expectNIntervals) {
     # Checking dimensions and class
-    expect_identical(intervals$respondent[[1]], respondent, "should have the correct respondent information")
-    expect_equal(ncol(intervals), 10, info = "`intervals` should have 10 columns")
-    expect_equal(nrow(intervals), expectNIntervals, info = paste("should have", expectNIntervals, "intervals"))
-    expect_true(inherits(intervals, "imIntervalList"), "`intervals` should be an imIntervalList object")
+    testthat::expect_identical(intervals$respondent[[1]], respondent, "should have the correct respondent information")
+    testthat::expect_equal(ncol(intervals), 10, info = "`intervals` should have 10 columns")
+    testthat::expect_equal(nrow(intervals), expectNIntervals,
+                           info = paste("should have", expectNIntervals, "intervals"))
+
+    testthat::expect_s3_class(intervals, "imIntervalList")
 
     # check that taking only one intervals changes the class of the object
     interval <- intervals[1, ]
-    expect_true(inherits(interval, "imInterval"), "`interval` should be an imInterval object")
+    testthat::expect_s3_class(interval, "imInterval")
 
     # check that only taking names and type of the list of intervals changes the class of the object
     intervals <- intervals[, c("name", "type")]
-    expect_true(all(class(intervals) == c("data.table", "data.frame")), "truncated intervals should be data.table")
+    testthat::expect_s3_class(intervals, c("data.table", "data.frame"), exact = TRUE)
 }
 
 stimIntervals <- mockedPrivateGetIntervalsForStimuli(study, respondent, stimuli, slideEvents, sensors)
 sceneIntervals <- mockedPrivateGetIntervalsForScenes(study, respondent, stimuli, scenesEvents)
 annotationIntervals <- mockedPrivateGetIntervalsForAnnotations(study, respondent, stimuli, annotationsEvents)
 
-test_that("should return a imInterval object with all stimulus intervals", {
+test_that("return - imInterval object with all stimulus intervals", {
     intervals <- mockedGetRespondentIntervals(study, respondent, type = "Stimulus", stimIntervals = stimIntervals)
     checkImIntervalList(intervals, respondent, expectNIntervals = 4)
 })
 
-test_that("should return a imInterval object with all scenes intervals", {
+test_that("return - imInterval object with all scenes intervals", {
     intervals <- mockedGetRespondentIntervals(study, respondent, type = "Scene", sceneIntervals = sceneIntervals)
     checkImIntervalList(intervals, respondent, expectNIntervals = 2)
 })
 
-test_that("should return a imInterval object with all annotations intervals", {
+test_that("return - imInterval object with all annotations intervals", {
     intervals <- mockedGetRespondentIntervals(study, respondent, type = "Annotation",
                                               annotationIntervals = annotationIntervals)
 
     checkImIntervalList(intervals, respondent, expectNIntervals = 4)
 })
 
-test_that("should return a imInterval object with all stimuli, scenes and annotations intervals", {
+test_that("return - imInterval object with all stimuli, scenes and annotations intervals", {
     intervals <- mockedGetRespondentIntervals(study, respondent, type = c("Stimulus", "Annotation", "Scene"),
                                               stimIntervals, sceneIntervals, annotationIntervals)
 
     checkImIntervalList(intervals, respondent, expectNIntervals = 10)
 })
 
-test_that("should not throw an error if no intervals are found", {
+test_that("return - NULL if no intervals available", {
     # Retrieve intervals
     intervals <- mockedGetRespondentIntervals(study, respondent)
     expect_null(intervals, "no intervals should have been found")
 })
 
-test_that("getRespondentIntervals() in case of only one interval should return an imInterval object", {
+test_that("return - imInterval in case of only one interval", {
     stimInterval <- stimIntervals[1, ]
     intervals <- mockedGetRespondentIntervals(study, respondent, type = "Stimulus", stimInterval)
 
-    expect_true(inherits(intervals, "imInterval"), "`intervals` should be an imInterval object")
-    expect(nrow(intervals) == 1, "intervals should only contain a single interval")
-    expect(ncol(intervals) == 10, "intervals should contain 10 columns")
-    expect_identical(intervals$name, c("IAAF"), "interval name is not matching")
+    expect_s3_class(intervals, "imInterval")
+    expect_equal(nrow(intervals), 1, info = "intervals should only contain a single interval")
+    expect_equal(ncol(intervals), 10, info = "intervals should contain 10 columns")
+    expect_identical(intervals$name, "IAAF", "interval name is not matching")
 })

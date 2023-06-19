@@ -10,7 +10,8 @@ privateGetAOIDetails(study, imObject, respondent = NULL)
 \arguments{
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
-\item{imObject}{An imAOI or imStimulus object as returned from \code{\link{getAOIs}} or \code{\link{getStimuli}}.}
+\item{imObject}{An imAOI or imStimulus object as returned from \code{\link{getAOIs}} or \code{\link{getStimuli}}.
+For remote study, only an imAOI object should ever be used.}
 
 \item{respondent}{Optional - An imRespondent object as returned from \code{\link{getRespondents}}.}
 }

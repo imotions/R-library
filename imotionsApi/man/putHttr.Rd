@@ -4,7 +4,7 @@
 \alias{putHttr}
 \title{Perform a PUT HTTP request with authentication (if needed).}
 \usage{
-putHttr(connection, url, fileName = NULL, message = NULL)
+putHttr(connection, url, fileName = NULL, reqBody = NULL, message = NULL)
 }
 \arguments{
 \item{connection}{An imConnection object as returned from \code{\link{imConnection}}.}
@@ -12,6 +12,8 @@ putHttr(connection, url, fileName = NULL, message = NULL)
 \item{url}{The url/path where the PUT request need to be send.}
 
 \item{fileName}{Optional - the name of the file to upload if any.}
+
+\item{reqBody}{Optional - the body in case of AOI metrics for example.}
 
 \item{message}{Optional - a short message indicating which steps are getting performed to get a more indicative
 error message.}

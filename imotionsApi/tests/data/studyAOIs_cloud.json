@@ -1,0 +1,136 @@
+[
+  {
+    "id": "93fbaae0-8b6f-45b6-b5dd-9a5d4216d7fd",
+    "name": "El Manuel Area",
+    "aoiInOutUrl": "http://localhost:9000/test/api/content/study/4ff68afd-c534-4249-9213-4bc7bf196d28/aoiDefinition/93fbaae0-8b6f-45b6-b5dd-9a5d4216d7fd/dd8a9342-f5c0-4a02-bf27-de68fc13f2bc",
+    "aoiSet": {
+      "id": "a31da61a-293e-4698-8c19-a1ed578fcab7"
+    },
+    "stimuli": {
+      "id": "5ef46004-9ad4-419f-ad4f-139e38faad7e"
+    },
+    "currentCalculationTimeline": [
+      {
+        "ts": 0,
+        "points": [
+          {
+            "x": 0.5875,
+            "y": 0.5888020833333336
+          },
+          {
+            "x": 0.5908203125,
+            "y": 0.5403645833333334
+          },
+          {
+            "x": 0.6787109375,
+            "y": 0.53515625
+          },
+          {
+            "x": 0.7890625,
+            "y": 0.5091145833333334
+          },
+          {
+            "x": 0.8330078125,
+            "y": 0.5572916666666666
+          },
+          {
+            "x": 0.828125,
+            "y": 0.6210937499999999
+          },
+          {
+            "x": 0.771875,
+            "y": 0.5783854166666667
+          },
+          {
+            "x": 0.695703125,
+            "y": 0.5999999999999999
+          },
+          {
+            "x": 0.6392578125,
+            "y": 0.5986979166666668
+          }
+        ]
+      }
+    ],
+    "type": "Static",
+    "aoiStatsNeedCalculating": true,
+	"updatedDate": "2023-04-11T13:40:07.487+02:00"
+  },
+  {
+    "id": "8e9eed6b-5343-44fd-89e5-9a5e0f45bc32",
+    "name": "El Manual Multiplo",
+    "aoiInOutUrl": "http://localhost:9000/test/api/content/study/4ff68afd-c534-4249-9213-4bc7bf196d28/aoiDefinition/8e9eed6b-5343-44fd-89e5-9a5e0f45bc32/19cb370e-4bb8-4a4c-ae9d-892199631245",
+    "aoiSet": {
+      "id": "a31da61a-293e-4698-8c19-a1ed578fcab7"
+    },
+    "stimuli": {
+      "id": "37b339c1-afb6-4cea-80f5-1454d631bc6a"
+    },
+    "currentCalculationTimeline": [
+      {
+        "ts": 0,
+        "points": [
+          {
+            "x": 0.427,
+            "y": 0.37
+          },
+          {
+            "x": 0.427,
+            "y": 0.63
+          },
+          {
+            "x": 0.573,
+            "y": 0.63
+          },
+          {
+            "x": 0.573,
+            "y": 0.37
+          }
+        ]
+      },
+      {
+        "ts": 2000,
+        "points": null
+      },
+      {
+        "ts": 4000,
+        "points": [
+          {
+            "x": 0.427,
+            "y": 0.37
+          },
+          {
+            "x": 0.427,
+            "y": 0.63
+          },
+          {
+            "x": 0.573,
+            "y": 0.63
+          },
+          {
+            "x": 0.573,
+            "y": 0.37
+          }
+        ]
+      }
+    ],
+    "type": "Dynamic",
+    "aoiStatsNeedCalculating": true,
+	"updatedDate": "2023-04-11T13:40:07.487+02:00"
+  },
+  {
+	"id": "f96833f1-0e82-4914-b809-3515eb09338b",
+	"name": "AOI 2",
+	"aoiInOutUrl": null,
+	"aoiSet": {
+		"id": "51c4d07b-3e71-49c9-8f8e-57b8ff736d38"
+	},
+	"stimuli": {
+		"id": "1259ff07-80c8-4504-86ee-2478b749fde8"
+	},
+	"currentCalculationTimeline": null,
+	"updatedDate": "2023-06-14T13:54:22.861Z",
+	"type": "Static",
+	"aoiStatsNeedCalculating": true
+  }
+]

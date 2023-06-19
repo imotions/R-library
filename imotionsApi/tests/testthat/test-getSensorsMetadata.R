@@ -1,8 +1,7 @@
+# getSensorsMetadata ==================================================================================================
 context("getSensorsMetadata()")
 
-library("imotionsApi")
-library("mockery")
-library("arrow")
+library(mockery)
 
 # Load study and respondent
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
@@ -20,19 +19,18 @@ mockedGetSensors <- function(study, respondent, stimulus = NULL) {
 }
 
 
-test_that("should throw errors if arguments are missing or not from the good class", {
+test_that("error - arguments are missing or not from the good class", {
     # in case of missing sensor
-    error <- capture_error(getSensorsMetadata())
-    expect_identical(error$message, "Please specify sensors loaded with `getSensors()`",
-                     "missing `sensor` param not handled properly")
+    expect_error(getSensorsMetadata(), "Please specify sensors loaded with `getSensors()`", fixed = TRUE,
+                 info = "missing `sensor` param not handled properly")
 
     # in case of sensor that is not an imSensor object
-    error <- capture_error(getSensorsMetadata(sensor = "whatever"))
-    expect_identical(error$message, "`sensors` argument is not an imSensor or imSensorList object",
-                     "sensor not being an imSensor object should throw an error")
+    expect_error(getSensorsMetadata(sensor = "whatever"),
+                 "`sensors` argument is not an imSensor or imSensorList object",
+                 info = "sensor not being an imSensor object should throw an error")
 })
 
-test_that("should return sensor metadata for a single sensor", {
+test_that("local return - sensor metadata for a single sensor", {
     sensors <- mockedGetSensors(study, respondent)
     sensor <- sensors[3, ]
     metadata <- getSensorsMetadata(sensor)
@@ -43,7 +41,7 @@ test_that("should return sensor metadata for a single sensor", {
                      "the LSL profile name in the sensor metadata should be correct")
 })
 
-test_that("should return sensors metadata for all sensors", {
+test_that("local return - sensors metadata for all sensors", {
     sensors <- mockedGetSensors(study, respondent)
     metadata <- getSensorsMetadata(sensors)
 
