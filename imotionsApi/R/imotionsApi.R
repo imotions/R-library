@@ -1519,7 +1519,32 @@ getAOIRespondentData <- function(study, AOI, respondent) {
         return(NULL)
     }
 
-    if (exists("fileId", AOIDetails) && file.info(AOIDetails$fileId)$size == 0) {
+    namesInout <- c("IsMouseDown", "IsMouseInAOI", "IsGazeInAOI", "IsActiveAOI")
+    notActivatedAOI <- FALSE
+
+    if (study$connection$localIM) {
+        if (file.info(AOIDetails$fileId)$size == 0) {
+            notActivatedAOI <- TRUE
+        } else {
+            data <- read_parquet(AOIDetails$fileId)
+            data <- data %>% mutate_at(namesInout, as.logical)
+            setDT(data)
+        }
+    } else {
+        data <- as.data.table(AOIDetails$aoiInOuts)
+        data[, timestamp := as.numeric(timestamp + AOIDetails$startMediaOffset)]
+        data[, rowNumber := NULL]
+        setnames(data, c("timestamp", "mouseDown", "mouseInAoi", "gazeInAoi", "activeAoi"), c("Timestamp", namesInout))
+
+        # Only keep data from first activation
+        data <- data[cummax(IsActiveAOI == TRUE) != 0, ]
+
+        if (nrow(data) == 0) {
+            notActivatedAOI <- TRUE
+        }
+    }
+
+    if (notActivatedAOI) {
         # Case where the AOI is never active
         intervals <- data.table(fragments.start = NA_real_, fragments.end = NA_real_)
         inOutGaze <- data.table(matrix(data = NA_integer_, ncol = 2, nrow = 0))
@@ -1527,20 +1552,6 @@ getAOIRespondentData <- function(study, AOI, respondent) {
         inOutMouseClick <- data.table(matrix(data = NA_integer_, ncol = 2, nrow = 0))
         names(inOutMouseClick) <- c("Timestamp", "IsMouseInAOI")
     } else {
-        names_inout <- c("IsMouseDown", "IsMouseInAOI", "IsGazeInAOI", "IsActiveAOI")
-
-        if (study$connection$localIM) {
-            data <- read_parquet(AOIDetails$fileId)
-            data <- data %>% mutate_at(names_inout, as.logical)
-            setDT(data)
-        } else {
-            data <- as.data.table(AOIDetails$aoiInOuts)
-            data[, timestamp := timestamp + AOIDetails$startMediaOffset]
-            data[, rowNumber := NULL]
-            setnames(data, c("timestamp", "mouseDown", "mouseInAoi", "gazeInAoi", "activeAoi"),
-                     c("Timestamp", names_inout))
-        }
-
         data$id <- AOI$id
 
         # Get AOI time intervals based on the isActive data for this respondent/AOI combination

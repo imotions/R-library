@@ -361,3 +361,18 @@ test_that("remote return - inOutMouseClick for a specific AOI/respondent pair", 
     expect_named(inOutMouseClick, c("Timestamp", "IsMouseInAOI"), info = "wrong column names")
     expect_equal(nrow(inOutMouseClick), 0, info = "should have 0 in/off values")
 })
+
+AOIDetailsPath_cloud <- "../data/AOIDetails_cloud_dynamic.json"
+AOI_cloud$fileId <- AOIDetailsPath_cloud
+respondent$id <- "7dbdca47-3d70-4d1c-86ba-372f34e20948"
+
+
+test_that("remote return - intervals should work on dynamic AOIs", {
+    aoiDetails <- mockedPrivateGetAOIDetails(study_cloud, AOI_cloud, expected_endpoint, respondent)
+    AOIintervals <- mockedGetAOIRespondentData(study_cloud, AOI_cloud, respondent, aoiDetails)$intervals
+
+    # Check AOI intervals as for remote study dynamic AOIs start with an non-activated row
+    expect_equal(AOIintervals$fragments.start, 37397, 1e-2, info = "wrong fragments start")
+    expect_equal(AOIintervals$fragments.end, 109001, 1e-2, info = "wrong fragments end")
+    expect_equal(AOIintervals$fragments.duration, 71604, 1e-2, info = "wrong fragments duration")
+})
