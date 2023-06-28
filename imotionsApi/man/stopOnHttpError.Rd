@@ -9,11 +9,7 @@ stopOnHttpError(response, message = NULL)
 \arguments{
 \item{response}{An HTTP response.}
 
-\item{message}{Optional - a short message indicating which steps are getting performed to get a more indicative
-error message.}
-}
-\value{
-The last HTTP response.
+\item{message}{A short message indicating which steps are getting performed to get a more indicative error message.}
 }
 \description{
 Analyse a status code from an HTTP response and stop if an error was encountered.

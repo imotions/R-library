@@ -3,7 +3,7 @@
 \name{getAOIDetailsUrl}
 \alias{getAOIDetailsUrl}
 \title{Generic getAOIDetailsUrl function that takes as parameter a study object, an AOI/stimulus object and optionally
-a respondent object.}
+a respondent object. This function is only used in case of a local study.}
 \usage{
 getAOIDetailsUrl(study, imObject, respondent = NULL)
 }

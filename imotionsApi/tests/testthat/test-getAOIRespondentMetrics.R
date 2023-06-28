@@ -1,8 +1,7 @@
+# getAOIRespondentMetrics =============================================================================================
 context("getAOIRespondentMetrics()")
 
-library("imotionsApi")
-library("mockery")
-library("arrow")
+library(mockery)
 
 # Load study
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
@@ -26,65 +25,59 @@ mockedGetAOIRespondentMetrics <- function(study, AOI, respondent, AOIDetailsFile
     return(metrics)
 }
 
-test_that("should throw errors if arguments are missing or not from the good class", {
+test_that("error - arguments are missing or not from the good class", {
     # in case of missing study
-    error <- capture_error(getAOIRespondentMetrics())
-    expect_identical(error$message, "Please specify a study loaded with `imStudy()`",
-                     "missing `study` param not handled properly")
+    expect_error(getAOIRespondentMetrics(), "Please specify a study loaded with `imStudy()`", fixed = TRUE,
+                 info = "missing `study` param not handled properly")
 
     # in case of missing AOI
-    error <- capture_error(getAOIRespondentMetrics(study))
-    expect_identical(error$message, "Please specify an AOI loaded with `getAOIs()`",
-                     "missing `AOI` param not handled properly")
+    expect_error(getAOIRespondentMetrics(study), "Please specify an AOI loaded with `getAOIs()`", fixed = TRUE,
+                 info = "missing `AOI` param not handled properly")
 
     # in case of missing respondent
-    error <- capture_error(getAOIRespondentMetrics(study, AOI))
-    expect_identical(error$message, "Please specify a respondent loaded with `getRespondents()`",
-                     "missing `respondent` param not handled properly")
+    expect_error(getAOIRespondentMetrics(study, AOI), "Please specify a respondent loaded with `getRespondents()`",
+                 fixed = TRUE, info = "missing `respondent` param not handled properly")
 
     # in case of study that is not an imStudy object
-    error <- capture_error(getAOIRespondentMetrics(study = "whatever", AOI, respondent))
-    expect_identical(error$message, "`study` argument is not an imStudy object",
-                     "study not being an imStudy object should throw an error")
+    expect_error(getAOIRespondentMetrics(study = "whatever", AOI, respondent),
+                 "`study` argument is not an imStudy object",
+                 info = "study not being an imStudy object should throw an error")
 
     # in case of AOI that is not an imAOI object
-    error <- capture_error(getAOIRespondentMetrics(study, AOI = "whatever", respondent))
-    expect_identical(error$message, "`AOI` argument is not an imAOI object",
-                     "AOI not being an imAOI object should throw an error")
+    expect_error(getAOIRespondentMetrics(study, AOI = "whatever", respondent), "`AOI` argument is not an imAOI object",
+                 info = "AOI not being an imAOI object should throw an error")
 
     # in case of respondent that is not an imRespondent object
-    error <- capture_error(getAOIRespondentMetrics(study, AOI, respondent = "whatever"))
-    expect_identical(error$message, "`respondent` argument is not an imRespondent object",
-                     "respondent not being an imRespondent object should throw an error")
+    expect_error(getAOIRespondentMetrics(study, AOI, respondent = "whatever"),
+                 "`respondent` argument is not an imRespondent object",
+                 info = "respondent not being an imRespondent object should throw an error")
 })
 
-test_that("should throw a warning if the AOI has not been defined for this respondent", {
+test_that("warning - AOI has not been defined for this respondent", {
     AOIDetailsFile <- jsonlite::fromJSON("../data/no_scenes_annotations_aoidetails.json")
-    warning <- capture_warning(mockedGetAOIRespondentMetrics(study, AOI, respondent, AOIDetailsFile))
-    expect_identical(warning$message, "AOI New Aoi was not found for respondent Wendy",
-                     "no AOI defined for this respondent should throw an error")
+    expect_warning(metrics <- mockedGetAOIRespondentMetrics(study, AOI, respondent, AOIDetailsFile),
+                   "AOI New Aoi was not found for respondent Wendy",
+                   info = "no AOI defined for this respondent should throw a warning")
 
-    expect_null(suppressWarnings(mockedGetAOIRespondentMetrics(study, AOI, respondent, AOIDetailsFile)),
-                "result should be null")
+    expect_null(metrics, info = "result should be null")
 })
 
-test_that("should throw a warning if no metrics have been found for this respondent", {
-    warning <- capture_warning(mockedGetAOIRespondentMetrics(study, AOI, respondent, AOIDetailsFile))
-    expect_identical(warning$message, "No metrics found for AOI: New Aoi, Respondent: Wendy",
-                     "no metrics found should throw an error")
+test_that("warning - no metrics have been found for this respondent", {
+    expect_warning(metrics <- mockedGetAOIRespondentMetrics(study, AOI, respondent, AOIDetailsFile),
+                   "No metrics found for AOI: New Aoi, Respondent: Wendy",
+                   info = "no metrics found should throw an warning")
 
-    expect_null(suppressWarnings(mockedGetAOIRespondentMetrics(study, AOI, respondent, AOIDetailsFile)),
-                "result should be null")
+    expect_null(metrics, "result should be null")
 })
 
 # Modify AOIDetailsFile so it fit test data
 AOIDetailsFile$resultId <- "../data/AOImetrics.csv"
 
-test_that("should return the correct metrics for this AOI/respondent pair", {
+test_that("local return - metrics for this AOI/respondent pair", {
     metrics <- mockedGetAOIRespondentMetrics(study, AOI, respondent, AOIDetailsFile)
 
     # Check dimensions and class of metrics
     expect_equal(nrow(metrics), 1, infos = "metrics should always only have one row")
     expect_equal(ncol(metrics), 37, infos = "no column should be lost")
-    expect_true(inherits(metrics, "imAOIMetrics"), "`metrics` should be an imAOIMetrics object")
+    expect_s3_class(metrics, "imAOIMetrics")
 })

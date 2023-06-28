@@ -30,7 +30,8 @@ When enabled, a file will be generated for each AOI of this stimulus/respondent 
 regarding AOI activation/deactivation and gazes/clicks falling in. Filepaths to these newly generated files
 will be stored in their corresponding AOI object. If available, these filepaths will then directly be used by the
 \code{\link{getAOIRespondentData}} function instead of re-generating the files. This is particularly useful in case
-multiple AOIs are defined for the same stimulus.
+multiple AOIs are defined for the same stimulus. For remote studies, InOutFiles are already generated so this
+parameter doesn't apply.
 }
 \examples{
 \dontrun{

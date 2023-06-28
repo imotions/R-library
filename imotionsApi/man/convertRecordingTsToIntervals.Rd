@@ -6,7 +6,7 @@
 interval first fragment start). Fragments are concatenated to give new array of timestamps in range [0,
 concatenated duration of stimulus/scene/AOI].}
 \usage{
-convertRecordingTsToIntervals(recordingTs, intervals)
+convertRecordingTsToIntervals(recordingTs, intervals, keepTs = FALSE)
 }
 \arguments{
 \item{recordingTs}{An array of recording's timestamps (relative to data recording start). Scalar, imSignals object as
@@ -14,6 +14,10 @@ returned by \code{\link{getSensorData}} or data.table with a column Timestamp ar
 
 \item{intervals}{An imInterval or imIntervalList object with start/end of a stimulus/scene/AOI as given by
 \code{\link{getRespondentIntervals}} or \code{\link{getAOIRespondentData}}.}
+
+\item{keepTs}{A boolean (or string) indicating whether timestamps falling outside an interval start/end should be
+kept unchanged, by default there are discarded. If keepTs is set to "NA", timestamps falling outside
+the interval will be replaced by NA. This will only work on array or scalar recordingTs.}
 }
 \value{
 A new array/scalar/data.table with timestamps in range [0, concatenated duration of stimulus/scene/AOI].

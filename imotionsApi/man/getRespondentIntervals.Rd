@@ -23,6 +23,7 @@ An imIntervalList object (data.table) composed of the start, end, duration, pare
 }
 \description{
 This imIntervalList is composed of stimuli/scenes/annotations intervals.
+For remote study, only stimuli intervals are supported as of now.
 Note that AOIs intervals can be retrieved using \code{\link{getAOIRespondentData}}.
 }
 \examples{

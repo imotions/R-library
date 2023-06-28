@@ -1,7 +1,7 @@
 Package: imotionsApi
 Type: Package
 Title: iMotions Data Library
-Version: 2.5.0-0000000000
+Version: 2.6.0-0000000000
 Date: 2020-04-16
 Author: Amandine Grappe, Paolo Masulli
 Maintainer: iMotions <support@imotions.com>
@@ -33,5 +33,5 @@ Suggests:
 URL:
     https://imotions.com,
     https://my.imotions.com/#studies
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
 VignetteBuilder: knitr

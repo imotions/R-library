@@ -1,0 +1,4305 @@
+{
+  "id": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+  "version": 426,
+  "name": "RRRock The R",
+  "studyUniqueId": "e570f43f-8946-43bc-a666-5dc4a7e8efa5",
+  "company": "77f8838b-8ecc-44d5-bdbf-16ffa9e4026f",
+  "currentLab": null,
+  "sessions": [
+    {
+      "id": "d027edfc-9504-4827-ae22-248e976b6265",
+      "machine": null,
+      "respondent": {
+        "id": "a108dc6c-5f59-4a8d-a236-2152c9a63c1e",
+        "age": 1,
+        "gender": "MALE",
+        "label": "44f9e528-a490-445c-a39e-c83bf2efc84c",
+        "company": "77f8838b-8ecc-44d5-bdbf-16ffa9e4026f",
+        "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+        "session": "d027edfc-9504-4827-ae22-248e976b6265",
+        "sessionAbandonment": null,
+        "variables": {},
+        "stimuliOrder": [],
+        "createdDate": "2022-11-16T15:46:05.405+01:00",
+        "histogramUrl": null,
+        "respondentUniqueId": "40a385fe-3bf7-4342-b8f2-a7b33f577980",
+        "upload": null
+      },
+      "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+      "lowQualityManual": null,
+      "lowQualityAuto": false,
+      "startTime": "2022-11-16T15:48:32.13+01:00",
+      "endTime": "2022-11-16T15:48:32.13+01:00",
+      "exposureStatistics": null,
+      "createdDate": "2022-11-16T15:46:05.409+01:00",
+      "consentGiven": true,
+      "consentTime": "2022-11-16T15:46:08.873+01:00",
+      "variables": {},
+      "state": "DATA_DELETED_BY_RESEARCHER",
+      "stimuliBlock": null,
+      "finished": true
+    },
+    {
+      "id": "b1d7cb32-eebf-49df-bc44-5d9831d98ae4",
+      "machine": null,
+      "respondent": {
+        "id": "d2ee0db6-6a35-49d5-99b1-d08cfdcc1839",
+        "age": 1,
+        "gender": "MALE",
+        "label": "bab55356-43fc-4c25-a39d-a1d513965614",
+        "company": "77f8838b-8ecc-44d5-bdbf-16ffa9e4026f",
+        "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+        "session": "b1d7cb32-eebf-49df-bc44-5d9831d98ae4",
+        "sessionAbandonment": null,
+        "variables": {},
+        "stimuliOrder": [],
+        "createdDate": "2022-11-16T15:48:59.835+01:00",
+        "histogramUrl": null,
+        "respondentUniqueId": "9239ff2e-864b-4e26-94ff-2a68383a5685",
+        "upload": null
+      },
+      "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+      "lowQualityManual": null,
+      "lowQualityAuto": false,
+      "startTime": "2022-11-16T15:51:24.101+01:00",
+      "endTime": "2022-11-16T15:51:24.101+01:00",
+      "exposureStatistics": null,
+      "createdDate": "2022-11-16T15:48:59.837+01:00",
+      "consentGiven": true,
+      "consentTime": "2022-11-16T15:49:02.005+01:00",
+      "variables": {},
+      "state": "DATA_DELETED_BY_RESEARCHER",
+      "stimuliBlock": null,
+      "finished": true
+    },
+    {
+      "id": "5b718b64-d018-4b9b-ac4c-cf273a059c56",
+      "machine": null,
+      "respondent": {
+        "id": "31eb77b4-2c99-4c6b-9f8f-08e5de2a7e02",
+        "age": 1,
+        "gender": "MALE",
+        "label": "ebdbc55b-5916-4bc6-9839-41d5e8f1ba1c",
+        "company": "77f8838b-8ecc-44d5-bdbf-16ffa9e4026f",
+        "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+        "session": "5b718b64-d018-4b9b-ac4c-cf273a059c56",
+        "sessionAbandonment": null,
+        "variables": {},
+        "stimuliOrder": [],
+        "createdDate": "2022-11-16T16:10:37.482+01:00",
+        "histogramUrl": null,
+        "respondentUniqueId": "53dcee4c-dd54-499a-ba7c-9fe5d3bc2a58",
+        "upload": null
+      },
+      "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+      "lowQualityManual": null,
+      "lowQualityAuto": false,
+      "startTime": "2022-11-16T16:13:09.62+01:00",
+      "endTime": "2022-11-16T16:13:09.62+01:00",
+      "exposureStatistics": null,
+      "createdDate": "2022-11-16T16:10:37.485+01:00",
+      "consentGiven": true,
+      "consentTime": "2022-11-16T16:10:39.665+01:00",
+      "variables": {},
+      "state": "DATA_DELETED_BY_RESEARCHER",
+      "stimuliBlock": null,
+      "finished": true
+    },
+    {
+      "id": "501aa0d3-28b0-4dbd-b04c-8fbbf0c459de",
+      "machine": null,
+      "respondent": {
+        "id": "9bbea2bb-4705-4104-8350-f23842a89992",
+        "age": 1,
+        "gender": "MALE",
+        "label": "31707700-af7f-4fe8-b389-5f2d293f07ee",
+        "company": "77f8838b-8ecc-44d5-bdbf-16ffa9e4026f",
+        "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+        "session": "501aa0d3-28b0-4dbd-b04c-8fbbf0c459de",
+        "sessionAbandonment": null,
+        "variables": {},
+        "stimuliOrder": [],
+        "createdDate": "2022-11-17T09:55:48.474+01:00",
+        "histogramUrl": null,
+        "respondentUniqueId": "53d0306f-aea4-49a3-aed7-70ffd25c35dd",
+        "upload": null
+      },
+      "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+      "lowQualityManual": null,
+      "lowQualityAuto": false,
+      "startTime": "2022-11-17T09:58:20.125+01:00",
+      "endTime": "2022-11-17T09:58:20.125+01:00",
+      "exposureStatistics": null,
+      "createdDate": "2022-11-17T09:55:48.475+01:00",
+      "consentGiven": true,
+      "consentTime": "2022-11-17T09:55:50.302+01:00",
+      "variables": {},
+      "state": "DATA_DELETED_BY_RESEARCHER",
+      "stimuliBlock": null,
+      "finished": true
+    },
+    {
+      "id": "f6b708fc-aecd-4e0d-be54-c6c47faac6d1",
+      "machine": null,
+      "respondent": {
+        "id": "c7c390e5-c68a-4d9b-b750-3733dc87a2bd",
+        "age": 1,
+        "gender": "MALE",
+        "label": "004c881a-f2bc-4603-81ef-5c1e85d1cf29",
+        "company": "77f8838b-8ecc-44d5-bdbf-16ffa9e4026f",
+        "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+        "session": "f6b708fc-aecd-4e0d-be54-c6c47faac6d1",
+        "sessionAbandonment": null,
+        "variables": {},
+        "stimuliOrder": [],
+        "createdDate": "2022-11-17T09:59:14.334+01:00",
+        "histogramUrl": null,
+        "respondentUniqueId": "6985a634-585f-48dc-9e8e-a56619a95fc3",
+        "upload": null
+      },
+      "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+      "lowQualityManual": null,
+      "lowQualityAuto": false,
+      "startTime": "2022-11-17T10:01:35.224+01:00",
+      "endTime": "2022-11-17T10:01:35.224+01:00",
+      "exposureStatistics": null,
+      "createdDate": "2022-11-17T09:59:14.336+01:00",
+      "consentGiven": true,
+      "consentTime": "2022-11-17T09:59:16.499+01:00",
+      "variables": {},
+      "state": "DATA_DELETED_BY_RESEARCHER",
+      "stimuliBlock": null,
+      "finished": true
+    },
+    {
+      "id": "d3319dce-d536-422e-9d7c-03b4dfe3f3d0",
+      "machine": null,
+      "respondent": {
+        "id": "50e16f69-52e2-43e2-9005-ed303f90225e",
+        "age": 1,
+        "gender": "MALE",
+        "label": "152f69fc-7a6c-4c97-8d9c-3786a8e2b3e7",
+        "company": "77f8838b-8ecc-44d5-bdbf-16ffa9e4026f",
+        "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+        "session": "d3319dce-d536-422e-9d7c-03b4dfe3f3d0",
+        "sessionAbandonment": null,
+        "variables": {},
+        "stimuliOrder": [],
+        "createdDate": "2022-11-17T10:07:16.217+01:00",
+        "histogramUrl": null,
+        "respondentUniqueId": "cbbef6b9-203e-42ff-a45f-1400152a384e",
+        "upload": {
+          "id": "5f91a94b-7481-40cf-81db-ef82cd59ff8a",
+          "createdDate": "2022-11-17T10:10:19.788+01:00",
+          "pendingPreProcessingSteps": null
+        }
+      },
+      "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+      "lowQualityManual": null,
+      "lowQualityAuto": false,
+      "startTime": "2022-11-17T10:10:19.783+01:00",
+      "endTime": "2022-11-17T10:10:19.783+01:00",
+      "exposureStatistics": [
+        {
+          "name": "PREcalib_0_320x180.png",
+          "deviceSummaries": [
+            {
+              "quality": 0.87,
+              "accuracy": 1.2909,
+              "iconType": "ET",
+              "precision": 1.5139,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 29.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_1_960x180.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.5263,
+              "iconType": "ET",
+              "precision": 1.6538,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_2_1600x180.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.0397,
+              "iconType": "ET",
+              "precision": 1.1871,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 29.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_3_320x540.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.5782,
+              "iconType": "ET",
+              "precision": 1.7199,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_4_960x540.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.3827,
+              "iconType": "ET",
+              "precision": 1.6708,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_5_1600x540.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.0092,
+              "iconType": "ET",
+              "precision": 1.0508,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 0.7,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_6_320x900.png",
+          "deviceSummaries": [
+            {
+              "quality": 0.96,
+              "accuracy": 3.0508,
+              "iconType": "ET",
+              "precision": 3.1404,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 29.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_7_960x900.png",
+          "deviceSummaries": [
+            {
+              "quality": 0.95,
+              "accuracy": 2.6,
+              "iconType": "ET",
+              "precision": 2.6605,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_8_1600x900.png",
+          "deviceSummaries": [
+            {
+              "quality": 0.96,
+              "accuracy": 2.2818,
+              "iconType": "ET",
+              "precision": 2.4111,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_9_640x360.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.5822,
+              "iconType": "ET",
+              "precision": 1.6124,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_10_1280x360.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.9916,
+              "iconType": "ET",
+              "precision": 2.0377,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 29.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_11_640x720.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.7019,
+              "iconType": "ET",
+              "precision": 1.7621,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_12_1280x720.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 2.5017,
+              "iconType": "ET",
+              "precision": 2.5704,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "Pool-house-driveway",
+          "deviceSummaries": [
+            {
+              "quality": 0.99,
+              "accuracy": 0.0,
+              "iconType": "ET",
+              "precision": 0.0,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "Pool-lounge-view-from-atop",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "ET",
+              "precision": 0.0,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_0_320x180.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 2.1685,
+              "iconType": "ET",
+              "precision": 2.4506,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_1_960x180.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 0.66115,
+              "iconType": "ET",
+              "precision": 0.71905,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_2_1600x180.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.116,
+              "iconType": "ET",
+              "precision": 1.2371,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_3_320x540.png",
+          "deviceSummaries": [
+            {
+              "quality": 0.95,
+              "accuracy": 2.3304,
+              "iconType": "ET",
+              "precision": 2.8475,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_4_960x540.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 3.5125,
+              "iconType": "ET",
+              "precision": 4.0101,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_5_1600x540.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 2.482,
+              "iconType": "ET",
+              "precision": 2.6058,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 0.7,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_6_320x900.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.9463,
+              "iconType": "ET",
+              "precision": 2.0873,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_7_960x900.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.4777,
+              "iconType": "ET",
+              "precision": 1.5667,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_8_1600x900.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 2.822,
+              "iconType": "ET",
+              "precision": 2.888,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_9_640x360.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 2.3985,
+              "iconType": "ET",
+              "precision": 2.5463,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_10_1280x360.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.6669,
+              "iconType": "ET",
+              "precision": 1.7031,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_11_640x720.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.6015,
+              "iconType": "ET",
+              "precision": 1.6881,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_12_1280x720.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.0249,
+              "iconType": "ET",
+              "precision": 1.1135,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "TOTAL",
+          "deviceSummaries": [
+            {
+              "quality": 0.99,
+              "accuracy": 1.876,
+              "iconType": "ET",
+              "precision": 2.1499,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        }
+      ],
+      "createdDate": "2022-11-17T10:07:16.219+01:00",
+      "consentGiven": true,
+      "consentTime": "2022-11-17T10:07:18.663+01:00",
+      "variables": {},
+      "state": null,
+      "stimuliBlock": null,
+      "finished": true
+    },
+    {
+      "id": "41bc5ddc-5777-4aad-a224-0dcf9fd00f37",
+      "machine": null,
+      "respondent": {
+        "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b",
+        "age": 1,
+        "gender": "MALE",
+        "label": "0b042e95-93e7-4e00-8534-5307452cc757",
+        "company": "77f8838b-8ecc-44d5-bdbf-16ffa9e4026f",
+        "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+        "session": "41bc5ddc-5777-4aad-a224-0dcf9fd00f37",
+        "sessionAbandonment": null,
+        "variables": {},
+        "stimuliOrder": [],
+        "createdDate": "2022-11-17T10:18:56.053+01:00",
+        "histogramUrl": null,
+        "respondentUniqueId": "1e85cd80-4915-4f43-9cc1-bed0c77f4623",
+        "upload": {
+          "id": "a4162904-1111-4a44-8d3b-104d2603506f",
+          "createdDate": "2022-11-17T10:21:19.545+01:00",
+          "pendingPreProcessingSteps": null
+        }
+      },
+      "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+      "lowQualityManual": null,
+      "lowQualityAuto": false,
+      "startTime": "2022-11-17T10:21:19.54+01:00",
+      "endTime": "2022-11-17T10:21:19.54+01:00",
+      "exposureStatistics": [
+        {
+          "name": "PREcalib_0_320x180.png",
+          "deviceSummaries": [
+            {
+              "quality": 0.94,
+              "accuracy": 2.3507,
+              "iconType": "ET",
+              "precision": 3.6897,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 29.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_1_960x180.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.2757,
+              "iconType": "ET",
+              "precision": 1.3503,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 29.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_2_1600x180.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.7652,
+              "iconType": "ET",
+              "precision": 1.9464,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_3_320x540.png",
+          "deviceSummaries": [
+            {
+              "quality": 0.8,
+              "accuracy": 1.2382,
+              "iconType": "ET",
+              "precision": 1.3973,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_4_960x540.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.1617,
+              "iconType": "ET",
+              "precision": 1.3493,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 0.7,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_5_1600x540.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.6529,
+              "iconType": "ET",
+              "precision": 1.735,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 29.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_6_320x900.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.2284,
+              "iconType": "ET",
+              "precision": 1.5776,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_7_960x900.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 2.0885,
+              "iconType": "ET",
+              "precision": 2.2359,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_8_1600x900.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 0.69019,
+              "iconType": "ET",
+              "precision": 0.78226,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_9_640x360.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 2.1451,
+              "iconType": "ET",
+              "precision": 2.6139,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_10_1280x360.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.8859,
+              "iconType": "ET",
+              "precision": 2.0254,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 29.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_11_640x720.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 0.9394,
+              "iconType": "ET",
+              "precision": 1.0438,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "PREcalib_12_1280x720.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.9517,
+              "iconType": "ET",
+              "precision": 2.0623,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "Pool-house-driveway",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "ET",
+              "precision": 0.0,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "Pool-lounge-view-from-atop",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "ET",
+              "precision": 0.0,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_0_320x180.png",
+          "deviceSummaries": [
+            {
+              "quality": 0.86,
+              "accuracy": 2.1125,
+              "iconType": "ET",
+              "precision": 2.4909,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_1_960x180.png",
+          "deviceSummaries": [
+            {
+              "quality": 0.94,
+              "accuracy": 1.8027,
+              "iconType": "ET",
+              "precision": 1.8909,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_2_1600x180.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.4731,
+              "iconType": "ET",
+              "precision": 1.5109,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_3_320x540.png",
+          "deviceSummaries": [
+            {
+              "quality": 0.88,
+              "accuracy": 0.86616,
+              "iconType": "ET",
+              "precision": 0.98474,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_4_960x540.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.7324,
+              "iconType": "ET",
+              "precision": 1.8309,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_5_1600x540.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.4183,
+              "iconType": "ET",
+              "precision": 1.4731,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_6_320x900.png",
+          "deviceSummaries": [
+            {
+              "quality": 0.99,
+              "accuracy": 1.8151,
+              "iconType": "ET",
+              "precision": 2.0296,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 0.7,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_7_960x900.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.4296,
+              "iconType": "ET",
+              "precision": 1.4649,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 29.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_8_1600x900.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 2.4196,
+              "iconType": "ET",
+              "precision": 2.4674,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_9_640x360.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.1136,
+              "iconType": "ET",
+              "precision": 1.1531,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_10_1280x360.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.571,
+              "iconType": "ET",
+              "precision": 1.6599,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_11_640x720.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.6631,
+              "iconType": "ET",
+              "precision": 1.9502,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "POSTcalib_12_1280x720.png",
+          "deviceSummaries": [
+            {
+              "quality": 1.0,
+              "accuracy": 1.7052,
+              "iconType": "ET",
+              "precision": 1.7843,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        },
+        {
+          "name": "TOTAL",
+          "deviceSummaries": [
+            {
+              "quality": 0.98,
+              "accuracy": 1.5973,
+              "iconType": "ET",
+              "precision": 1.8785,
+              "deviceName": "Eyetracker",
+              "sampleRate": 30.0,
+              "displayName": "Eye tracking"
+            },
+            {
+              "quality": 1.0,
+              "accuracy": 0.0,
+              "iconType": "FACETRACK",
+              "precision": 0.0,
+              "deviceName": "Affectiva",
+              "sampleRate": 30.0,
+              "displayName": "Affectiva"
+            },
+            {
+              "quality": 100,
+              "iconType": "FACETRACK",
+              "deviceName": "Face % (preliminary)",
+              "sampleRate": 1,
+              "displayName": "Face % (preliminary)"
+            }
+          ]
+        }
+      ],
+      "createdDate": "2022-11-17T10:18:56.055+01:00",
+      "consentGiven": true,
+      "consentTime": "2022-11-17T10:18:57.836+01:00",
+      "variables": {},
+      "state": null,
+      "stimuliBlock": null,
+      "finished": true
+    }
+  ],
+  "respondents": [
+    {
+      "id": "d2ee0db6-6a35-49d5-99b1-d08cfdcc1839",
+      "age": 1,
+      "gender": "MALE",
+      "label": "bab55356-43fc-4c25-a39d-a1d513965614",
+      "company": "77f8838b-8ecc-44d5-bdbf-16ffa9e4026f",
+      "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+      "session": "b1d7cb32-eebf-49df-bc44-5d9831d98ae4",
+      "sessionAbandonment": null,
+      "variables": {},
+      "stimuliOrder": [],
+      "createdDate": "2022-11-16T15:48:59.835+01:00",
+      "histogramUrl": null,
+      "respondentUniqueId": "9239ff2e-864b-4e26-94ff-2a68383a5685",
+      "upload": null
+    },
+    {
+      "id": "a108dc6c-5f59-4a8d-a236-2152c9a63c1e",
+      "age": 1,
+      "gender": "MALE",
+      "label": "44f9e528-a490-445c-a39e-c83bf2efc84c",
+      "company": "77f8838b-8ecc-44d5-bdbf-16ffa9e4026f",
+      "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+      "session": "d027edfc-9504-4827-ae22-248e976b6265",
+      "sessionAbandonment": null,
+      "variables": {},
+      "stimuliOrder": [],
+      "createdDate": "2022-11-16T15:46:05.405+01:00",
+      "histogramUrl": null,
+      "respondentUniqueId": "40a385fe-3bf7-4342-b8f2-a7b33f577980",
+      "upload": null
+    },
+    {
+      "id": "31eb77b4-2c99-4c6b-9f8f-08e5de2a7e02",
+      "age": 1,
+      "gender": "MALE",
+      "label": "ebdbc55b-5916-4bc6-9839-41d5e8f1ba1c",
+      "company": "77f8838b-8ecc-44d5-bdbf-16ffa9e4026f",
+      "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+      "session": "5b718b64-d018-4b9b-ac4c-cf273a059c56",
+      "sessionAbandonment": null,
+      "variables": {},
+      "stimuliOrder": [],
+      "createdDate": "2022-11-16T16:10:37.482+01:00",
+      "histogramUrl": null,
+      "respondentUniqueId": "53dcee4c-dd54-499a-ba7c-9fe5d3bc2a58",
+      "upload": null
+    },
+    {
+      "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b",
+      "age": 1,
+      "gender": "MALE",
+      "label": "0b042e95-93e7-4e00-8534-5307452cc757",
+      "company": "77f8838b-8ecc-44d5-bdbf-16ffa9e4026f",
+      "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+      "session": "41bc5ddc-5777-4aad-a224-0dcf9fd00f37",
+      "sessionAbandonment": null,
+      "variables": {},
+      "stimuliOrder": [],
+      "createdDate": "2022-11-17T10:18:56.053+01:00",
+      "histogramUrl": null,
+      "respondentUniqueId": "1e85cd80-4915-4f43-9cc1-bed0c77f4623",
+      "upload": {
+        "id": "a4162904-1111-4a44-8d3b-104d2603506f",
+        "createdDate": "2022-11-17T10:21:19.545+01:00",
+        "pendingPreProcessingSteps": null
+      }
+    },
+    {
+      "id": "c7c390e5-c68a-4d9b-b750-3733dc87a2bd",
+      "age": 1,
+      "gender": "MALE",
+      "label": "004c881a-f2bc-4603-81ef-5c1e85d1cf29",
+      "company": "77f8838b-8ecc-44d5-bdbf-16ffa9e4026f",
+      "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+      "session": "f6b708fc-aecd-4e0d-be54-c6c47faac6d1",
+      "sessionAbandonment": null,
+      "variables": {},
+      "stimuliOrder": [],
+      "createdDate": "2022-11-17T09:59:14.334+01:00",
+      "histogramUrl": null,
+      "respondentUniqueId": "6985a634-585f-48dc-9e8e-a56619a95fc3",
+      "upload": null
+    },
+    {
+      "id": "9bbea2bb-4705-4104-8350-f23842a89992",
+      "age": 1,
+      "gender": "MALE",
+      "label": "31707700-af7f-4fe8-b389-5f2d293f07ee",
+      "company": "77f8838b-8ecc-44d5-bdbf-16ffa9e4026f",
+      "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+      "session": "501aa0d3-28b0-4dbd-b04c-8fbbf0c459de",
+      "sessionAbandonment": null,
+      "variables": {},
+      "stimuliOrder": [],
+      "createdDate": "2022-11-17T09:55:48.474+01:00",
+      "histogramUrl": null,
+      "respondentUniqueId": "53d0306f-aea4-49a3-aed7-70ffd25c35dd",
+      "upload": null
+    },
+    {
+      "id": "50e16f69-52e2-43e2-9005-ed303f90225e",
+      "age": 1,
+      "gender": "MALE",
+      "label": "152f69fc-7a6c-4c97-8d9c-3786a8e2b3e7",
+      "company": "77f8838b-8ecc-44d5-bdbf-16ffa9e4026f",
+      "study": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d",
+      "session": "d3319dce-d536-422e-9d7c-03b4dfe3f3d0",
+      "sessionAbandonment": null,
+      "variables": {},
+      "stimuliOrder": [],
+      "createdDate": "2022-11-17T10:07:16.217+01:00",
+      "histogramUrl": null,
+      "respondentUniqueId": "cbbef6b9-203e-42ff-a45f-1400152a384e",
+      "upload": {
+        "id": "5f91a94b-7481-40cf-81db-ef82cd59ff8a",
+        "createdDate": "2022-11-17T10:10:19.788+01:00",
+        "pendingPreProcessingSteps": null
+      }
+    }
+  ],
+  "studyOwner": null,
+  "availableOn": [],
+  "editors": [
+    "ea33db65-8eb2-42b8-82d1-b0386ffb400c"
+  ],
+  "state": "UPLOAD_COMPLETE",
+  "respondentRegistration": "CREATE_NEW",
+  "zipFileName": null,
+  "quota": null,
+  "respondentDataUrl": null,
+  "screenWidth": 0,
+  "screenHeight": 0,
+  "stimuli": [
+    {
+      "id": "3014c850-f3bd-4d7b-acc7-b7792bb1af68",
+      "parentStimuli": null,
+      "name": "PREcalib_0_320x180.png",
+      "displayName": "PREcalib_0_320x180.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/PREcalib_0_320x180.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 0,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "36088bfe-b510-4d53-ae7c-830931eeb92f",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/3014c850-f3bd-4d7b-acc7-b7792bb1af68/segment/d4400a3c-391c-431f-9261-f5ea07334412/7db216c1-cdf8-401d-9466-d48f8cfe2a00",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "81c00d47-0d98-40fb-9ed9-e7faeafc829e",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "3014c850-f3bd-4d7b-acc7-b7792bb1af68"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/3014c850-f3bd-4d7b-acc7-b7792bb1af68/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/00765ebe-e1cd-40c0-ae2b-add9bf2a43c8",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "b4f7c665-1847-48dc-ae97-9ad6e0b81dd5",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "3014c850-f3bd-4d7b-acc7-b7792bb1af68"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/3014c850-f3bd-4d7b-acc7-b7792bb1af68/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/d79c4e68-9ceb-4247-adc5-6894f3113184",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "0058eb32-f506-4fe6-83b5-ec2ab4b30d5f",
+      "parentStimuli": null,
+      "name": "PREcalib_1_960x180.png",
+      "displayName": "PREcalib_1_960x180.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/PREcalib_1_960x180.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 1,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "0d78121b-c5f9-40a7-8b5b-c2c1b6e5605e",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/0058eb32-f506-4fe6-83b5-ec2ab4b30d5f/segment/d4400a3c-391c-431f-9261-f5ea07334412/fa12c379-7643-442e-8a65-6bb06b79ae85",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "583091da-dca6-4c43-8c2a-03515013c568",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "0058eb32-f506-4fe6-83b5-ec2ab4b30d5f"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/0058eb32-f506-4fe6-83b5-ec2ab4b30d5f/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/6865613e-3d0c-4b11-9d89-71fb19740eb2",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "49cf6647-8189-43cc-b955-e0a676805e74",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "0058eb32-f506-4fe6-83b5-ec2ab4b30d5f"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/0058eb32-f506-4fe6-83b5-ec2ab4b30d5f/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/a0a1e367-1c9b-4cfe-9931-d3f9a4a45c7b",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "8fff2349-a8d4-4c45-8cf6-4699e85849cd",
+      "parentStimuli": null,
+      "name": "PREcalib_2_1600x180.png",
+      "displayName": "PREcalib_2_1600x180.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/PREcalib_2_1600x180.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 2,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "5a845dc1-708f-4183-bd86-7e9621fe9443",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/8fff2349-a8d4-4c45-8cf6-4699e85849cd/segment/d4400a3c-391c-431f-9261-f5ea07334412/3c3179ff-d498-4264-b41f-0b8f5e0dc9de",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "a230d54f-c9cb-4aa7-bfb0-e330ede8f1f9",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "8fff2349-a8d4-4c45-8cf6-4699e85849cd"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/8fff2349-a8d4-4c45-8cf6-4699e85849cd/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/b190bade-b21e-4d60-b368-362047168a53",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "3dbd1f6a-c131-42a5-9130-c5959d24986c",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "8fff2349-a8d4-4c45-8cf6-4699e85849cd"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/8fff2349-a8d4-4c45-8cf6-4699e85849cd/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/e58758de-ad35-41bb-9fbd-43356d3d36b1",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "ef3c1737-adaf-4491-ab62-434bc221ba04",
+      "parentStimuli": null,
+      "name": "PREcalib_3_320x540.png",
+      "displayName": "PREcalib_3_320x540.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/PREcalib_3_320x540.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 3,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "7ca24d53-28b4-4268-9c63-06ab61bab104",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/ef3c1737-adaf-4491-ab62-434bc221ba04/segment/d4400a3c-391c-431f-9261-f5ea07334412/fa014972-c434-4e4a-81b6-ff6ad6ab9f54",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "b4e497b6-d284-4155-93ee-2a116cda8f14",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "ef3c1737-adaf-4491-ab62-434bc221ba04"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/ef3c1737-adaf-4491-ab62-434bc221ba04/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/7b1a2b8c-be04-46ff-90d8-54de1f65e88b",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "5c8b110f-113d-4f1f-a1ba-d3ca1bd7b557",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "ef3c1737-adaf-4491-ab62-434bc221ba04"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/ef3c1737-adaf-4491-ab62-434bc221ba04/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/1d993364-1306-4918-8504-e57c77942eda",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "b5be2dbc-1338-44aa-9780-b239e6d61da3",
+      "parentStimuli": null,
+      "name": "PREcalib_4_960x540.png",
+      "displayName": "PREcalib_4_960x540.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/PREcalib_4_960x540.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 4,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "e6c25ace-25ab-46c1-9246-57a2b06eecc7",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/b5be2dbc-1338-44aa-9780-b239e6d61da3/segment/d4400a3c-391c-431f-9261-f5ea07334412/df1b5922-1aa1-4be2-ad5f-3988827cbbc4",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "2948f6bc-4eb7-42f3-aa6a-d2cdaf9d252c",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "b5be2dbc-1338-44aa-9780-b239e6d61da3"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/b5be2dbc-1338-44aa-9780-b239e6d61da3/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/539a81e7-8428-4769-a30a-56513cb800ba",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "56b48561-7380-43f3-a793-0a5e7e07e1e6",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "b5be2dbc-1338-44aa-9780-b239e6d61da3"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/b5be2dbc-1338-44aa-9780-b239e6d61da3/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/4159d873-5fe0-4f15-82b3-ce58b45a4905",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "343c4a98-5d6d-42b1-b538-481f0831cc44",
+      "parentStimuli": null,
+      "name": "PREcalib_5_1600x540.png",
+      "displayName": "PREcalib_5_1600x540.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/PREcalib_5_1600x540.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 5,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "2208ffe7-c871-4566-91b9-afc234225d29",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/343c4a98-5d6d-42b1-b538-481f0831cc44/segment/d4400a3c-391c-431f-9261-f5ea07334412/9e9adffc-289b-43f3-811e-de54f7cd7329",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "f41ff4f5-d7aa-4f68-93c0-9b31b65af3d5",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "343c4a98-5d6d-42b1-b538-481f0831cc44"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/343c4a98-5d6d-42b1-b538-481f0831cc44/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/a4b89262-9bff-4490-96b3-4d6e63c6be4b",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "08919414-ddfb-43ce-8406-738c0ac67a3e",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "343c4a98-5d6d-42b1-b538-481f0831cc44"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/343c4a98-5d6d-42b1-b538-481f0831cc44/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/6a20203f-ccc4-42e3-92d6-7df0760706c3",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "68f76ad7-0636-48c7-ae6c-f7db5c0761c8",
+      "parentStimuli": null,
+      "name": "PREcalib_6_320x900.png",
+      "displayName": "PREcalib_6_320x900.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/PREcalib_6_320x900.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 6,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "f86348de-703d-4db0-bb99-47077128bcd6",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/68f76ad7-0636-48c7-ae6c-f7db5c0761c8/segment/d4400a3c-391c-431f-9261-f5ea07334412/48bd7d77-9603-46bf-b194-3a78f427a4ef",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "e222cf0c-b7c6-4e1e-b569-988d084339fe",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "68f76ad7-0636-48c7-ae6c-f7db5c0761c8"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/68f76ad7-0636-48c7-ae6c-f7db5c0761c8/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/ec337d3d-4ea9-42c9-b8b9-b49b016f3f28",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "05ef0128-191f-4f78-9d03-b6ef1b4c5341",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "68f76ad7-0636-48c7-ae6c-f7db5c0761c8"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/68f76ad7-0636-48c7-ae6c-f7db5c0761c8/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/322a6b43-c555-41ad-ae65-8ec872b99802",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "9530130d-862a-48a0-a043-4be72eb1af99",
+      "parentStimuli": null,
+      "name": "PREcalib_7_960x900.png",
+      "displayName": "PREcalib_7_960x900.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/PREcalib_7_960x900.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 7,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "81f8d5f9-1de0-499d-b8f1-56be3bf0cff3",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/9530130d-862a-48a0-a043-4be72eb1af99/segment/d4400a3c-391c-431f-9261-f5ea07334412/e0b2baff-bc82-4e18-8bab-39d26014b1f3",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "8ec5d753-11bb-43f3-b70b-0af0d52f7d9b",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "9530130d-862a-48a0-a043-4be72eb1af99"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/9530130d-862a-48a0-a043-4be72eb1af99/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/6e8ed7fe-7aac-4056-b633-4913328c2cc4",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "78efc85d-6046-4fd6-8124-df691cc2fbf5",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "9530130d-862a-48a0-a043-4be72eb1af99"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/9530130d-862a-48a0-a043-4be72eb1af99/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/a06fd3d1-7fd6-4de1-8abb-24c8a0e58b77",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "6b140cc4-939d-4952-ab6f-f5c2e377481e",
+      "parentStimuli": null,
+      "name": "PREcalib_8_1600x900.png",
+      "displayName": "PREcalib_8_1600x900.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/PREcalib_8_1600x900.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 8,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "a5814197-2777-429a-9cf0-2cf15cedb59d",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/6b140cc4-939d-4952-ab6f-f5c2e377481e/segment/d4400a3c-391c-431f-9261-f5ea07334412/6163f2ac-02aa-4a61-b928-170b02318ac0",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "0199acd9-db1e-48ec-8268-0031155cff41",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "6b140cc4-939d-4952-ab6f-f5c2e377481e"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/6b140cc4-939d-4952-ab6f-f5c2e377481e/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/1bd53cb0-709c-4550-802a-eca571d9f905",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "a6cd5204-7e1e-4266-af71-59abe0a17cc5",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "6b140cc4-939d-4952-ab6f-f5c2e377481e"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/6b140cc4-939d-4952-ab6f-f5c2e377481e/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/b972ac3f-4371-4e00-ba9b-eabd38c2399f",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "62ee38ae-ef41-45cb-874b-77fb3ed82b04",
+      "parentStimuli": null,
+      "name": "PREcalib_9_640x360.png",
+      "displayName": "PREcalib_9_640x360.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/PREcalib_9_640x360.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 9,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "fe2a54ce-a1f3-4f73-9164-ca9af0871b37",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/62ee38ae-ef41-45cb-874b-77fb3ed82b04/segment/d4400a3c-391c-431f-9261-f5ea07334412/cb059cea-843e-4b10-a1b5-8b50d58b93fa",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "e34fd9c2-749c-4227-baaf-9e38afe866e3",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "62ee38ae-ef41-45cb-874b-77fb3ed82b04"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/62ee38ae-ef41-45cb-874b-77fb3ed82b04/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/cda74f72-bb14-4b51-8f1d-3508726986c0",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "819e1978-c583-4e14-b105-0c60b0396776",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "62ee38ae-ef41-45cb-874b-77fb3ed82b04"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/62ee38ae-ef41-45cb-874b-77fb3ed82b04/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/c606fb4e-a4e7-4593-85ee-c2fe83bcada3",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "f62d7ef1-82f6-4668-a2fe-b0a83f8a9640",
+      "parentStimuli": null,
+      "name": "PREcalib_10_1280x360.png",
+      "displayName": "PREcalib_10_1280x360.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/PREcalib_10_1280x360.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 10,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "6fae838d-1065-4976-9d59-6a076918f36a",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/f62d7ef1-82f6-4668-a2fe-b0a83f8a9640/segment/d4400a3c-391c-431f-9261-f5ea07334412/2489e7dc-f9d1-4ac1-9844-b518584b8a1b",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "4089b8a5-7fe1-4c14-a73a-0d45204fe1a0",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "f62d7ef1-82f6-4668-a2fe-b0a83f8a9640"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/f62d7ef1-82f6-4668-a2fe-b0a83f8a9640/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/518c2359-3d3b-4676-bdd0-685b052f64ff",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "e1b861e5-2109-4fc6-92c8-a7f6ff2959e4",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "f62d7ef1-82f6-4668-a2fe-b0a83f8a9640"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/f62d7ef1-82f6-4668-a2fe-b0a83f8a9640/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/810203cc-dd36-4764-b86e-4d10298c9f36",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "aacefbf3-7b85-4b14-9062-7207c1dc0287",
+      "parentStimuli": null,
+      "name": "PREcalib_11_640x720.png",
+      "displayName": "PREcalib_11_640x720.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/PREcalib_11_640x720.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 11,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "ff87a7b9-96a3-4613-bdaa-d9614bb129ec",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/aacefbf3-7b85-4b14-9062-7207c1dc0287/segment/d4400a3c-391c-431f-9261-f5ea07334412/4083c1e8-030f-484b-a6fb-dacee58c882e",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "97d01757-6893-48a0-85cc-2f1988f3ea1b",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "aacefbf3-7b85-4b14-9062-7207c1dc0287"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/aacefbf3-7b85-4b14-9062-7207c1dc0287/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/371fce34-bbaa-4135-8f6b-988b57112800",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "364f7d62-9ba2-478c-a3c4-882acce6c462",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "aacefbf3-7b85-4b14-9062-7207c1dc0287"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/aacefbf3-7b85-4b14-9062-7207c1dc0287/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/42076275-1174-4d03-84ff-98e68547bea5",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "75eee4d2-b4e7-4c1f-ae69-9c4c56765a51",
+      "parentStimuli": null,
+      "name": "PREcalib_12_1280x720.png",
+      "displayName": "PREcalib_12_1280x720.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/PREcalib_12_1280x720.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 12,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "9ac912f8-e422-46fb-9805-4072e92666c4",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/75eee4d2-b4e7-4c1f-ae69-9c4c56765a51/segment/d4400a3c-391c-431f-9261-f5ea07334412/307c63b3-f19e-4b7d-8027-2d6c082f29ac",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "01c16327-e401-41a0-90aa-13c3cecb7db1",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "75eee4d2-b4e7-4c1f-ae69-9c4c56765a51"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/75eee4d2-b4e7-4c1f-ae69-9c4c56765a51/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/5ff5a7ac-3b73-4e2f-bba3-9866e0b8a27f",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "f0150356-94b1-4393-b445-8a88a149bcb6",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "75eee4d2-b4e7-4c1f-ae69-9c4c56765a51"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/75eee4d2-b4e7-4c1f-ae69-9c4c56765a51/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/ed6a4fbb-e36d-4eeb-b369-cf284e86365d",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "5ef46004-9ad4-419f-ad4f-139e38faad7e",
+      "parentStimuli": null,
+      "name": "Pool-house-driveway",
+      "displayName": "Pool-house-driveway",
+      "type": "IMAGE",
+      "exposureTimeMs": 6000,
+      "exposureOffsetMs": 0,
+      "width": 1200,
+      "height": 900,
+      "imageUrl": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/5ef46004-9ad4-419f-ad4f-139e38faad7e/content/02e3b056-a235-4170-bb3f-f38eab703591.gif",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 13,
+      "fixedPosition": false,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "5c0f7457-268a-44c8-ae0e-26413b0fcb42",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/5ef46004-9ad4-419f-ad4f-139e38faad7e/segment/d4400a3c-391c-431f-9261-f5ea07334412/198bd00a-a36c-4ba3-b2c3-015a87c57671",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "d14f308b-6494-41d8-9a63-c8459513149b",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "5ef46004-9ad4-419f-ad4f-139e38faad7e"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/5ef46004-9ad4-419f-ad4f-139e38faad7e/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/036ff8f3-020c-4726-b804-916d99cc07b8",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "4c03c23d-3303-4107-8c82-a8b9ffb37941",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "5ef46004-9ad4-419f-ad4f-139e38faad7e"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/5ef46004-9ad4-419f-ad4f-139e38faad7e/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/6c9d4b8d-8ea5-42d2-99b1-146c32d36183",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "37b339c1-afb6-4cea-80f5-1454d631bc6a",
+      "parentStimuli": null,
+      "name": "Pool-lounge-view-from-atop",
+      "displayName": "Pool-lounge-view-from-atop",
+      "type": "IMAGE",
+      "exposureTimeMs": 6000,
+      "exposureOffsetMs": 0,
+      "width": 1200,
+      "height": 900,
+      "imageUrl": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/37b339c1-afb6-4cea-80f5-1454d631bc6a/content/641c8fd7-8da6-4b66-9965-d534ef6b1c95.gif",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 14,
+      "fixedPosition": false,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "b6459efe-c504-4424-b9ed-16da0b15da74",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/37b339c1-afb6-4cea-80f5-1454d631bc6a/segment/d4400a3c-391c-431f-9261-f5ea07334412/b970befe-55e1-4727-94ad-cb70d70f147c",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "b3625874-1d1a-48ed-b425-54df9b8a270c",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "37b339c1-afb6-4cea-80f5-1454d631bc6a"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/37b339c1-afb6-4cea-80f5-1454d631bc6a/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/6ef763c1-44f7-4c78-9170-b479b2b0e585",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "dbd6acc5-70ac-49ec-ba81-2ceb7e7b8140",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "37b339c1-afb6-4cea-80f5-1454d631bc6a"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/37b339c1-afb6-4cea-80f5-1454d631bc6a/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/b74f37cf-a14e-443a-ba4c-7d3931654e81",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "e37f549b-67dd-46d1-8637-e9ce8e856eb2",
+      "parentStimuli": null,
+      "name": "POSTcalib_0_320x180.png",
+      "displayName": "POSTcalib_0_320x180.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/POSTcalib_0_320x180.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 15,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "f3962a24-291a-4711-b782-a73fb2807ac7",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/e37f549b-67dd-46d1-8637-e9ce8e856eb2/segment/d4400a3c-391c-431f-9261-f5ea07334412/3b64c18c-34f9-425d-8b75-dc83b8446ae9",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "bfd68e79-710e-4250-8374-c7a3f3a575b7",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "e37f549b-67dd-46d1-8637-e9ce8e856eb2"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/e37f549b-67dd-46d1-8637-e9ce8e856eb2/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/be53125f-57f4-4444-a5bf-fa6de124cac8",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "4ae60483-127d-45fd-9070-a56c93b6de00",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "e37f549b-67dd-46d1-8637-e9ce8e856eb2"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/e37f549b-67dd-46d1-8637-e9ce8e856eb2/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/0fbc255c-32fa-459a-9f0b-c3bed90f5ec2",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "95625d5b-059e-44f8-8015-d5d8e547ed2b",
+      "parentStimuli": null,
+      "name": "POSTcalib_1_960x180.png",
+      "displayName": "POSTcalib_1_960x180.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/POSTcalib_1_960x180.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 16,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "a359cdab-f7fb-4eec-8e85-8729d1702a0c",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/95625d5b-059e-44f8-8015-d5d8e547ed2b/segment/d4400a3c-391c-431f-9261-f5ea07334412/bb934747-def3-4da5-b9d0-c2f2347e8c0a",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "4e8edde5-df23-45d7-ab8b-87fe6a30caf1",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "95625d5b-059e-44f8-8015-d5d8e547ed2b"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/95625d5b-059e-44f8-8015-d5d8e547ed2b/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/2340d54d-01fc-4142-bb7f-1ad88ce0c3e2",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "bf4a5623-8218-4ea1-b579-effdaca72ff3",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "95625d5b-059e-44f8-8015-d5d8e547ed2b"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/95625d5b-059e-44f8-8015-d5d8e547ed2b/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/1876bf2c-68f2-4e7e-a819-089fed4d82d8",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "315e19ca-a5be-42ae-92f4-193124fafbb8",
+      "parentStimuli": null,
+      "name": "POSTcalib_2_1600x180.png",
+      "displayName": "POSTcalib_2_1600x180.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/POSTcalib_2_1600x180.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 17,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "680b2c8d-ba48-4c91-bdb2-09929c535718",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/315e19ca-a5be-42ae-92f4-193124fafbb8/segment/d4400a3c-391c-431f-9261-f5ea07334412/b86e1b90-1a3e-4f8d-b55c-8f352fbd3e13",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "b97684e9-a096-49c6-a613-11a995f2e86a",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "315e19ca-a5be-42ae-92f4-193124fafbb8"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/315e19ca-a5be-42ae-92f4-193124fafbb8/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/27e03fba-402d-4c84-a2d3-a3bb11e49fd0",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "cc7c234b-9241-409a-9c76-1c1fc3146d71",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "315e19ca-a5be-42ae-92f4-193124fafbb8"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/315e19ca-a5be-42ae-92f4-193124fafbb8/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/ffded8ed-4e6f-4c7c-83ae-19119d8a66dd",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "2ec9e22d-4563-414a-8196-618fbba5f538",
+      "parentStimuli": null,
+      "name": "POSTcalib_3_320x540.png",
+      "displayName": "POSTcalib_3_320x540.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/POSTcalib_3_320x540.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 18,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "0702977c-0618-474e-94e1-2a9991d3bb37",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/2ec9e22d-4563-414a-8196-618fbba5f538/segment/d4400a3c-391c-431f-9261-f5ea07334412/5881c5e3-3cf9-40ef-b9f4-0f5629568a49",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "00336067-c7b2-4e72-bfd5-18618e64b009",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "2ec9e22d-4563-414a-8196-618fbba5f538"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/2ec9e22d-4563-414a-8196-618fbba5f538/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/e1b3d274-09ad-40a3-bab3-9227f5d28f83",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "087107f6-144a-48af-9818-c94ffb823e8d",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "2ec9e22d-4563-414a-8196-618fbba5f538"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/2ec9e22d-4563-414a-8196-618fbba5f538/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/a38208c1-d271-4ab0-8ce0-7f140be614dc",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "94b94ac6-e88d-4b1b-af4f-2bb37fe65d79",
+      "parentStimuli": null,
+      "name": "POSTcalib_4_960x540.png",
+      "displayName": "POSTcalib_4_960x540.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/POSTcalib_4_960x540.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 19,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "879c2563-1abf-4523-8deb-10482af3cd30",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/94b94ac6-e88d-4b1b-af4f-2bb37fe65d79/segment/d4400a3c-391c-431f-9261-f5ea07334412/6a9cb845-98a5-45bf-99d9-2749c36b71bd",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "c6edf1d3-92e0-4d9f-9f86-10c17b0c5600",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "94b94ac6-e88d-4b1b-af4f-2bb37fe65d79"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/94b94ac6-e88d-4b1b-af4f-2bb37fe65d79/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/bf4e91ff-58b7-4ab6-bdf4-dc3297221116",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "61bb6ebc-4b47-49f8-9405-92e6c1a38f4e",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "94b94ac6-e88d-4b1b-af4f-2bb37fe65d79"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/94b94ac6-e88d-4b1b-af4f-2bb37fe65d79/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/4e4b51fa-5b07-4871-93f6-fae934a17128",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "4de818f9-0b32-49f5-9bba-59c6bdbee408",
+      "parentStimuli": null,
+      "name": "POSTcalib_5_1600x540.png",
+      "displayName": "POSTcalib_5_1600x540.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/POSTcalib_5_1600x540.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 20,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "8f260bbf-872a-4b8e-8e71-89a1722d61f6",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/4de818f9-0b32-49f5-9bba-59c6bdbee408/segment/d4400a3c-391c-431f-9261-f5ea07334412/d4c12b16-9bde-4b18-95ed-ca67a0fb10d3",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "9eac2d7b-645d-46f3-aec9-39ca19b0c12a",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "4de818f9-0b32-49f5-9bba-59c6bdbee408"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/4de818f9-0b32-49f5-9bba-59c6bdbee408/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/45d4894b-0176-46bf-b59e-6754ebf83b14",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "4d239b47-ebf5-4190-9051-5071b6b1ec25",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "4de818f9-0b32-49f5-9bba-59c6bdbee408"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/4de818f9-0b32-49f5-9bba-59c6bdbee408/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/17aa1aac-50cd-4ce6-a26e-daa2efc2b89c",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "b164fcfc-35d3-4479-a797-2f4cfbbc6363",
+      "parentStimuli": null,
+      "name": "POSTcalib_6_320x900.png",
+      "displayName": "POSTcalib_6_320x900.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/POSTcalib_6_320x900.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 21,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "fef5c7eb-dce1-420f-b0df-b035685ee925",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/b164fcfc-35d3-4479-a797-2f4cfbbc6363/segment/d4400a3c-391c-431f-9261-f5ea07334412/d81958c8-071d-40b5-a0f8-b6cc8d3d70d5",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "3f6dec7a-e485-4109-a1e5-e8ec1e5d0565",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "b164fcfc-35d3-4479-a797-2f4cfbbc6363"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/b164fcfc-35d3-4479-a797-2f4cfbbc6363/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/0dedeb2b-5c27-426d-9414-858371f127d4",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "b23378ea-c880-428d-a20e-2c11f802175c",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "b164fcfc-35d3-4479-a797-2f4cfbbc6363"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/b164fcfc-35d3-4479-a797-2f4cfbbc6363/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/33a06da9-77eb-4616-b012-2b70dae4d6fe",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "f3f261c1-3aaa-468a-877a-53b5b352cf7e",
+      "parentStimuli": null,
+      "name": "POSTcalib_7_960x900.png",
+      "displayName": "POSTcalib_7_960x900.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/POSTcalib_7_960x900.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 22,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "83c29999-2b1a-4f15-994f-cde26ee25512",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/f3f261c1-3aaa-468a-877a-53b5b352cf7e/segment/d4400a3c-391c-431f-9261-f5ea07334412/98accdd6-ef86-4a9d-9634-de0de8ce3bf8",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "e540bde8-8d2b-4787-be5f-a27fec809d8a",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "f3f261c1-3aaa-468a-877a-53b5b352cf7e"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/f3f261c1-3aaa-468a-877a-53b5b352cf7e/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/a6c139c4-53c9-4e22-9555-22a8793211fe",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "e0138f39-be91-43b1-99fe-f2ad99281963",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "f3f261c1-3aaa-468a-877a-53b5b352cf7e"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/f3f261c1-3aaa-468a-877a-53b5b352cf7e/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/da6fca83-9dee-42ac-9840-60a00467bc09",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "ebbe9857-05d9-4bce-b343-de92a65c65d0",
+      "parentStimuli": null,
+      "name": "POSTcalib_8_1600x900.png",
+      "displayName": "POSTcalib_8_1600x900.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/POSTcalib_8_1600x900.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 23,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "e48a9534-d0f6-4de1-ac8e-cff27a9ed1d2",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/ebbe9857-05d9-4bce-b343-de92a65c65d0/segment/d4400a3c-391c-431f-9261-f5ea07334412/b275400d-7eed-4040-a14c-7e70eecc59b8",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "99b998ad-955c-495d-a9fd-1c2b2a6de501",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "ebbe9857-05d9-4bce-b343-de92a65c65d0"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/ebbe9857-05d9-4bce-b343-de92a65c65d0/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/a554918c-9350-43f2-8a20-2bde484af385",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "f0d71d12-0a0e-4bd2-94f9-055ecd378122",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "ebbe9857-05d9-4bce-b343-de92a65c65d0"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/ebbe9857-05d9-4bce-b343-de92a65c65d0/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/c6ba7c5e-3637-4a36-86c3-9a87c98756a4",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "f8993133-9c7a-4a26-9a32-b607b1f95698",
+      "parentStimuli": null,
+      "name": "POSTcalib_9_640x360.png",
+      "displayName": "POSTcalib_9_640x360.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/POSTcalib_9_640x360.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 24,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "baa5e300-8615-4f9a-9dc8-9f91341bff58",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/f8993133-9c7a-4a26-9a32-b607b1f95698/segment/d4400a3c-391c-431f-9261-f5ea07334412/29ffa37f-de03-4128-92f4-6175dc441a0c",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "4071d8a6-ea0a-4a07-aecf-33687a958443",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "f8993133-9c7a-4a26-9a32-b607b1f95698"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/f8993133-9c7a-4a26-9a32-b607b1f95698/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/39f450a4-953f-41e2-bf8c-f3ab260a8911",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "49e08057-4951-4840-bc34-7d95887eab61",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "f8993133-9c7a-4a26-9a32-b607b1f95698"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/f8993133-9c7a-4a26-9a32-b607b1f95698/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/e0891682-db03-497f-a2b8-ab8535ec267c",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "10f9a9d9-53af-49ea-897d-a2b2bd584bd1",
+      "parentStimuli": null,
+      "name": "POSTcalib_10_1280x360.png",
+      "displayName": "POSTcalib_10_1280x360.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/POSTcalib_10_1280x360.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 25,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "8581468b-b89b-4ef8-80aa-fed13a370565",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/10f9a9d9-53af-49ea-897d-a2b2bd584bd1/segment/d4400a3c-391c-431f-9261-f5ea07334412/b0ff9c66-73d8-421b-86e7-8e28198f8000",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "04f01cea-8825-4424-a116-f758d80e1b0c",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "10f9a9d9-53af-49ea-897d-a2b2bd584bd1"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/10f9a9d9-53af-49ea-897d-a2b2bd584bd1/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/271f3943-f096-4c9c-ae49-73ce9e3ccf0a",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "0abdfab3-7a7b-4821-a0a6-b2761e757bc9",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "10f9a9d9-53af-49ea-897d-a2b2bd584bd1"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/10f9a9d9-53af-49ea-897d-a2b2bd584bd1/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/112c8b0f-c24f-4afc-a92e-2bf0d46c8fe4",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "43fcc72b-0815-4449-9256-9a56e0c798ec",
+      "parentStimuli": null,
+      "name": "POSTcalib_11_640x720.png",
+      "displayName": "POSTcalib_11_640x720.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/POSTcalib_11_640x720.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 26,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "5a001da8-d52e-4937-b546-3fe5b2b1069b",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/43fcc72b-0815-4449-9256-9a56e0c798ec/segment/d4400a3c-391c-431f-9261-f5ea07334412/c877c854-d279-4940-a62d-68ff282b90e1",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "eaf515b0-27b4-433f-a2be-7b1a5748d728",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "43fcc72b-0815-4449-9256-9a56e0c798ec"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/43fcc72b-0815-4449-9256-9a56e0c798ec/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/00c6c00e-fd23-499d-9878-421b0c29e831",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "ba3ceb62-bd70-4b20-8545-eef59fca4aa4",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "43fcc72b-0815-4449-9256-9a56e0c798ec"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/43fcc72b-0815-4449-9256-9a56e0c798ec/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/30135c70-a1f9-4579-a7b2-bde07db64c44",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    },
+    {
+      "id": "57922122-57fe-4a45-b1eb-c10373dd73f3",
+      "parentStimuli": null,
+      "name": "POSTcalib_12_1280x720.png",
+      "displayName": "POSTcalib_12_1280x720.png",
+      "type": "IMAGE",
+      "exposureTimeMs": 4000,
+      "exposureOffsetMs": 0,
+      "width": 1920,
+      "height": 1080,
+      "imageUrl": "https://s3.amazonaws.com/static.imotions.com/calibration/CrossHair_Black/POSTcalib_12_1280x720.png",
+      "videoUrl": null,
+      "websiteUrl": null,
+      "manualAdvance": false,
+      "displayOrder": 27,
+      "fixedPosition": true,
+      "surveyQuestions": null,
+      "segmentData": [
+        {
+          "id": "2317e477-0cc9-4e90-a7fc-93c36bc1e379",
+          "segment": {
+            "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+            "name": "All Respondents"
+          },
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/57922122-57fe-4a45-b1eb-c10373dd73f3/segment/d4400a3c-391c-431f-9261-f5ea07334412/e6b29ec9-9a29-4a57-bd25-053f1b81cbab",
+          "histogramUrl": null,
+          "surveyAnswers": null
+        }
+      ],
+      "respondentData": [
+        {
+          "id": "9b580a77-6bc8-4370-adae-fbe03ea80f71",
+          "respondent": {
+            "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+          },
+          "stimuli": {
+            "id": "57922122-57fe-4a45-b1eb-c10373dd73f3"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/57922122-57fe-4a45-b1eb-c10373dd73f3/respondent/50e16f69-52e2-43e2-9005-ed303f90225e/df9e2cf9-2478-4106-9c6f-244f8928fce2",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        },
+        {
+          "id": "0b7a6b6d-c7fc-4b33-85eb-eba8f3bd65ad",
+          "respondent": {
+            "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+          },
+          "stimuli": {
+            "id": "57922122-57fe-4a45-b1eb-c10373dd73f3"
+          },
+          "surveyAnswers": null,
+          "displayOrder": null,
+          "actualExposureTimeMs": null,
+          "url": "http://localhost:9000/test/api/content/study/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d/stimuli/57922122-57fe-4a45-b1eb-c10373dd73f3/respondent/6c74637b-6250-4d13-bbbc-c999d9c8a74b/7fa983df-e73c-4a3f-8de1-ec951b572b84",
+          "screenRecordingUrl": null,
+          "faceRecordingUrl": null,
+          "sceneRecordingUrl": null,
+          "histogramUrl": null,
+          "annotationsMarkedDone": null
+        }
+      ],
+      "tags": [],
+      "recordWebcam": true,
+      "recordScreen": false,
+      "trackMouse": null
+    }
+  ],
+  "segments": [
+    {
+      "id": "d4400a3c-391c-431f-9261-f5ea07334412",
+      "name": "All Respondents",
+      "respondents": [
+        {
+          "id": "50e16f69-52e2-43e2-9005-ed303f90225e",
+          "respondentUniqueId": "cbbef6b9-203e-42ff-a45f-1400152a384e"
+        },
+        {
+          "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b",
+          "respondentUniqueId": "1e85cd80-4915-4f43-9cc1-bed0c77f4623"
+        }
+      ],
+      "processingState": "COMPLETED",
+      "histogramUrl": null
+    }
+  ],
+  "pieces": [
+    {
+      "id": "a4162904-1111-4a44-8d3b-104d2603506f",
+      "machine": null,
+      "study": {
+        "id": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d"
+      },
+      "containsRespondentRecordings": true,
+      "zipFileName": "api/content/StudyUpload/77f8838b-8ecc-44d5-bdbf-16ffa9e4026f/7eef840f-a90e-40a6-b48d-72c2a3c8991a",
+      "incrementalUploadRespondent": {
+        "id": "6c74637b-6250-4d13-bbbc-c999d9c8a74b"
+      },
+      "createdDate": "2022-11-17T10:21:19.545+01:00",
+      "updatedDate": "2022-11-17T10:22:36.7+01:00",
+      "pendingPreProcessingSteps": "",
+      "completedPreProcessingSteps": "Affectiva,Eyetracker"
+    },
+    {
+      "id": "c9e58476-7015-4335-ba84-31e05242eb17",
+      "machine": null,
+      "study": {
+        "id": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d"
+      },
+      "containsRespondentRecordings": true,
+      "zipFileName": "api/content/StudyUpload/77f8838b-8ecc-44d5-bdbf-16ffa9e4026f/bda76686-47ec-4a23-ac8e-959d5b7d22e3",
+      "incrementalUploadRespondent": {
+        "id": "a108dc6c-5f59-4a8d-a236-2152c9a63c1e"
+      },
+      "createdDate": "2022-11-16T15:48:32.136+01:00",
+      "updatedDate": "2022-11-16T16:01:02.216+01:00",
+      "pendingPreProcessingSteps": "",
+      "completedPreProcessingSteps": "Affectiva,Eyetracker"
+    },
+    {
+      "id": "feb1c8d8-5535-4d4e-9e2f-ba988318143a",
+      "machine": null,
+      "study": {
+        "id": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d"
+      },
+      "containsRespondentRecordings": true,
+      "zipFileName": "api/content/StudyUpload/77f8838b-8ecc-44d5-bdbf-16ffa9e4026f/bb6a762d-31ba-40ef-b76a-1198c0952f2c",
+      "incrementalUploadRespondent": {
+        "id": "d2ee0db6-6a35-49d5-99b1-d08cfdcc1839"
+      },
+      "createdDate": "2022-11-16T15:51:24.106+01:00",
+      "updatedDate": "2022-11-16T16:01:02.432+01:00",
+      "pendingPreProcessingSteps": "",
+      "completedPreProcessingSteps": "Affectiva,Eyetracker"
+    },
+    {
+      "id": "a9a1364a-4340-4045-b99e-83e1beab6813",
+      "machine": null,
+      "study": {
+        "id": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d"
+      },
+      "containsRespondentRecordings": true,
+      "zipFileName": "api/content/StudyUpload/77f8838b-8ecc-44d5-bdbf-16ffa9e4026f/5aa89129-94ba-4daf-b669-bca6fac36365",
+      "incrementalUploadRespondent": {
+        "id": "c7c390e5-c68a-4d9b-b750-3733dc87a2bd"
+      },
+      "createdDate": "2022-11-17T10:01:35.229+01:00",
+      "updatedDate": "2022-11-17T10:03:14.705+01:00",
+      "pendingPreProcessingSteps": "",
+      "completedPreProcessingSteps": "Affectiva,Eyetracker"
+    },
+    {
+      "id": "c87704c9-cd79-46ca-bb1a-481ba3b115bf",
+      "machine": null,
+      "study": {
+        "id": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d"
+      },
+      "containsRespondentRecordings": true,
+      "zipFileName": "api/content/StudyUpload/77f8838b-8ecc-44d5-bdbf-16ffa9e4026f/253509b8-3d5f-4311-bfd2-80e4c81535a9",
+      "incrementalUploadRespondent": {
+        "id": "31eb77b4-2c99-4c6b-9f8f-08e5de2a7e02"
+      },
+      "createdDate": "2022-11-16T16:13:09.625+01:00",
+      "updatedDate": "2022-11-16T16:14:48.501+01:00",
+      "pendingPreProcessingSteps": "",
+      "completedPreProcessingSteps": "Affectiva,Eyetracker"
+    },
+    {
+      "id": "01ebcec3-c9fc-4c21-bdf9-da4f6c1d74d5",
+      "machine": null,
+      "study": {
+        "id": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d"
+      },
+      "containsRespondentRecordings": true,
+      "zipFileName": "api/content/StudyUpload/77f8838b-8ecc-44d5-bdbf-16ffa9e4026f/a9d8c976-c204-4274-84bb-51d9a726b24b",
+      "incrementalUploadRespondent": {
+        "id": "9bbea2bb-4705-4104-8350-f23842a89992"
+      },
+      "createdDate": "2022-11-17T09:58:20.131+01:00",
+      "updatedDate": "2022-11-17T09:59:59.611+01:00",
+      "pendingPreProcessingSteps": "",
+      "completedPreProcessingSteps": "Affectiva,Eyetracker"
+    },
+    {
+      "id": "5f91a94b-7481-40cf-81db-ef82cd59ff8a",
+      "machine": null,
+      "study": {
+        "id": "9dd8bb91-14de-4a1f-9179-0d7700ec7a1d"
+      },
+      "containsRespondentRecordings": true,
+      "zipFileName": "api/content/StudyUpload/77f8838b-8ecc-44d5-bdbf-16ffa9e4026f/0b30cedb-bc7c-4f73-99a1-4d20367cf50b",
+      "incrementalUploadRespondent": {
+        "id": "50e16f69-52e2-43e2-9005-ed303f90225e"
+      },
+      "createdDate": "2022-11-17T10:10:19.788+01:00",
+      "updatedDate": "2022-11-17T10:11:51.444+01:00",
+      "pendingPreProcessingSteps": "",
+      "completedPreProcessingSteps": "Affectiva,Eyetracker"
+    }
+  ],
+  "deleted": false,
+  "finishedDate": null,
+  "createdDate": "2022-11-16T15:44:09.145+01:00",
+  "updatedDate": "2022-11-17T14:08:20.44+01:00",
+  "tags": [],
+  "aoiSet": {
+    "id": "fd7891cf-3f51-4fdd-bf48-0ee2f75d53b9"
+  },
+  "annotations": [],
+  "desktopVersion": null,
+  "desktopGeneration": "IMOTIONS_ONLINE",
+  "remoteDataCollection": false,
+  "remoteDataCollectionVersion": {
+    "name": "v3",
+    "createdDate": "2022-04-21T09:22:51.234+02:00"
+  },
+  "remoteWebcamEyetracking": true,
+  "rejectConsentRedirect": null,
+  "studyFinishedRedirect": null,
+  "consentForm": null,
+  "contactEmail": null,
+  "recordMicrophone": false,
+  "respondentPositionCheck": true,
+  "respondentPositionReCheck": false,
+  "respondentEyesCheck": false,
+  "allowSkipRespondentPositionEyesChecks": false,
+  "audioInputCheck": false,
+  "audioOutputCheck": false,
+  "locale": null,
+  "blockUsage": "BLOCKS_NOT_USED"
+}

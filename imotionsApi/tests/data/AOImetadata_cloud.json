@@ -1,0 +1,26 @@
+[
+  {
+    "Group": "Group 1",
+    "Group description": "Description 1",
+    "Metrics": [
+      {
+        "Units": "ms",
+        "Show": "FALSE"
+      }
+    ]
+  },
+  {
+    "Group": "Group 2",
+    "Group description": "Description 2",
+    "Metrics": [
+      {
+        "Units": "",
+        "Show": "TRUE"
+      },
+      {
+        "Units": "s",
+        "Show": "TRUE"
+      }
+    ]
+  }
+]

@@ -1,8 +1,7 @@
+# privateDownloadData =================================================================================================
 context("privateDownloadData()")
 
-library("imotionsApi")
-library("mockery")
-library("arrow")
+library(mockery)
 
 # Load study
 study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
@@ -34,13 +33,13 @@ mockedPrivateDownloadData <- function(study, sensor, fileInfos, expectedMessage,
     return(signals)
 }
 
-test_that("privateDownloadData() should return the correct signals file during local connection", {
+test_that("local return - correct signals file", {
     # Case where timestamps are not changed
     fileInfos <- list(binFile = "../data/ET_Eyetracker.csv.pbin", timestampBinFile = "")
     signals <- mockedPrivateDownloadData(study, sensor, fileInfos, expectedMessage)
 
-    expect_gt(NROW(signals), 100, "data points should be present.")
-    expect_equal(NCOL(signals), 14, info = "should have 14 different columns")
+    expect_gt(nrow(signals), 100, "data points should be present.")
+    expect_equal(ncol(signals), 14, info = "should have 14 different columns")
 
     # Case where timestamps are changed
     fileInfos <- list(binFile = "../data/ET_Eyetracker.csv.pbin",
@@ -48,44 +47,44 @@ test_that("privateDownloadData() should return the correct signals file during l
 
     signalsWithLatency <- mockedPrivateDownloadData(study, sensor, fileInfos, expectedMessage)
 
-    expect_equal(NROW(signalsWithLatency), NROW(signals), info = "data points should be preserved")
-    expect_equal(NCOL(signalsWithLatency), NCOL(signals), info = "columns should be preserved")
+    expect_equal(nrow(signalsWithLatency), nrow(signals), info = "data points should be preserved")
+    expect_equal(ncol(signalsWithLatency), ncol(signals), info = "columns should be preserved")
     diffTimestamp <- unique(signals$Timestamp - signalsWithLatency$Timestamp)
     expect_equal(diffTimestamp, 100, info = "100 ms delay should have been added")
 
     # Case where columns are changed
     signalToKeep <- c("ET_PupilLeft")
     signal <- mockedPrivateDownloadData(study, sensor, fileInfos, expectedMessage, signalsName = signalToKeep)
-    expect_equal(NROW(signal), NROW(signals), info = "data points should be preserved")
-    expect_identical(colnames(signal), c("Timestamp", signalToKeep), "incorrect columns name")
+
+    expect_equal(nrow(signal), nrow(signals), info = "data points should be preserved")
+    expect_named(signal, c("Timestamp", signalToKeep), info = "incorrect columns name")
 })
 
-# Get the sensors through the cloud
-sensors_cloud <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorListCloud.json")))
+# Get the study/sensors through the cloud
+study_cloud <- jsonlite::unserializeJSON(readLines("../data/imStudy_cloud.json"))
+sensors_cloud <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorList_cloud.json")))
 
-test_that("privateDownloadData() should return the correct signals file during remote cloud connection", {
-    study$connection$localIM <- FALSE
-    study$connection$s3BaseUrl <- "http://host.docker.internal:9000/test"
+test_that("remote return - correct signals file", {
     fileInfos <- list(file_path = "../data/Native_SlideEvents_cloud.csv")
 
     # Case with slide events
     expectedFileName <- sensors_cloud[3, ]$fileName
     expectedMessage <- "Retrieving data for sensor: SlideEvents"
 
-    signals <- mockedPrivateDownloadData(study, sensors_cloud[3, ], fileInfos, expectedMessage, expectedFileName)
-    expect_gt(NROW(signals), 100, "slide events should be retrieved")
-    expect_equal(NCOL(signals), 7, info = "should have 7 different columns")
+    signals <- mockedPrivateDownloadData(study_cloud, sensors_cloud[3, ], fileInfos, expectedMessage, expectedFileName)
+    expect_gt(nrow(signals), 100, "slide events should be retrieved")
+    expect_equal(ncol(signals), 7, info = "should have 7 different columns")
 
     # Case where columns are changed
     signalToKeep <- c("Duration")
-    signal <- mockedPrivateDownloadData(study, sensors_cloud[3, ], fileInfos, expectedMessage, expectedFileName,
+    signal <- mockedPrivateDownloadData(study_cloud, sensors_cloud[3, ], fileInfos, expectedMessage, expectedFileName,
                                         signalToKeep)
 
-    expect_equal(NROW(signal), NROW(signals), info = "data points should be preserved")
-    expect_identical(colnames(signal), c("Timestamp", signalToKeep), "incorrect columns name")
+    expect_equal(nrow(signal), nrow(signals), info = "data points should be preserved")
+    expect_named(signal, c("Timestamp", signalToKeep), info = "incorrect columns name")
 })
 
-
+# getSensorData =======================================================================================================
 context("getSensorData()")
 
 # Load signals
@@ -102,55 +101,53 @@ mockedGetSensorData <- function(study, sensor, signalsName = NULL, intervals = N
     return(signals)
 }
 
-test_that("should throw errors if arguments are missing or not from the good class", {
+test_that("error - arguments are missing or not from the good class", {
     # in case of missing study
-    error <- capture_error(getSensorData())
-    expect_identical(error$message, "Please specify a study loaded with `imStudy()`",
-                     "missing `study` param not handled properly")
+    expect_error(getSensorData(), "Please specify a study loaded with `imStudy()`", fixed = TRUE,
+                 info = "missing `study` param not handled properly")
 
     # in case of missing sensor
-    error <- capture_error(getSensorData(study))
-    expect_identical(error$message, "Please specify a sensor loaded with `getSensors()`",
-                     "missing `sensor` param not handled properly")
+    expect_error(getSensorData(study), "Please specify a sensor loaded with `getSensors()`", fixed = TRUE,
+                 info = "missing `sensor` param not handled properly")
 
     # in case of study that is not an imStudy object
-    error <- capture_error(getSensorData(study = "whatever", sensor))
-    expect_identical(error$message, "`study` argument is not an imStudy object",
-                     "study not being an imStudy object should throw an error")
+    expect_error(getSensorData(study = "whatever", sensor), "`study` argument is not an imStudy object",
+                 info = "study not being an imStudy object should throw an error")
 
     # in case of sensor that is not an imSensor object
-    error <- capture_error(getSensorData(study, sensor = "whatever"))
-    expect_identical(error$message, "`sensor` argument is not an imSensor object",
-                     "sensor not being an imSensor object should throw an error")
+    expect_error(getSensorData(study, sensor = "whatever"), "`sensor` argument is not an imSensor object",
+                 info = "sensor not being an imSensor object should throw an error")
 })
 
-test_that("should return signals data for this sensor", {
+test_that("return - signals data for a specific sensor", {
     signals <- mockedGetSensorData(study, sensor, signals = signals)
 
-    expect_gt(NROW(signals), 100, "data points should be present.")
-    expect_equal(NCOL(signals), 14, info = "should have 14 different columns")
-    expect_true(inherits(signals, "imSignals"), "signals should be an imSignals object")
+    expect_gt(nrow(signals), 100, "data points should be present.")
+    expect_equal(ncol(signals), 14, info = "should have 14 different columns")
+    expect_s3_class(signals, "imSignals")
 })
 
-test_that("should return truncated signals data for this sensor and pass signalsName information", {
+test_that("return - truncated data with good signalsName data for a specific sensor", {
     intervals <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imIntervalList.json")))
     truncSignals <- mockedGetSensorData(study, sensor, intervals = intervals, signals = signals)
 
     expect_lt(nrow(truncSignals), nrow(signals), "truncated signals", "original signals")
-    expect_equal(NCOL(truncSignals), 14, info = "should have 14 different columns")
-    expect_true(inherits(truncSignals, "imSignals"), "signals should be an imSignals object")
+    expect_equal(ncol(truncSignals), 14, info = "should have 14 different columns")
+    expect_s3_class(truncSignals, "imSignals")
 
     # Should throw an error if intervals come from a different respondent than the sensor
     sensor$respondent[[1]]$id <- "somethingElse"
-    error <- capture_error(mockedGetSensorData(study, sensor, intervals = intervals, signals = signals))
-    expect_identical(error$message, "sensor and intervals must correspond to the same respondent",
-                     "intervals come from a different respondent than the sensor respondent")
+
+    expect_error(mockedGetSensorData(study, sensor, intervals = intervals, signals = signals),
+                 "sensor and intervals must correspond to the same respondent",
+                 info = "intervals come from a different respondent than the sensor respondent")
 
     # Should throw an error if the sensor comes from a segment
     sensor_segment <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorSegment.json")))
-    error <- capture_error(mockedGetSensorData(study, sensor_segment, intervals = intervals, signals = signals))
-    expect_identical(error$message, "truncating signals by intervals is not available for sensors at the segment level",
-                     "sensor comes from a segment and not a respondent")
+
+    expect_error(mockedGetSensorData(study, sensor_segment, intervals = intervals, signals = signals),
+                 "truncating signals by intervals is not available for sensors at the segment level",
+                 info = "sensor comes from a segment and not a respondent")
 
     # Should pass signalsName information to privateDownloadData (check inside mockedGetSensorData)
     signals <- mockedGetSensorData(study, sensor, signalsName = c("Signal1", "Signal2"), signals = signals)

@@ -1,0 +1,644 @@
+[
+  {
+    "stimuliId": "8ba4cf53-ec60-4fef-b47c-e6e7abae975f",
+    "respondentId": "7dbdca47-3d70-4d1c-86ba-372f34e20948",
+    "startMediaOffset": 36869,
+    "endMediaOffset": 109001,
+    "aoiDefinitionId": "1bd38bdf-649d-4fdf-b45e-3d0420585018",
+    "aoiInOuts": [
+      {
+        "rowNumber": 0,
+        "timestamp": 0,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": false,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 1,
+        "timestamp": 528,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 2,
+        "timestamp": 594,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 3,
+        "timestamp": 2112,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 4,
+        "timestamp": 3036,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 5,
+        "timestamp": 5214,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 6,
+        "timestamp": 5610,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 7,
+        "timestamp": 13464,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 8,
+        "timestamp": 14256,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 9,
+        "timestamp": 14916,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 10,
+        "timestamp": 15180,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 11,
+        "timestamp": 15840,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 12,
+        "timestamp": 16236,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 13,
+        "timestamp": 18942,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 14,
+        "timestamp": 19140,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 15,
+        "timestamp": 21384,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 16,
+        "timestamp": 21582,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 17,
+        "timestamp": 23166,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 18,
+        "timestamp": 23496,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 19,
+        "timestamp": 23694,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 20,
+        "timestamp": 24024,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 21,
+        "timestamp": 24288,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 22,
+        "timestamp": 24552,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 23,
+        "timestamp": 25410,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 24,
+        "timestamp": 25476,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 25,
+        "timestamp": 25740,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 26,
+        "timestamp": 26136,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 27,
+        "timestamp": 26994,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 28,
+        "timestamp": 27456,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 29,
+        "timestamp": 27720,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 30,
+        "timestamp": 29238,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 31,
+        "timestamp": 32274,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 32,
+        "timestamp": 32802,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 33,
+        "timestamp": 33330,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 34,
+        "timestamp": 34386,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 35,
+        "timestamp": 34650,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 36,
+        "timestamp": 34980,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 37,
+        "timestamp": 36564,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 38,
+        "timestamp": 36630,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 39,
+        "timestamp": 36762,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 40,
+        "timestamp": 36828,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 41,
+        "timestamp": 38742,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 42,
+        "timestamp": 39072,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 43,
+        "timestamp": 40722,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 44,
+        "timestamp": 41184,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 45,
+        "timestamp": 43626,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 46,
+        "timestamp": 43692,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 47,
+        "timestamp": 44550,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 48,
+        "timestamp": 44814,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 49,
+        "timestamp": 47058,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 50,
+        "timestamp": 47256,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 51,
+        "timestamp": 47652,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 52,
+        "timestamp": 48246,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 53,
+        "timestamp": 48510,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 54,
+        "timestamp": 48972,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 55,
+        "timestamp": 51018,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 56,
+        "timestamp": 51876,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 57,
+        "timestamp": 53658,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 58,
+        "timestamp": 54054,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 59,
+        "timestamp": 54780,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 60,
+        "timestamp": 55176,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 61,
+        "timestamp": 62700,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 62,
+        "timestamp": 62964,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 63,
+        "timestamp": 63360,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 64,
+        "timestamp": 63690,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 65,
+        "timestamp": 65538,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 66,
+        "timestamp": 66000,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 67,
+        "timestamp": 66990,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 68,
+        "timestamp": 68244,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 69,
+        "timestamp": 68310,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 70,
+        "timestamp": 69102,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 71,
+        "timestamp": 69630,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 72,
+        "timestamp": 69960,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 73,
+        "timestamp": 70554,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 74,
+        "timestamp": 70752,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": false
+      },
+      {
+        "rowNumber": 75,
+        "timestamp": 71676,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": true,
+        "gazeInAoi": true
+      },
+      {
+        "rowNumber": 76,
+        "timestamp": 72132,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": false,
+        "gazeInAoi": false
+      }
+    ]
+  },
+  {
+    "stimuliId": "8ba4cf53-ec60-4fef-b47c-e6e7abae975f",
+    "respondentId": "c0da6100-d5d9-4ae4-bcd9-bc58ca3f5cf3",
+    "startMediaOffset": 38234,
+    "endMediaOffset": 110453,
+    "aoiDefinitionId": "1bd38bdf-649d-4fdf-b45e-3d0420585018",
+    "aoiInOuts": [
+      {
+        "rowNumber": 0,
+        "timestamp": 0,
+        "mouseInAoi": false,
+        "mouseDown": false,
+        "activeAoi": false,
+        "gazeInAoi": false
+      }
+    ]
+  }
+]
