@@ -89,7 +89,7 @@ test_that("remote return - AOIs data.table", {
                        "aoiStatsNeedCalculating", "updatedDate"), info = "AOIs infos not matching")
 
   # Dynamic AOIs should have NA instead of area values, Static AOIs should be computed correctly
-  expect_equal(AOIs$area, c(17134, NA_real_), tolerance = 0.001, infos = "area should be valid")
+  expect_equal(AOIs$area, c(32897, NA_real_), tolerance = 0.001, infos = "area should be valid")
 
   # Group can be either missing or filled
   expect_identical(unique(AOIs$group), NA_character_, "group is wrong")

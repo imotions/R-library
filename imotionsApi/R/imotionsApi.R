@@ -495,9 +495,8 @@ privateAOIFormatting <- function(study, AOIsUrl, endpoint) {
             static_idx <- which(AOIs$type == "Static")
 
             AOIs[static_idx, "area"] <- by(AOIs[static_idx, ], seq_along(static_idx), function(AOI) {
-                parent_stimulus <- stimuli[match(AOI$stimulusId, stimuli$id), ]
-                x_pixels <- AOI$currentCalculationTimeline[[1]]$points[[1]]$x * parent_stimulus$width
-                y_pixels <- AOI$currentCalculationTimeline[[1]]$points[[1]]$y * parent_stimulus$height
+                x_pixels <- AOI$currentCalculationTimeline[[1]]$points[[1]]$x * 1920
+                y_pixels <- AOI$currentCalculationTimeline[[1]]$points[[1]]$y * 1080
 
                 return(privateCalculateAreaAOI(x_pixels, y_pixels))
             })
