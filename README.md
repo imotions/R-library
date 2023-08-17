@@ -11,7 +11,7 @@ Notebooks combine R code and markdown and can be knitted (compiled) to a documen
 1. Download and install [R](https://www.r-project.org/).
 2. Download and install [RStudio](https://www.rstudio.com/products/rstudio/download/#download).
 3. Open RStudio and go to Tools →  Global Options →  Code →  Saving and set "Default text encoding" to UTF-8.
-4. Download and install the `imotionsApi` package and load it with the command `library(imotionsApi)`.
+4. Download and install the `imotionsApi` package using `devtools::install_github("imotions/R-library", subdir = 'imotionsApi')` and load it with the command `library(imotionsApi)`.
 
 To see the library's inline documentation, type `?imotionsApi` in the RStudio console.
 
