@@ -1263,12 +1263,12 @@ truncateSignalsByIntervals <- function(signals, intervals, dropIntervals = FALSE
         signals <- signals[!idxInIntervals, ]
 
         # Keeping original signals row number (can be used to detect gap in data later)
-        row.names(signals) <- which(!allIdx %in% idxInIntervals)
+        setattr(signals, "row.names", which(!allIdx %in% idxInIntervals))
     } else {
         signals <- signals[idxInIntervals, ]
 
         # Keeping original signals row number (can be used to detect gap in data later)
-        row.names(signals) <- idxInIntervals
+        setattr(signals, "row.names", idxInIntervals)
     }
 
     return(signals)
@@ -2762,7 +2762,7 @@ getFile <- function(connection, url, message = NULL, fileName = NULL) {
 
     # Detect if the file of interest is a zip or a csv file
     file_path <- paste0(file_path, ifelse(response$headers$`content-type` == "application/zip", ".zip", ".csv"))
-    download.file(response$url, file_path, method = "auto")
+    download.file(response$url, file_path, method = "auto", mode = "wb")
 
     if (grepl(".zip$", file_path)) {
         files_in_zip <- unzip(file_path, exdir = tmp_dir)
@@ -2872,6 +2872,11 @@ putHttr <- function(connection, url, fileName = NULL, reqBody = NULL, message = 
     if (!is.null(fileName)) {
         reqBody <- httr::upload_file(fileName)
         config <- csvHeaders()
+
+        # In case we upload a file to a path with . we need to add the insecure tag
+        if (grepl(".", url)) {
+            httr::set_config(httr::config(ssl_verifypeer = 0L, ssl_verifyhost = 0L))
+        }
     } else {
         config <- tokenHeaders(connection$token)
 
@@ -2881,7 +2886,7 @@ putHttr <- function(connection, url, fileName = NULL, reqBody = NULL, message = 
     }
 
     response <- retryHttr(message, "PUT", url, body = reqBody, config)
-
+    httr::reset_config()
     return(response)
 }
 
