@@ -53,9 +53,9 @@ test_that("local - all getUrl function should work as expected", {
     expect_identical(getSensorDataUrl(study, sensor), sensorDataUrl)
 
     #getUploadSensorsUrl
-    expect_identical(getUploadSensorsUrl(study, respondent), paste0(sensorsUrl, "/data"))
-    expect_identical(getUploadSensorsUrl(study, respondent, stimulus), paste0(sensorStimulusUrl, "/data"))
-    expect_identical(getUploadSensorsUrl(study, segment, stimulus), paste0(sensorsSegmentUrl, "/data"))
+    expect_identical(getUploadSensorDataUrl(study, respondent), paste0(sensorsUrl, "/data"))
+    expect_identical(getUploadSensorDataUrl(study, respondent, stimulus), paste0(sensorStimulusUrl, "/data"))
+    expect_identical(getUploadSensorDataUrl(study, segment, stimulus), paste0(sensorsSegmentUrl, "/data"))
 
     #getAOIsUrl
     AOIUrl <- paste0(baseUrl, "/aois/af8c2165-4389-4cc3-8b1e-b2d3a4bd8be1")
@@ -111,7 +111,7 @@ sensor_cloud <- sensors_cloud[1, ]
 
 test_that("remote - all getUrl function should work as expected", {
     #getStudyBaseUrl
-    baseUrl <- "https://my.imotions.com/testcustom"
+    baseUrl <- "https://test/api"
     expect_identical(getStudyBaseUrl(study_cloud), baseUrl)
 
     #getStudyS3BaseUrl
@@ -119,10 +119,10 @@ test_that("remote - all getUrl function should work as expected", {
     expect_identical(getStudyS3BaseUrl(study_cloud), s3BaseUrl)
 
     #getStudiesUrl
-    expect_identical(getStudiesUrl(study_cloud$connection), "https://my.imotions.com/testcustom/studies")
+    expect_identical(getStudiesUrl(study_cloud$connection), "https://test/api/studies")
 
     #getStudyUrl
-    studyUrl <- "https://my.imotions.com/testcustom/studies/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d"
+    studyUrl <- "https://test/api/studies/9dd8bb91-14de-4a1f-9179-0d7700ec7a1d"
     expect_identical(getStudyUrl(study_cloud), studyUrl)
 
     #getStudyUrlById
@@ -139,11 +139,14 @@ test_that("remote - all getUrl function should work as expected", {
     sensorDataUrl <- file.path("https:/test", sensor_cloud$dataUrl)
     expect_identical(getSensorDataUrl(study_cloud, sensor_cloud), sensorDataUrl)
 
-    #getUploadSensorsUrl
+    #getUploadSensorDataUrl
     uploadCloudUrl <- paste0(baseUrl, "/reportruns/placeholder_reportId/respondents",
                              "/09bd22e6-29b6-4a8a-8cc1-4780a5163e63")
 
-    expect_identical(getUploadSensorsUrl(study_cloud, respondent), uploadCloudUrl)
+    uploadsegmentCloudUrl <- paste0(baseUrl, "/reportruns/placeholder_reportId/segments/1010")
+
+    expect_identical(getUploadSensorDataUrl(study_cloud, respondent), uploadCloudUrl)
+    expect_identical(getUploadSensorDataUrl(study_cloud, segment), uploadsegmentCloudUrl)
 
     #getAOIsUrl
     AOIUrl <- paste0(studyUrl, "/aois/definitions")

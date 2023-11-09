@@ -64,7 +64,7 @@ test_that("local return - data.table of the good format", {
                  info = "wrong fragments duration")
 
     expect_identical(stimIntervals$id, c("1002", "1003", "1001", "1000"), "wrong id")
-    expect_identical(unique(stimIntervals$text), NA_character_, "stimulus intervals should have no text")
+    expect_identical(unique(stimIntervals$text), "", "stimulus intervals should have no text")
 })
 
 
@@ -101,7 +101,7 @@ test_that("remote return - data.table of the good format", {
                      c("3014c850-f3bd-4d7b-acc7-b7792bb1af68", "0058eb32-f506-4fe6-83b5-ec2ab4b30d5f",
                        "8fff2349-a8d4-4c45-8cf6-4699e85849cd", "ef3c1737-adaf-4491-ab62-434bc221ba04"), "wrong id")
 
-    expect_identical(unique(stimIntervals$text), NA_character_, "stimulus intervals should have no text")
+    expect_identical(unique(stimIntervals$text), "", "stimulus intervals should have no text")
 })
 
 test_that("local return - NULL if no slideEvents sensors available", {
@@ -156,7 +156,7 @@ test_that("local return - data.table only containing scenes included in the anal
     expect_equal(scenesIntervals$fragments.end, c(13478.69, 25209.69), 1e-2, info = "wrong fragments end")
     expect_equal(scenesIntervals$fragments.duration, c(7403, 6769), 1e-2, info = "wrong fragments duration")
     expect_identical(scenesIntervals$id, c("1008", "1008"), "wrong id")
-    expect_identical(unique(scenesIntervals$text), NA_character_, "scenes intervals should have no text")
+    expect_identical(unique(scenesIntervals$text), "", "scenes intervals should have no text")
 })
 
 test_that("local return - NULL if no scenes available", {
