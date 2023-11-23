@@ -2080,7 +2080,7 @@ privateUpload <- function(params, study, data, target, sampleName, scriptName, m
 #' @inheritParams privateUpload
 #'
 #' @import stringr
-#' @importFrom dplyr mutate_if %>%
+#' @importFrom purrr modify_if %>%
 #' @keywords internal
 privateSaveToFile <- function(params, study, data, sampleName, scriptName, metadata = NULL) {
     # Create the temporary file
@@ -2118,7 +2118,7 @@ privateSaveToFile <- function(params, study, data, sampleName, scriptName, metad
     }
 
     # Make sure column containing characters are correctly encoded
-    data <- data %>% mutate_if(is.character, .funs = function(x) iconv(x, to = "utf-8"))
+    data <- data %>% modify_if(is.character, function(x) iconv(x, to = "utf-8"))
 
     fwrite(data, file = dataFileName, append = TRUE, col.names = TRUE, scipen = 999, na = na_option)
     return(dataFileName)
