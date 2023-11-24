@@ -286,7 +286,7 @@ getStimuli <- function(study, respondent = NULL, relevant = TRUE) {
     stimuli <- study$stimuli
 
     if (!is.null(respondent)) {
-        stimuli <- stimuli[apply(stimuli, 1, function(x) any(x$respondentData$respondent$id %like% respondent$id)), ]
+        stimuli <- stimuli[sapply(stimuli$respondentData, function(x) any(x$respondent$id %like% respondent$id)), ]
     }
 
     stimuli$relevant <- !unlist(grepl("non-relevant", stimuli$tags, fixed = TRUE))
