@@ -1196,7 +1196,8 @@ privateGetIntervalsForAnnotations <- function(study, respondent, stimuli) {
     parentInfos <- stimuli[match(parentIds, id), ]
     fullName <- paste0(parentInfos$parentName, ifelse(parentInfos$parentName == "", "", "|"), parentInfos$name)
 
-    text <- annotations$text
+    text <- ifelse(is.na(annotations$text), "", annotations$text)
+
     intervals <- data.table::data.table("fragments" = data.frame(start, end, duration), "name" = name,
                                         "type" = "Annotation", "parentId" = parentIds, "parentName" = fullName,
                                         "text" = text)
