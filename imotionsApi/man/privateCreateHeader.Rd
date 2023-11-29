@@ -11,7 +11,8 @@ privateCreateHeader(params, data, sampleName, scriptName)
 
 \item{data}{A data.table containing the signals/metrics/events to upload (imData object are also accepted).}
 
-\item{sampleName}{The name of the new sensor/metrics/events you would like to create.}
+\item{sampleName}{The name of the new sensor/metrics/events/export you would like to create. In case of export,
+this should correspond to the name of the file created (a path can also be provided).}
 
 \item{scriptName}{The name of the script used to produce these signals.}
 }

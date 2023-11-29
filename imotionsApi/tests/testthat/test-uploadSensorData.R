@@ -49,12 +49,12 @@ params <- list(token = "token", iMotionsVersion = "iMotionsVersion", flowName = 
                studyId = "studyId", respondentId = "respondentId", segmentId = "segmentId",
                stimulusId = "stimulusId", extraParam = "fixationFilter")
 
-sensorName <- "TestSensor"
+sampleName <- "TestSensor"
 scriptName <- "TestScript"
 
 test_that("return - headers for signals", {
     data <- checkDataFormat(data)
-    dataHeader <- privateCreateHeader(params, data, sensorName, scriptName)
+    dataHeader <- privateCreateHeader(params, data, sampleName, scriptName)
 
     # Most of the params should have been removed from metadata
     expectedMetadataUrl <- paste0("%7B%22sampleName%22%3A%22TestSensor%22%2C%22script%22%3A%22TestScript%22%2C%22",
@@ -115,10 +115,13 @@ test_that("return - headers for metrics", {
 # privateGetFileHeader ================================================================================================
 context("privateGetFileHeader()")
 
+dataExport <- data.table("Respondent Name" = "Respondent 1", "Metrics1" = seq(1:100),
+                         "Thresholded value" = rep(0, 100), check.names = FALSE)
+
 test_that("return - correct file headers based on the data type", {
     # Signal data
     data <- checkDataFormat(data)
-    headers <- privateGetFileHeader(data, params, sensorName, scriptName)
+    headers <- privateGetFileHeader(data, params, sampleName, scriptName)
 
     expect_equal(length(headers), 11, info = "should be composed of 11 lines")
     expect_identical(headers[1], paste0("\ufeff", params$iMotionsVersion, ",,"), "BOM should be added")
@@ -129,7 +132,7 @@ test_that("return - correct file headers based on the data type", {
 
     # Event data
     dataEvents <- checkDataFormat(dataEvents)
-    headers <- privateGetFileHeader(dataEvents, params, sensorName, scriptName)
+    headers <- privateGetFileHeader(dataEvents, params, sampleName, scriptName)
 
     expect_equal(length(headers), 11, info = "should be composed of 11 lines")
     expect_identical(headers[1], paste0("\ufeff", params$iMotionsVersion, ",,,"), "BOM should be added")
@@ -140,7 +143,7 @@ test_that("return - correct file headers based on the data type", {
 
     # Metrics data
     dataMetrics <- checkDataFormat(dataMetrics)
-    headers <- privateGetFileHeader(dataMetrics, params, sensorName, scriptName)
+    headers <- privateGetFileHeader(dataMetrics, params, sampleName, scriptName)
 
     expect_equal(length(headers), 12, info = "should be composed of 11 lines")
     expect_identical(headers[1], paste0("\ufeff", params$iMotionsVersion, ",,,,"), "BOM should be added")
@@ -151,11 +154,8 @@ test_that("return - correct file headers based on the data type", {
     expect_identical(headers[12], "#DATA,,,,", "data line should be added")
 
     # Export data no metadata
-    dataExport <- data.table("Respondent Name" = "Respondent 1", "Metrics1" = seq(1:100),
-                             "Thresholded value" = rep(0, 100), check.names = FALSE)
-
     dataExport <- checkDataFormat(dataExport)
-    headers <- privateGetFileHeader(dataExport)
+    headers <- privateGetFileHeader(dataExport, params, sampleName, scriptName)
 
     expect_equal(length(headers), 2, info = "should be composed of 2 lines")
     expect_identical(headers[1], "\ufeff#METADATA,,,", "BOM should be added")
@@ -163,8 +163,7 @@ test_that("return - correct file headers based on the data type", {
 
     # Export data with metadata
     additionalMetadata <- data.table("Group" = c("", "numeric", "Thresholded"), "Units" = c("", "ms", "binary"))
-
-    headers <- privateGetFileHeader(dataExport, metadata = additionalMetadata)
+    headers <- privateGetFileHeader(dataExport, params, sampleName, scriptName, metadata = additionalMetadata)
 
     expect_equal(length(headers), 4, info = "should be composed of 2 lines")
     expect_identical(headers[1], "\ufeff#METADATA,,,", "BOM should be added")
@@ -176,12 +175,16 @@ test_that("return - correct file headers based on the data type", {
 # privateSaveToFile ===================================================================================================
 context("privateSaveToFile()")
 
+# Load studies
+study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
+study_cloud <- jsonlite::unserializeJSON(readLines("../data/imStudy_cloud.json"))
+
 test_that("check - data should get stored as a temporary file", {
     tmpDir <- tempdir(check = TRUE)
     data <- checkDataFormat(data)
     additionalMetadata <- data.frame("Group" = c("", "Thresholded"), "Units" = c("ms", "binary"))
 
-    dataFileName <- privateSaveToFile(params, data, sensorName, scriptName, additionalMetadata)
+    dataFileName <- privateSaveToFile(params, study, data, sampleName, scriptName, additionalMetadata)
 
     # Check that file exists at the good location
     expect_true(file.exists(dataFileName), "temporary data file should have been created")
@@ -193,7 +196,7 @@ test_that("check - data should get stored as a temporary file", {
     expect_identical(dataWritten, testData, "files should be identical")
 
     # Re-calling the function should overwrite the file (not append it below)
-    dataFileName2 <- privateSaveToFile(params, data, sensorName, scriptName, additionalMetadata)
+    dataFileName2 <- privateSaveToFile(params, study, data, sampleName, scriptName, additionalMetadata)
     expect_identical(dataFileName, dataFileName2, "same file should be used")
 
     dataWritten <- fread(dataFileName)
@@ -202,7 +205,7 @@ test_that("check - data should get stored as a temporary file", {
 
     # params with a "scratchFolder" path provided should use this path directly without warnings
     params <- append(params, list("scratchFolder" = tmpDir))
-    dataFileName <- privateSaveToFile(params, data, sensorName, scriptName, additionalMetadata)
+    dataFileName <- privateSaveToFile(params, study, data, sampleName, scriptName, additionalMetadata)
     dataWritten <- fread(dataFileName)
 
     expect_identical(dataWritten, testData, "files should still be identical")
@@ -213,7 +216,20 @@ test_that("check - data should get stored as a temporary file", {
 
     dataMetricsNA <- checkDataFormat(dataMetricsNA)
     expectedFile <- fread("../data/metricsFile.csv")
-    dataFileName <- privateSaveToFile(params, dataMetricsNA, sensorName, scriptName)
+    dataFileName <- privateSaveToFile(params, study, dataMetricsNA, sampleName, scriptName)
+    dataWritten <- fread(dataFileName)
+    expect_identical(dataWritten, expectedFile, "files should still be identical")
+
+    # export should be saved directly by using the sampleName as path
+    dataExport <- data.table("Respondent Name" = "Respondent 1", "Metrics1" = seq(1:100),
+                             "Thresholded value" = rep(0, 100), check.names = FALSE)
+
+    sampleName <- file.path(tmpDir, "export.csv")
+    additionalMetadata <- data.table("Group" = c("", "numeric", "Thresholded"), "Units" = c("", "ms", "binary"))
+
+    dataExport <- checkDataFormat(dataExport)
+    expectedFile <- fread("../data/exportData.csv")
+    dataFileName <- privateSaveToFile(params, study, dataExport, sampleName, scriptName)
     dataWritten <- fread(dataFileName)
 
     expect_identical(dataWritten, expectedFile, "files should still be identical")
@@ -224,10 +240,6 @@ test_that("check - data should get stored as a temporary file", {
 
 # privateCreatePostRequest ============================================================================================
 context("privateCreatePostRequest()")
-
-# Load studies
-study <- jsonlite::unserializeJSON(readLines("../data/imStudy.json"))
-study_cloud <- jsonlite::unserializeJSON(readLines("../data/imStudy_cloud.json"))
 
 test_that("local/remote return - post request data", {
     # In case of local connection
@@ -259,36 +271,38 @@ uploadUrlSegmentPath <- "uploadUrlSegment"
 uploadUrlEventPath <- "uploadUrlEvent"
 uploadUrlMetricsPath <- "uploadUrlMetrics"
 
-mockedPrivateUpload <- function(params, study, data, target, expectedBody, expectedEndpoint, sensorName = NULL,
+# Replace url to load test data
+mockUrl <- function(url) {
+    if (grepl("report", url)) {
+        return(url)
+    } else if (grepl("respondent", url)) {
+        if (grepl("stimuli", url)) {
+            return(uploadUrlStimulusPath)
+        } else {
+            return(uploadUrlRespondentPath)
+        }
+    } else {
+        return(uploadUrlSegmentPath)
+    }
+}
+
+mockedPrivateUpload <- function(params, study, data, target, expectedBody, expectedEndpoint, sampleName = NULL,
                                 scriptName = NULL, metadata = NULL, stimulus = NULL) {
 
     class(expectedBody) <- "json"
     privateSaveToFile_Stub <- mock("../data/testFile.csv")
 
-    # Replace url to load test data
-    mockUrl <- function(url) {
-        if (grepl("respondent", url)) {
-            if (grepl("stimuli", url)) {
-                return(uploadUrlStimulusPath)
-            } else {
-                return(uploadUrlRespondentPath)
-            }
-        } else if (grepl("reportruns", url)) {
-            return(url)
-        } else {
-            return(uploadUrlSegmentPath)
-        }
-    }
-
     if (inherits(data, "imSignals")) {
-        expectedUrl <- mockUrl(getUploadSensorsUrl(study = study, imObject = target, stimulus = stimulus))
+        expectedUrl <- mockUrl(getUploadSensorDataUrl(study = study, imObject = target, stimulus = stimulus))
     } else if (inherits(data, "imEvents")) {
         expectedUrl <- uploadUrlEventPath
     } else if (inherits(data, "imMetrics")) {
         expectedUrl <- uploadUrlMetricsPath
+    } else if (inherits(data, "imExport")) {
+        expectedUrl <- mockUrl(getUploadSensorDataUrl(study = study, imObject = target, stimulus = stimulus))
     }
 
-    getUploadSensorsUrl_Stub <- mock(expectedUrl)
+    getUploadSensorDataUrl_Stub <- mock(expectedUrl)
     getUploadEventsUrl_Stub <- mock(expectedUrl)
     getUploadMetricsUrl_Stub <- mock(expectedUrl)
 
@@ -296,31 +310,46 @@ mockedPrivateUpload <- function(params, study, data, target, expectedBody, expec
         expectedPostData <- list(filePath = expectedUrl)
     } else {
         expectedPostData <- fromJSON("../data/uploadCredential_cloud.json")
-        expectedUrl <- "s3BaseUrl/api/reportruns/1234/respondents/09bd22e6-29b6-4a8a-8cc1-4780a5163e63"
     }
 
     postJSON_Stub <- mock(expectedPostData)
     putHttr_Stub <- mock()
 
     res <- mockr::with_mock(privateSaveToFile = privateSaveToFile_Stub,
-                            getUploadSensorsUrl = getUploadSensorsUrl_Stub,
+                            getUploadSensorDataUrl = getUploadSensorDataUrl_Stub,
                             getUploadEventsUrl = getUploadEventsUrl_Stub,
                             getUploadMetricsUrl = getUploadMetricsUrl_Stub,
                             postJSON = postJSON_Stub,
                             putHttr = putHttr_Stub, {
-                                privateUpload(params, study, data, target, sensorName, scriptName, metadata,
+                                privateUpload(params, study, data, target, sampleName, scriptName, metadata,
                                               stimulus)
                             })
 
+    if (!study$connection$localIM) {
+        baseUrl <- "https://test/api"
+        if (inherits(target, "imRespondent")) {
+            expectedUrl <- paste0(baseUrl, "/reportruns/1234/respondents/09bd22e6-29b6-4a8a-8cc1-4780a5163e63")
+            expectedUrlConfirm <- paste0(expectedUrl, "/samples/1e0c8d99-4aa1-4916-adf8-b6950db40d67")
+            expectedEndpointUpload <- "Uploading sensor data for respondent: Wendy"
+            expectedEndpointConfirm <- "Upload of sensor data for respondent: Wendy confirmed"
+        } else {
+            expectedUrl <- expectedUrlConfirm <- paste0(baseUrl, "/reportruns/1234/segments/1010")
+            expectedEndpointUpload <- "Uploading export for segment: 2 GSR 81-1"
+            expectedEndpointConfirm <- "Upload of export for segment: 2 GSR 81-1 confirmed"
+        }
+    }
+
     if (inherits(data, "imSignals")) {
-        expect_args(getUploadSensorsUrl_Stub, 1, study = study, imObject = target, stimulus = stimulus)
+        expect_args(getUploadSensorDataUrl_Stub, 1, study = study, imObject = target, stimulus = stimulus)
     } else if (inherits(data, "imEvents")) {
         expect_args(getUploadEventsUrl_Stub, 1, study = study, imObject = target)
     } else if (inherits(data, "imMetrics")) {
         expect_args(getUploadMetricsUrl_Stub, 1, study = study, imObject = target)
+    } else if (inherits(data, "imExport")) {
+        expect_args(getUploadSensorDataUrl_Stub, 1, study = study, imObject = target)
     }
 
-    expect_args(privateSaveToFile_Stub, 1, params = params, data = data, sampleName = sensorName,
+    expect_args(privateSaveToFile_Stub, 1, params = params, study = study, data = data, sampleName = sampleName,
                 scriptName = scriptName, metadata = metadata)
 
     expect_args(postJSON_Stub, 1, connection = study$connection, expectedUrl, postData = expectedBody,
@@ -331,10 +360,10 @@ mockedPrivateUpload <- function(params, study, data, target, expectedBody, expec
                                "verylongqueryparamshere?Z-Amz-Credential=ADFFKAHDKFH")
 
         expect_args(putHttr_Stub, 1, connection = study$connection, presignedUrl, fileName = "../data/testFile.csv",
-                    message = "Uploading sensor data for respondent: Wendy")
+                    message = expectedEndpointUpload)
 
-        expectedUrl <- paste0(expectedUrl, "/samples/1e0c8d99-4aa1-4916-adf8-b6950db40d67")
-        expect_args(putHttr_Stub, 2, connection = study$connection, expectedUrl, message = "Upload confirmed")
+        expect_args(putHttr_Stub, 2, connection = study$connection, expectedUrlConfirm,
+                    message = expectedEndpointConfirm)
     }
 
     return(res)
@@ -345,7 +374,7 @@ test_that("remote error - missing reportRunId parameter", {
     expectedBody <- '{"instance":"flowName","name":"TestSensor","fileName":"../data/testFile.csv"}'
     expectedEndpoint <- "Getting presignedUrl to upload data"
 
-    expect_error(mockedPrivateUpload(params, study_cloud, data, respondent, expectedBody, expectedEndpoint, sensorName,
+    expect_error(mockedPrivateUpload(params, study_cloud, data, respondent, expectedBody, expectedEndpoint, sampleName,
                                      scriptName),
                  "Required `reportRunId` field in params for remote connection",
                  info = "missing `reportRunId` field in params not handled properly")
@@ -356,37 +385,36 @@ test_that("local check - upload signals to a given respondent/segment", {
     expectedBody <- '{"flowName":"flowName","sampleName":"TestSensor","fileName":"../data/testFile.csv"}'
     expectedEndpoint <- "Uploading sensor data for respondent: Wendy"
 
-    res <- mockedPrivateUpload(params, study, data, respondent, expectedBody, expectedEndpoint, sensorName, scriptName)
+    res <- mockedPrivateUpload(params, study, data, respondent, expectedBody, expectedEndpoint, sampleName, scriptName)
     expect_identical(res$filePath, uploadUrlRespondentPath, info = "wrong path returned")
 
     # Also when a stimulus is provided
     expectedEndpoint <- "Uploading sensor data for respondent: Wendy, stimulus: AntiSmoking40Sec"
-    res <- mockedPrivateUpload(params, study, data, respondent, expectedBody, expectedEndpoint, sensorName, scriptName,
+    res <- mockedPrivateUpload(params, study, data, respondent, expectedBody, expectedEndpoint, sampleName, scriptName,
                                stimulus = stimulus)
 
     expect_identical(res$filePath, uploadUrlStimulusPath, info = "wrong path returned")
 
     # Also when a segment is provided
     expectedEndpoint <- "Uploading sensor data for segment: 2 GSR 81-1, stimulus: AntiSmoking40Sec"
-    res <- mockedPrivateUpload(params, study, data, segment, expectedBody, expectedEndpoint, sensorName, scriptName,
+    res <- mockedPrivateUpload(params, study, data, segment, expectedBody, expectedEndpoint, sampleName, scriptName,
                                stimulus = stimulus)
 
     expect_identical(res$filePath, uploadUrlSegmentPath, info = "wrong path returned")
 })
 
 test_that("remote check - upload signals to a given respondent/segment", {
+    # upload to a respondent
     data <- checkDataFormat(data)
     params$reportRunId <- "1234"
     expectedBody <- '{"instance":"flowName","name":"TestSensor","fileName":"../data/testFile.csv"}'
     expectedEndpoint <- "Getting presignedUrl to upload data"
 
-    res <- mockedPrivateUpload(params, study_cloud, data, respondent, expectedBody, expectedEndpoint, sensorName,
+    res <- mockedPrivateUpload(params, study_cloud, data, respondent, expectedBody, expectedEndpoint, sampleName,
                                scriptName)
 
     expect_equal(length(res), 6, info = "should return a lot of information")
 })
-
-
 
 test_that("local check - upload events to a given respondent/segment", {
     dataEvents <- checkDataFormat(dataEvents)
@@ -406,8 +434,23 @@ test_that("local check - upload metrics to a given respondent/segment", {
     expect_identical(res$filePath, uploadUrlMetricsPath, info = "wrong path returned")
 })
 
+test_that("remote check - upload export to a given segment", {
+    # upload to a segment
+    dataExport <- checkDataFormat(dataExport)
+    params$reportRunId <- "1234"
+    expectedBody <- '{"instance":"flowName","name":"TestSensor","fileName":"../data/testFile.csv"}'
+    expectedEndpoint <- "Getting presignedUrl to upload data"
+
+    res <- mockedPrivateUpload(params, study_cloud, dataExport, segment, expectedBody, expectedEndpoint, sampleName,
+                               scriptName)
+
+    expect_equal(length(res), 6, info = "should return a lot of information")
+})
+
 # uploadSensorData ====================================================================================================
 context("uploadSensorData()")
+
+sensorName <- "TestSensor"
 
 test_that("error - arguments are missing or not from the good class", {
     # in case of missing params
@@ -535,6 +578,7 @@ context("uploadEvents()")
 
 # Create data to upload
 dataEvents <- data.table("Timestamp" = seq(1:100), "EventName" = rep("Event 1", 100), "Description" = rep("test", 100))
+eventsName <- "TestEvent"
 
 test_that("error - arguments are missing or not from the good class", {
     # in case of missing params
@@ -559,44 +603,44 @@ test_that("error - arguments are missing or not from the good class", {
                  info = "missing `eventsName` param not handled properly")
 
     # in case of missing scriptName
-    expect_error(uploadEvents(params, study, data, respondent, eventsName = sensorName),
+    expect_error(uploadEvents(params, study, data, respondent, eventsName = eventsName),
                  "Please specify the name of the script used to produce this data",
                  info = "missing `scriptName` param not handled properly")
 
     # in case of study that is not an imStudy object
-    expect_error(uploadEvents(params, study = "whatever", dataEvents, respondent, sensorName, scriptName),
+    expect_error(uploadEvents(params, study = "whatever", dataEvents, respondent, eventsName, scriptName),
                  "`study` argument is not an imStudy object",
                  info = "study not being an imStudy object should throw an error")
 
     # in case of target that is not an imRespondent object
-    expect_error(uploadEvents(params, study, dataEvents, target = "whatever", sensorName, scriptName),
+    expect_error(uploadEvents(params, study, dataEvents, target = "whatever", eventsName, scriptName),
                  "`target` argument is not an imRespondent object",
                  info = "target not being an imRespondent object should throw an error")
 
     # in case of params required field not provided
     wrongParams <- list("FirstParam" = "blah")
-    expect_error(uploadEvents(wrongParams, study, dataEvents, respondent, sensorName, scriptName),
+    expect_error(uploadEvents(wrongParams, study, dataEvents, respondent, eventsName, scriptName),
                  "Required `iMotionsVersion` field in params",
                  info = "missing `iMotionsVersion` field in params not handled properly")
 
     wrongParams <- list("iMotionsVersion" = "blah")
-    expect_error(uploadEvents(wrongParams, study, dataEvents, respondent, sensorName, scriptName),
+    expect_error(uploadEvents(wrongParams, study, dataEvents, respondent, eventsName, scriptName),
                  "Required `flowName` field in params",
                  info = "missing `flowName` field in params not handled properly")
 
     # in case of wrong data format
     wrongData <- data.table(Timestamp = integer(), variableTest = numeric())
-    expect_error(uploadEvents(params, study, wrongData, respondent, sensorName, scriptName),
+    expect_error(uploadEvents(params, study, wrongData, respondent, eventsName, scriptName),
                  "Do not upload an empty dataset",
                  info = "zero row dataset should not be uploaded")
 
     wrongData <- data[, 1, drop = FALSE]
-    expect_error(uploadEvents(params, study, wrongData, respondent, sensorName, scriptName),
+    expect_error(uploadEvents(params, study, wrongData, respondent, eventsName, scriptName),
                  "Dataset must contain at least two columns (Timestamp included)", fixed = TRUE,
                  info = "Can't upload without data columns")
 
     wrongData <- data[, 2, drop = FALSE]
-    expect_error(uploadEvents(params, study, wrongData, respondent, sensorName, scriptName),
+    expect_error(uploadEvents(params, study, wrongData, respondent, eventsName, scriptName),
                  "Wrong data format for upload (must be imSignals, imMetrics or imEvents)", fixed = TRUE,
                  info = "Timestamp column should be present")
 })
@@ -609,12 +653,12 @@ test_that("check - should call privateUpload with the good parameters", {
 
     mockr::with_mock(
         privateUpload = privateUpload_Stub, {
-            uploadEvents(params, study, dataEvents, respondent, sensorName, scriptName, additionalMetadata)
+            uploadEvents(params, study, dataEvents, respondent, eventsName, scriptName, additionalMetadata)
         })
 
     expect_called(privateUpload_Stub, 1)
     expect_args(privateUpload_Stub, 1, params = params, study = study, data = dataEvents, target = respondent,
-                eventsName = sensorName, scriptName = scriptName, metadata = additionalMetadata)
+                eventsName = eventsName, scriptName = scriptName, metadata = additionalMetadata)
 })
 
 
@@ -624,7 +668,7 @@ test_that("check - should not call privateUpload if data is of wrong format", {
 
     expect_error(mockr::with_mock(
         privateUpload = privateUpload_Stub, {
-            uploadEvents(params, study, wrongData, respondent, sensorName, scriptName)
+            uploadEvents(params, study, wrongData, respondent, eventsName, scriptName)
         }),
         "Wrong data format for upload (must be imSignals, imMetrics or imEvents)", fixed = TRUE,
         info = "Timestamp column should be present")
@@ -636,7 +680,7 @@ test_that("check - should not call privateUpload if data is of wrong format", {
 
     expect_warning(mockr::with_mock(
         privateUpload = privateUpload_Stub, {
-            uploadEvents(params, study, wrongData, respondent, sensorName, scriptName)
+            uploadEvents(params, study, wrongData, respondent, eventsName, scriptName)
         }),
         "Events should be a data.frame/data.table containing EventName, Timestamp and Description columns",
         info = "wrong data type detected")
@@ -647,6 +691,8 @@ test_that("check - should not call privateUpload if data is of wrong format", {
 
 # uploadMetrics =======================================================================================================
 context("uploadMetrics()")
+
+metricsName <- "TestMetrics"
 
 test_that("error - arguments are missing or not from the good class", {
     # in case of missing params
@@ -672,45 +718,45 @@ test_that("error - arguments are missing or not from the good class", {
                  info = "missing `metricsName` param not handled properly")
 
     # in case of missing scriptName
-    expect_error(uploadMetrics(params, study, data, respondent, metricsName = sensorName),
+    expect_error(uploadMetrics(params, study, data, respondent, metricsName = metricsName),
                  "Please specify the name of the script used to produce this data",
                  info = "missing `scriptName` param not handled properly")
 
 
     # in case of study that is not an imStudy object
-    expect_error(uploadMetrics(params, study = "whatever", dataMetrics, respondent, sensorName, scriptName),
+    expect_error(uploadMetrics(params, study = "whatever", dataMetrics, respondent, metricsName, scriptName),
                  "`study` argument is not an imStudy object",
                  info = "study not being an imStudy object should throw an error")
 
     # in case of target that is not an imRespondent object
-    expect_error(uploadMetrics(params, study, dataMetrics, target = "whatever", sensorName, scriptName),
+    expect_error(uploadMetrics(params, study, dataMetrics, target = "whatever", metricsName, scriptName),
                  "`target` argument is not an imRespondent object",
                  info = "target not being an imRespondent object should throw an error")
 
     # in case of params required field not provided
     wrongParams <- list("FirstParam" = "blah")
-    expect_error(uploadMetrics(wrongParams, study, dataMetrics, respondent, sensorName, scriptName),
+    expect_error(uploadMetrics(wrongParams, study, dataMetrics, respondent, metricsName, scriptName),
                  "Required `iMotionsVersion` field in params",
                  info = "missing `iMotionsVersion` field in params not handled properly")
 
     wrongParams <- list("iMotionsVersion" = "blah")
-    expect_error(uploadMetrics(wrongParams, study, dataMetrics, respondent, sensorName, scriptName),
+    expect_error(uploadMetrics(wrongParams, study, dataMetrics, respondent, metricsName, scriptName),
                  "Required `flowName` field in params",
                  info = "missing `flowName` field in params not handled properly")
 
     # in case of wrong data format
     wrongData <- data.table(Timestamp = integer(), variableTest = numeric())
-    expect_error(uploadMetrics(params, study, wrongData, respondent, sensorName, scriptName),
+    expect_error(uploadMetrics(params, study, wrongData, respondent, metricsName, scriptName),
                  "Do not upload an empty dataset",
                  info = "zero row dataset should not be uploaded")
 
     wrongData <- data[, 1, drop = FALSE]
-    expect_error(uploadMetrics(params, study, wrongData, respondent, sensorName, scriptName),
+    expect_error(uploadMetrics(params, study, wrongData, respondent, metricsName, scriptName),
                  "Dataset must contain at least two columns (Timestamp included)", fixed = TRUE,
                  info = "Can't upload without data columns")
 
     wrongData <- data[, 2, drop = FALSE]
-    expect_error(uploadMetrics(params, study, wrongData, respondent, sensorName, scriptName),
+    expect_error(uploadMetrics(params, study, wrongData, respondent, metricsName, scriptName),
                  "Wrong data format for upload (must be imSignals, imMetrics or imEvents)", fixed = TRUE,
                  info = "Timestamp column should be present")
 })
@@ -723,12 +769,12 @@ test_that("check - should call privateUpload with the good parameters", {
 
     mockr::with_mock(
         privateUpload = privateUpload_Stub, {
-            uploadMetrics(params, study, dataMetrics, respondent, sensorName, scriptName, additionalMetadata)
+            uploadMetrics(params, study, dataMetrics, respondent, metricsName, scriptName, additionalMetadata)
         })
 
     expect_called(privateUpload_Stub, 1)
     expect_args(privateUpload_Stub, 1, params = params, study = study, data = dataMetrics, target = respondent,
-                sampleName = sensorName, scriptName = scriptName, metadata = additionalMetadata)
+                sampleName = metricsName, scriptName = scriptName, metadata = additionalMetadata)
 })
 
 
@@ -738,7 +784,7 @@ test_that("check - should not call privateUpload if data is of wrong format", {
 
     expect_error(mockr::with_mock(
         privateUpload = privateUpload_Stub, {
-            uploadMetrics(params, study, wrongData, respondent, sensorName, scriptName)
+            uploadMetrics(params, study, wrongData, respondent, metricsName, scriptName)
         }),
         "Wrong data format for upload (must be imSignals, imMetrics or imEvents)", fixed = TRUE,
         info = "Timestamp column should be present")
@@ -750,11 +796,134 @@ test_that("check - should not call privateUpload if data is of wrong format", {
 
     expect_warning(mockr::with_mock(
         privateUpload = privateUpload_Stub, {
-            uploadMetrics(params, study, wrongData, respondent, sensorName, scriptName)
+            uploadMetrics(params, study, wrongData, respondent, metricsName, scriptName)
         }),
         paste("Metrics should be a data.frame/data.table containing a StimulusId column, a Timestamp",
               "column and at least one other column containing metrics"),
         info = "wrong data type detected")
 
     expect_called(privateUpload_Stub, 0)
+})
+
+# createExport ========================================================================================================
+context("createExport()")
+
+# Create data to export
+data <- data.table("Respondent Name" = "Respondent 1", "Metrics1" = seq(1:100), "Thresholded value" = rep(0, 100),
+                   check.names = FALSE)
+
+additionalMetadata <- data.table("Group" = c("", "numeric", "Thresholded"), "Units" = c("", "ms", "binary"))
+
+test_that("local/remote error - arguments are missing or not from the good class", {
+    # in case of missing params
+    expect_error(createExport(), "Please specify parameters used for your script",
+                 info = "missing `params` param not handled properly")
+
+    # in case of missing study
+    expect_error(createExport(params), "Please specify a study loaded with `imStudy()`", fixed = TRUE,
+                 info = "missing `study` param not handled properly")
+
+    # in case of missing data
+    expect_error(createExport(params, study), "Please specify a data.table to export",
+                 info = "missing `data` param not handled properly")
+
+    # in case of missing outputDirectory
+    expect_error(createExport(params, study, data), "Please specify an outputDirectory filepath to export the file",
+                 info = "missing `outputDirectory` param not handled properly")
+
+    # in case of missing fileName
+    expect_error(createExport(params, study, data, "outputDirectoryPath"),
+                 "Please specify the name of the file to create",
+                 info = "missing `filename` param not handled properly")
+
+    # in case of wrong data format
+    wrongData <- data.table(Timestamp = rep(2, 2), variableTest = 2)
+    expect_error(createExport(params, study, wrongData, "outputDirectoryPath", "export.csv"),
+                 "Wrong data format for export (must be imMetrics or imExport)", fixed = TRUE,
+                 info = "signals data should not be exported")
+
+    # in case of missing segment for remote studies
+    expect_error(createExport(params, study_cloud, data, "outputDirectoryPath", "export.csv"),
+                 "Please specify a segment to upload export for remote connection",
+                 info = "missing `segment` param not handled properly")
+})
+
+outputDirectory <- "outputDirectoryPath"
+fileName <- "export.csv"
+expectedData <- fread("../data/exportData.csv", skip = 2)
+
+mockedCreateExport <- function(params, study, data, outputDirectory, fileName, expectedfilePath, expectCallUpload,
+                               expectCallWrite, additionalMetadata = NULL, segment = NULL) {
+
+    privateUpload_Stub <- mock()
+    privateSaveToFile_Stub <- mock()
+    dir.create_Stub <- mock()
+
+    mockr::with_mock(
+        privateUpload = privateUpload_Stub,
+        privateSaveToFile = privateSaveToFile_Stub,
+        dir.create = dir.create_Stub, {
+            createExport(params, study, data, outputDirectory, fileName, additionalMetadata, segment)
+        })
+
+    expect_called(privateUpload_Stub, expectCallUpload)
+    expect_called(privateSaveToFile_Stub, expectCallWrite)
+    expect_args(dir.create_Stub, 1, path = outputDirectory)
+
+    if (expectCallUpload > 0) {
+        expect_args(privateUpload_Stub, 1, params, study, data, segment, sampleName = expectedfilePath,
+                    scriptName = NULL, metadata = additionalMetadata)
+    }
+
+    if (expectCallWrite > 0) {
+        expect_args(privateSaveToFile_Stub, 1, params, study, data, sampleName = expectedfilePath, scriptName = NULL,
+                    metadata = additionalMetadata)
+    }
+}
+
+
+test_that("local check - work with good data format", {
+    # should call privateSaveToFile with the good parameters without metadata
+    data <- checkDataFormat(data)
+    expectedfilePath <- "outputDirectoryPath/export.csv"
+
+    mockedCreateExport(params, study, data, outputDirectory, fileName, expectedfilePath = expectedfilePath,
+                       expectCallUpload = 0, expectCallWrite = 1)
+
+
+    # should call privateSaveToFile with the good parameters with metadata
+    mockedCreateExport(params, study, data, outputDirectory, fileName, expectedfilePath = expectedfilePath,
+                       expectCallUpload = 0, expectCallWrite = 1, additionalMetadata = additionalMetadata)
+})
+
+test_that("remote check - work with good data format", {
+    # should call privateUpload with the good parameters without metadata
+    data <- checkDataFormat(data)
+    expectedfilePath <- "outputDirectoryPath/export.csv"
+
+    mockedCreateExport(params, study_cloud, data, outputDirectory, fileName, expectedfilePath = expectedfilePath,
+                       expectCallUpload = 1, expectCallWrite = 0, segment = segment)
+
+
+    # should call privateUpload with the good parameters with metadata
+    mockedCreateExport(params, study_cloud, data, outputDirectory, fileName, expectedfilePath = expectedfilePath,
+                       expectCallUpload = 1, expectCallWrite = 0, additionalMetadata = additionalMetadata,
+                       segment = segment)
+})
+
+test_that("local/remote error - wrong data format", {
+    # local - should not call dir.create, privateSaveToFile and privateUpload if wrong data format
+    wrongData <- data.frame("Timestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
+
+    expect_error(mockedCreateExport(params, study, wrongData, outputDirectory, fileName,
+                                    expectedfilePath = expectedfilePath, expectCallUpload = 0, expectCallWrite = 0),
+                 "Wrong data format for export (must be imMetrics or imExport)", fixed = TRUE,
+                 info = "Timestamp column should not be present")
+
+    # remote - should not call dir.create, privateSaveToFile and privateUpload if wrong data format
+    expect_error(mockedCreateExport(params, study_cloud, wrongData, outputDirectory, fileName,
+                                    expectedfilePath = expectedfilePath, expectCallUpload = 0, expectCallWrite = 0,
+                                    segment = segment),
+                 "Wrong data format for export (must be imMetrics or imExport)", fixed = TRUE,
+                 info = "Timestamp column should not be present")
 })

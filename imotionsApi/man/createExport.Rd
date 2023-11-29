@@ -5,9 +5,19 @@
 \title{Create an export file at a specific location and append metadata to it if provided. Note that a column with the
 study name will be appended to each export.}
 \usage{
-createExport(study, data, outputDirectory, fileName, metadata = NULL)
+createExport(
+  params,
+  study,
+  data,
+  outputDirectory,
+  fileName,
+  metadata = NULL,
+  segment = NULL
+)
 }
 \arguments{
+\item{params}{The list of parameters provided to the script.}
+
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
 \item{data}{A data.table containing the export metrics to save.}
@@ -18,6 +28,9 @@ createExport(study, data, outputDirectory, fileName, metadata = NULL)
 
 \item{metadata}{Optional - a data.table with metadata information. Column names will be converted to metadata headers
 and there must be a row corresponding to each data column.}
+
+\item{segment}{Optional - an imSegment object as returned from \code{\link{getSegment}} to upload the export.
+In case of a cloud study, this parameter needs to be provided.}
 }
 \description{
 Create an export file at a specific location and append metadata to it if provided. Note that a column with the

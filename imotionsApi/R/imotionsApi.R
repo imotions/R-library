@@ -286,7 +286,7 @@ getStimuli <- function(study, respondent = NULL, relevant = TRUE) {
     stimuli <- study$stimuli
 
     if (!is.null(respondent)) {
-        stimuli <- stimuli[apply(stimuli, 1, function(x) any(x$respondentData$respondent$id %like% respondent$id)), ]
+        stimuli <- stimuli[sapply(stimuli$respondentData, function(x) any(x$respondent$id %like% respondent$id)), ]
     }
 
     stimuli$relevant <- !unlist(grepl("non-relevant", stimuli$tags, fixed = TRUE))
@@ -1093,7 +1093,7 @@ privateGetIntervalsForStimuli <- function(study, respondent, stimuli) {
 
     intervals <- data.table::data.table("fragments" = data.frame(start, end, duration), "name" = name,
                                         "type" = "Stimulus", "parentId" = NA_character_, "parentName" = "",
-                                        "text" = NA_character_)
+                                        "text" = "")
 
     intervals$id <- stimuli[intervals, "id", on = "name"]$id
     return(intervals)
@@ -1141,7 +1141,7 @@ privateGetIntervalsForScenes <- function(study, respondent, stimuli) {
 
     intervals <- data.table::data.table("fragments" = data.frame(start, end, duration), "name" = scenesInfos$name,
                                         "type" = "Scene", "parentId" = scenesInfos$parentId,
-                                        "parentName" = scenesInfos$parentName, "text" = NA_character_,
+                                        "parentName" = scenesInfos$parentName, "text" = "",
                                         "id" = scenes$sceneId)
 
     return(intervals)
@@ -1196,7 +1196,8 @@ privateGetIntervalsForAnnotations <- function(study, respondent, stimuli) {
     parentInfos <- stimuli[match(parentIds, id), ]
     fullName <- paste0(parentInfos$parentName, ifelse(parentInfos$parentName == "", "", "|"), parentInfos$name)
 
-    text <- annotations$text
+    text <- ifelse(is.na(annotations$text), "", annotations$text)
+
     intervals <- data.table::data.table("fragments" = data.frame(start, end, duration), "name" = name,
                                         "type" = "Annotation", "parentId" = parentIds, "parentName" = fullName,
                                         "text" = text)
@@ -2008,7 +2009,9 @@ uploadMetrics <- function(params, study, metrics, target, metricsName, scriptNam
 #' @param target The target respondent for the sensor/metrics/events (an imRespondent object as returned from
 #'               \code{\link{getRespondents}}).
 #'
-#' @param sampleName The name of the new sensor/metrics/events you would like to create.
+#' @param sampleName The name of the new sensor/metrics/events/export you would like to create. In case of export,
+#'                   this should correspond to the name of the file created (a path can also be provided).
+#'
 #' @param scriptName The name of the script used to produce these signals.
 #' @param metadata Optional - a data.table with metadata information. Column names will be converted to metadata headers
 #'                 and there must be a row corresponding to each data column.
@@ -2017,13 +2020,14 @@ uploadMetrics <- function(params, study, metrics, target, metricsName, scriptNam
 #'                 this stimulus.
 #'
 #' @keywords internal
+#' @importFrom utils tail
 privateUpload <- function(params, study, data, target, sampleName, scriptName, metadata = NULL,  stimulus = NULL) {
     # Create a temporary file with the data/metadata that needs to be uploaded
-    tempFileName <- privateSaveToFile(params, data, sampleName, scriptName, metadata)
+    tempFileName <- privateSaveToFile(params, study, data, sampleName, scriptName, metadata)
 
     # Prepare the http request
     if (inherits(data, "imSignals")) {
-        uploadUrl <- getUploadSensorsUrl(study, target, stimulus)
+        uploadUrl <- getUploadSensorDataUrl(study, target, stimulus)
         postData <- privateCreatePostRequest(params, study, sampleName, tempFileName)
         endpoint_data <- "sensor data"
     } else if (inherits(data, "imEvents")) {
@@ -2034,6 +2038,11 @@ privateUpload <- function(params, study, data, target, sampleName, scriptName, m
         uploadUrl <- getUploadMetricsUrl(study, target)
         postData <- privateCreatePostRequest(params, study, "ET_RMetricsApi", tempFileName)
         endpoint_data <- "metrics"
+    } else if (inherits(data, "imExport")) {
+        uploadUrl <- getUploadSensorDataUrl(study, target)
+        sampleName <- gsub(".csv", "", gsub("_", " ", tail(unlist(str_split(sampleName, "/")), 1)))
+        postData <- privateCreatePostRequest(params, study, sampleName, tempFileName)
+        endpoint_data <- "export"
     }
 
     type <- tolower(gsub("^im|List", "", class(target)[1]))
@@ -2053,8 +2062,13 @@ privateUpload <- function(params, study, data, target, sampleName, scriptName, m
         putHttr(study$connection, fileInfos$presignedUrl, tempFileName,
                 message = paste("Uploading", endpoint_data, "for", endpoint))
 
-        confirmUrl <- file.path(uploadUrl, "samples", fileInfos$assetId)
-        putHttr(study$connection, confirmUrl, message = "Upload confirmed")
+        if (inherits(data, "imExport")) {
+            confirmUrl <- uploadUrl
+        } else {
+            confirmUrl <- file.path(uploadUrl, "samples", fileInfos$assetId)
+        }
+
+        putHttr(study$connection, confirmUrl, message = paste("Upload of", endpoint_data, "for", endpoint, "confirmed"))
     }
 
     return(fileInfos)
@@ -2067,11 +2081,13 @@ privateUpload <- function(params, study, data, target, sampleName, scriptName, m
 #' @inheritParams privateUpload
 #'
 #' @import stringr
-#' @importFrom dplyr mutate_if %>%
+#' @importFrom purrr modify_if %>%
 #' @keywords internal
-privateSaveToFile <- function(params, data, sampleName, scriptName, metadata = NULL) {
+privateSaveToFile <- function(params, study, data, sampleName, scriptName, metadata = NULL) {
     # Create the temporary file
-    if (exists("scratchFolder", params)) {
+    if (inherits(data, "imExport")) {
+        dataFileName <- sampleName
+    } else if (exists("scratchFolder", params)) {
         # AttentionTool will always give this scratchFolder path
         dataFileName <- file.path(params$scratchFolder, "result.csv")
     } else {
@@ -2079,8 +2095,8 @@ privateSaveToFile <- function(params, data, sampleName, scriptName, metadata = N
         dataFileName <- file.path(tempdir(check = TRUE), "result.csv")
     }
 
-    # Make sure metrics are encoded as NaN, that the StimulusId comes first and that rows are ordered by timestamps
     if (inherits(data, "imMetrics")) {
+        # Make sure metrics are encoded as NaN, that the StimulusId comes first and that rows are ordered by timestamps
         na_option <- NaN
         data$StimulusId <- as.numeric(data$StimulusId)
         setcolorder(data, c("StimulusId", "Timestamp"))
@@ -2093,11 +2109,17 @@ privateSaveToFile <- function(params, data, sampleName, scriptName, metadata = N
     headers <- privateGetFileHeader(data, params, sampleName, scriptName, metadata)
     writeLines(text = headers, con = dataFileName, useBytes = TRUE)
 
-    # Format data for upload (need to add a RowNumber column)
-    data <- cbind(RowNumber = seq(0, nrow(data) - 1), data)
+    if (inherits(data, "imExport")) {
+        # Format data for export (need to add a study name column)
+        data <- cbind("Study Name" = study$name, data)
+        na_option <- "NA"
+    } else {
+        # Format data for upload (need to add a RowNumber column)
+        data <- cbind(RowNumber = seq(0, nrow(data) - 1), data)
+    }
 
     # Make sure column containing characters are correctly encoded
-    data <- data %>% mutate_if(is.character, .funs = function(x) iconv(x, to = "utf-8"))
+    data <- data %>% modify_if(is.character, function(x) iconv(x, to = "utf-8"))
 
     fwrite(data, file = dataFileName, append = TRUE, col.names = TRUE, scipen = 999, na = na_option)
     return(dataFileName)
@@ -2120,7 +2142,7 @@ privateCreatePostRequest <- function(params, study, sampleName, fileName) {
         names(postRequest) <- c("instance", "name", "fileName")
     }
 
-    postRequest <- toJSON(postRequest)
+    postRequest <- toJSON(postRequest, null = "null")
     return(postRequest)
 }
 
@@ -2132,7 +2154,7 @@ privateCreatePostRequest <- function(params, study, sampleName, fileName) {
 #' @inheritParams privateUpload
 #'
 #' @keywords internal
-privateGetFileHeader <- function(data, params = NULL, sampleName = NULL, scriptName = NULL, metadata = NULL) {
+privateGetFileHeader <- function(data, params, sampleName, scriptName, metadata = NULL) {
     if (!inherits(data, "imExport")) {
         # Create script specific data header
         dataHeader <- privateCreateHeader(params, data, sampleName, scriptName)
@@ -2239,12 +2261,15 @@ privateCreateMetadata <- function(data, metadata = NULL) {
 #' Create an export file at a specific location and append metadata to it if provided. Note that a column with the
 #' study name will be appended to each export.
 #'
+#' @param params The list of parameters provided to the script.
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param data A data.table containing the export metrics to save.
 #' @param outputDirectory The path where the file should be created.
 #' @param fileName The name of the file to create (should finish with .csv).
 #' @param metadata Optional - a data.table with metadata information. Column names will be converted to metadata headers
 #'                 and there must be a row corresponding to each data column.
+#' @param segment Optional - an imSegment object as returned from \code{\link{getSegment}} to upload the export.
+#'                In case of a cloud study, this parameter needs to be provided.
 #'
 #' @export
 #' @import stringr
@@ -2260,26 +2285,30 @@ privateCreateMetadata <- function(data, metadata = NULL) {
 #' metadata <- data.table("Units" = c("", "ms", ""), "Description" = c("Desc1", "Desc2", "Desc"))
 #' createExport(study, data, outputDirectory = "C:/Documents", fileName = "textExport.csv", metadata)
 #' }
-createExport <- function(study, data, outputDirectory, fileName, metadata = NULL) {
+createExport <- function(params, study, data, outputDirectory, fileName, metadata = NULL, segment = NULL) {
+    assertValid(hasArg(params), "Please specify parameters used for your script")
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
     assertValid(hasArg(data), "Please specify a data.table to export")
     assertValid(hasArg(outputDirectory), "Please specify an outputDirectory filepath to export the file")
     assertValid(hasArg(fileName), "Please specify the name of the file to create")
 
+    if (!study$connection$localIM) {
+        assertValid(!is.null(segment), "Please specify a segment to upload export for remote connection")
+    }
+
     # Verify that data is a data.table of the good format
     data <- checkDataFormat(data)
     assertExportFormat(data)
 
+    # Creating folder if needed
     if (!dir.exists(outputDirectory)) dir.create(path = outputDirectory)
     dataFileName <- file.path(outputDirectory, fileName)
 
-    # Create and write headers specific to the data format
-    headers <- privateGetFileHeader(data, metadata = metadata)
-    writeLines(text = headers, con = dataFileName, useBytes = TRUE)
-
-    # Appending study name to the export and adding comma to have a better file separation
-    data <- cbind("Study Name" = study$name, data)
-    fwrite(x = data, file = dataFileName, append = TRUE, col.names = TRUE, na = "NA", scipen = 999)
+    if (!study$connection$localIM) {
+        privateUpload(params, study, data, segment, sampleName = dataFileName, scriptName = NULL, metadata = metadata)
+    } else {
+        privateSaveToFile(params, study, data, sampleName = dataFileName, scriptName = NULL, metadata = metadata)
+    }
 }
 
 
@@ -2498,25 +2527,25 @@ getSensorDataUrl <- function(study, sensor) {
 }
 
 
-#' Generic getUploadSensorsUrl function that takes as parameter a study object and a respondent/segment object.
-#' Return the path/url to upload a sensor to this respondent/segment object.
+#' Generic getUploadSensorDataUrl function that takes as parameter a study object and a respondent/segment object.
+#' Return the path/url to upload a sensor data to this respondent/segment object.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param imObject An imRespondent or imSegment object of interest.
 #' @param stimulus Optional - An imStimulus object as returned from  \code{\link{getStimuli}}.
 #'
 #' @keywords internal
-getUploadSensorsUrl <- function(study, imObject, stimulus = NULL) {
-    UseMethod("getUploadSensorsUrl", object = imObject)
+getUploadSensorDataUrl <- function(study, imObject, stimulus = NULL) {
+    UseMethod("getUploadSensorDataUrl", object = imObject)
 }
 
 
-#' getUploadSensorsUrl method to get the path/url to upload a sensor to this respondent object.
+#' getUploadSensorDataUrl method to get the path/url to upload a sensor data to this respondent object.
 #'
-#' @inheritParams getUploadSensorsUrl
+#' @inheritParams getUploadSensorDataUrl
 #'
 #' @keywords internal
-getUploadSensorsUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
+getUploadSensorDataUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
     if (study$connection$localIM) {
         file.path(getSensorsUrl(study, imObject, stimulus), "data")
     } else {
@@ -2525,14 +2554,16 @@ getUploadSensorsUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
 }
 
 
-#' getUploadSensorsUrl method to get the path/url to upload a sensor to this segment object.
+#' getUploadSensorDataUrl method to get the path/url to upload a sensor data to this segment object.
 #'
-#' @inheritParams getUploadSensorsUrl
+#' @inheritParams getUploadSensorDataUrl
 #'
 #' @keywords internal
-getUploadSensorsUrl.imSegment <- function(study, imObject, stimulus = NULL) {
+getUploadSensorDataUrl.imSegment <- function(study, imObject, stimulus = NULL) {
     if (study$connection$localIM) {
         file.path(getSensorsUrl(study, imObject, stimulus), "data")
+    } else {
+        file.path(getStudyBaseUrl(study), "reportruns", "placeholder_reportId", "segments", imObject$id)
     }
 }
 
@@ -2549,7 +2580,7 @@ getUploadEventsUrl <- function(study, imObject) {
 }
 
 
-#' getUploadSensorsUrl method to get the path/url to upload events to this respondent object.
+#' getUploadSensorDataUrl method to get the path/url to upload events to this respondent object.
 #'
 #' @inheritParams getUploadEventsUrl
 #'
