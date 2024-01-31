@@ -222,13 +222,23 @@ test_that("check - data should get stored as a temporary file", {
 
     # export should be saved directly by using the sampleName as path
     dataExport <- data.table("Respondent Name" = "Respondent 1", "Metrics1" = seq(1:100),
-                             "Thresholded value" = rep(0, 100), check.names = FALSE)
+                             "Thresholded value" = rep(0.5, 100), check.names = FALSE)
 
     sampleName <- file.path(tmpDir, "export.csv")
     additionalMetadata <- data.table("Group" = c("", "numeric", "Thresholded"), "Units" = c("", "ms", "binary"))
 
     dataExport <- checkDataFormat(dataExport)
     expectedFile <- fread("../data/exportData.csv")
+    dataFileName <- privateSaveToFile(params, study, dataExport, sampleName, scriptName)
+    dataWritten <- fread(dataFileName)
+
+    expect_identical(dataWritten, expectedFile, "files should still be identical")
+
+    # if a different locale parameter is input, the csv format should change as expected
+    params$locale <- "da"
+    sampleName <- file.path(tmpDir, "export_da.csv")
+
+    expectedFile <- fread("../data/exportData_da.csv")
     dataFileName <- privateSaveToFile(params, study, dataExport, sampleName, scriptName)
     dataWritten <- fread(dataFileName)
 

@@ -2107,6 +2107,18 @@ privateSaveToFile <- function(params, study, data, sampleName, scriptName, metad
 
     # Create and write headers specific to the data format
     headers <- privateGetFileHeader(data, params, sampleName, scriptName, metadata)
+
+    # Set up csv format based on parameters if given
+    if (exists("locale", params) && (params$locale == "da")) {
+        headers <- str_replace_all(headers, ",", ";")
+        sep_char <- ";"
+        dec_char <- ","
+    } else {
+        # Set up default csv format
+        sep_char <- ","
+        dec_char <- "."
+    }
+
     writeLines(text = headers, con = dataFileName, useBytes = TRUE)
 
     if (inherits(data, "imExport")) {
@@ -2121,7 +2133,9 @@ privateSaveToFile <- function(params, study, data, sampleName, scriptName, metad
     # Make sure column containing characters are correctly encoded
     data <- data %>% modify_if(is.character, function(x) iconv(x, to = "utf-8"))
 
-    fwrite(data, file = dataFileName, append = TRUE, col.names = TRUE, scipen = 999, na = na_option)
+    fwrite(data, file = dataFileName, append = TRUE, col.names = TRUE, scipen = 999, na = na_option, dec = dec_char,
+           sep = sep_char)
+
     return(dataFileName)
 }
 
