@@ -11,6 +11,7 @@ study_cloud <- jsonlite::unserializeJSON(readLines("../data/imStudy_cloud.json")
 AOI <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imAOI.json"))) # local without fileId
 AOI_inout <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imAOI_inout.json"))) # local with fileId
 AOI_cloud <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imAOI_cloud.json")))
+AOI_cloud_inout <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imAOI_cloud_inout.json")))
 
 AOIDetailsPath <- "../data/AOIDetails.json"
 AOIDetailsRespondentPath <- "../data/AOIDetailsRespondent.json"
@@ -54,10 +55,9 @@ mockedPrivateGetAOIDetails <- function(study, imObject, expected_endpoint, respo
 
     getJSON_Stub <- mock(jsonlite::fromJSON(mockUrl(study, expectedUrl)))
 
-    AOIdetails <- mockr::with_mock(
-        getJSON = getJSON_Stub, {
-            privateGetAOIDetails(study, imObject, respondent)
-        })
+    AOIdetails <- mockr::with_mock(getJSON = getJSON_Stub, {
+        privateGetAOIDetails(study, imObject, respondent)
+    })
 
     expect_called(getJSON_Stub, expectedAOICall)
 
@@ -144,8 +144,12 @@ test_that("remote return - AOI details for a specific AOI/respondent", {
 
     expect_equal(nrow(aoiDetails), 1, info = "only the respondent of interest should be kept")
     expect_named(aoiDetails, expectedNames, info = "aoi details infos not matching")
-})
 
+    # in case a inout data is already loaded, there is no need to call the getAOIDetails function
+    aoiDetails <- mockedPrivateGetAOIDetails(study, AOI_cloud_inout, expected_endpoint, respondent, expectedAOICall = 0)
+
+    expect_identical(aoiDetails$aoiInOuts, AOI_cloud_inout$aoiInOuts, "inout stored in AOI should be retrieved")
+})
 
 # getAOIRespondentData ================================================================================================
 context("getAOIRespondentData()")
@@ -156,8 +160,8 @@ mockedGetAOIRespondentData  <- function(study, AOI, respondent, AOIDetailsFile) 
     privateGetAOIDetails_Stub <- mock(AOIDetailsFile)
 
     listResult <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub, {
-                                        getAOIRespondentData(study, AOI, respondent)
-                                   })
+        getAOIRespondentData(study, AOI, respondent)
+    })
 
     expect_args(privateGetAOIDetails_Stub, 1, study = study, imObject = AOI, respondent = respondent)
     return(listResult)
@@ -308,6 +312,8 @@ test_that("local check - work if no AOI exposure", {
 respondent <- getRespondents(study_cloud)[1, ]
 expected_endpoint <- "AOI: El Manuel Area, Respondent: bab55356-43fc-4c25-a39d-a1d513965614"
 aoiDetails <- mockedPrivateGetAOIDetails(study_cloud, AOI_cloud, expected_endpoint, respondent)
+aoiDetails_inout <- mockedPrivateGetAOIDetails(study_cloud, AOI_cloud_inout, expected_endpoint, respondent,
+                                               expectedAOICall = 0)
 
 test_that("remote return - intervals for a specific AOI/respondent pair", {
     AOIintervals <- mockedGetAOIRespondentData(study_cloud, AOI_cloud, respondent, aoiDetails)$intervals
@@ -375,4 +381,9 @@ test_that("remote return - intervals should work on dynamic AOIs", {
     expect_equal(AOIintervals$fragments.start, 37397, 1e-2, info = "wrong fragments start")
     expect_equal(AOIintervals$fragments.end, 109001, 1e-2, info = "wrong fragments end")
     expect_equal(AOIintervals$fragments.duration, 71604, 1e-2, info = "wrong fragments duration")
+})
+
+test_that("remote return - should work when inout data is already loaded", {
+    resultList <- mockedGetAOIRespondentData(study_cloud, AOI_cloud_inout, respondent, aoiDetails_inout)
+    expect_named(resultList, c("inOutGaze", "inOutMouseClick", "intervals"), info = "wrong names")
 })

@@ -63,11 +63,10 @@ mockLocalUploadAOIMetrics <- function(study, AOI, respondent, metrics, AOIDetail
     privateGetAOIDetails_Stub <- mock(AOIDetailsFile)
     writecsv_Stub <- mock()
 
-    mockr::with_mock(
-        privateGetAOIDetails = privateGetAOIDetails_Stub,
-        write.csv = writecsv_Stub, {
-            uploadAOIMetrics(study, AOI, respondent, metrics)
-    })
+    mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub,
+                     write.csv = writecsv_Stub, {
+                         uploadAOIMetrics(study, AOI, respondent, metrics)
+                     })
 
     expect_called(privateGetAOIDetails_Stub, expectCallDetails)
     expect_called(writecsv_Stub, expectCallsWritecsv)
@@ -114,11 +113,10 @@ mockRemoteUploadAOIMetrics <- function(study, AOI, segment, metrics, expectedUrl
     getUploadAoiMetricsUrl_Stub <- mock(expectedUrl)
     putHttr_Stub <- mock()
 
-    mockr::with_mock(
-        getUploadAoiMetricsUrl = getUploadAoiMetricsUrl_Stub,
-        putHttr = putHttr_Stub, {
-            uploadAOIMetrics(study, AOI, segment, metrics)
-        })
+    mockr::with_mock(getUploadAoiMetricsUrl = getUploadAoiMetricsUrl_Stub,
+                     putHttr = putHttr_Stub, {
+                         uploadAOIMetrics(study, AOI, segment, metrics)
+                     })
 
     expect_called(getUploadAoiMetricsUrl_Stub, expectCalls)
     expect_called(putHttr_Stub, expectCalls)
@@ -176,16 +174,14 @@ test_that("error - arguments are missing or not from the good class", {
 })
 
 mockUploadAOIMetadata <- function(study, metadata, expectedUrl = NULL, expectedEndpoint = NULL,
-                                       expectedBody = NULL, expectCalls = 0) {
+                                  expectedBody = NULL, expectCalls = 0) {
 
     getUploadAoiMetadataUrl_Stub <- mock(expectedUrl)
     putHttr_Stub <- mock()
 
-    mockr::with_mock(
-        getUploadAoiMetadataUrl = getUploadAoiMetadataUrl_Stub,
-        putHttr = putHttr_Stub, {
-            uploadAOIMetadata(study, metadata)
-        })
+    mockr::with_mock(getUploadAoiMetadataUrl = getUploadAoiMetadataUrl_Stub, putHttr = putHttr_Stub, {
+        uploadAOIMetadata(study, metadata)
+    })
 
     expect_called(getUploadAoiMetadataUrl_Stub, expectCalls)
     expect_called(putHttr_Stub, expectCalls)

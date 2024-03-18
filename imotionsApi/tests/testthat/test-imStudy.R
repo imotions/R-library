@@ -23,10 +23,9 @@ mockedGetStudy <- function(connection, studyId, studyJSON, expectedJSONcall = 1)
     getJSON_Stub <- mock(studyJSON)
     expectedUrl <- getStudyUrlById(connection, studyId)
 
-    study <- mockr::with_mock(
-        getJSON = getJSON_Stub, {
-            imStudy(connection, studyId)
-        })
+    study <- mockr::with_mock(getJSON = getJSON_Stub, {
+        imStudy(connection, studyId)
+    })
 
     expect_called(getJSON_Stub, expectedJSONcall)
 
@@ -122,10 +121,9 @@ test_that("return - list with all the studies available", {
     getJSON_Stub <- mock(studiesJSON)
     expectedUrl <- getStudiesUrl(connection)
 
-    studies <- mockr::with_mock(
-        getJSON = getJSON_Stub, {
-            listStudies(connection)
-        })
+    studies <- mockr::with_mock(getJSON = getJSON_Stub, {
+        listStudies(connection)
+    })
 
     expect_args(getJSON_Stub, 1, connection, expectedUrl, "Retrieving study list")
 
