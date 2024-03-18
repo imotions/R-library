@@ -78,7 +78,6 @@ test_that("local return - AOIs data.table", {
     expect_identical(unique(AOIs$group), c("Rectangle", NA_character_, "Test"), "group is wrong")
 })
 
-
 test_that("remote return - AOIs data.table", {
     studyAOIsPath <- "../data/studyAOIs_cloud.json"
 
@@ -98,6 +97,21 @@ test_that("remote return - AOIs data.table", {
 # privateAOIFiltering =================================================================================================
 context("privateAOIFiltering()")
 
+# Replace url to load test data
+mockUrl <- function(study, url) {
+    if (grepl("respondent", url)) {
+        return(respondentAOIsPath)
+    } else if (grepl("stimuli", url)) {
+        return(stimulusAOIsPath)
+    } else {
+        if (study$connection$localIM) {
+            return(studyAOIsPath)
+        } else {
+            return(studyAOIsCloudPath)
+        }
+    }
+}
+
 mockedPrivateAOIFiltering <- function(study, stimulus = NULL, respondent = NULL, expectedCallAoiDetails = 0) {
     # Get expected endpoint
     if (is.null(stimulus) && is.null(respondent)) {
@@ -106,21 +120,6 @@ mockedPrivateAOIFiltering <- function(study, stimulus = NULL, respondent = NULL,
         expectedEndpoint <- paste("stimulus:", stimulus$name)
     } else if (!is.null(respondent)) {
         expectedEndpoint <- paste("respondent:", respondent$name)
-    }
-
-    # Replace url to load test data
-    mockUrl <- function(url) {
-        if (grepl("respondent", url)) {
-            return(respondentAOIsPath)
-        } else if (grepl("stimuli", url)) {
-            return(stimulusAOIsPath)
-        } else {
-            if (study$connection$localIM) {
-                return(studyAOIsPath)
-            } else {
-                return(studyAOIsCloudPath)
-            }
-        }
     }
 
     if (!is.null(stimulus) && !is.null(respondent)) {
@@ -132,11 +131,11 @@ mockedPrivateAOIFiltering <- function(study, stimulus = NULL, respondent = NULL,
     privateGetAOIDetails_Stub <- mock(jsonlite::fromJSON("../data/AOIDetails_processed_cloud.json"),
                                       jsonlite::fromJSON("../data/AOIDetails_processed_cloud2.json"))
 
-    privateAOIFormatting_Stub <- mock(mockedPrivateAOIFormatting(study, mockUrl(expectedUrl), expectedEndpoint))
+    privateAOIFormatting_Stub <- mock(mockedPrivateAOIFormatting(study, mockUrl(study, expectedUrl), expectedEndpoint))
 
     AOIs <- mockr::with_mock(
       privateAOIFormatting = privateAOIFormatting_Stub,
-      privateGetAOIDetails = privateGetAOIDetails_Stub,{
+      privateGetAOIDetails = privateGetAOIDetails_Stub, {
           privateAOIFiltering(study, stimulus, respondent)
       })
 

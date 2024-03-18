@@ -149,7 +149,7 @@ test_that("remote return - AOI details for a specific AOI/respondent", {
     # in case a inout data is already loaded, there is no need to call the getAOIDetails function
     aoiDetails <- mockedPrivateGetAOIDetails(study, AOI_cloud_inout, expected_endpoint, respondent, expectedAOICall = 0)
 
-    expect_identical(aoiDetails$aoiInOuts, AOI_cloud_inout$aoiInOuts, "fileId stored in AOI should be retrieved directly")
+    expect_identical(aoiDetails$aoiInOuts, AOI_cloud_inout$aoiInOuts, "inout stored in AOI should be retrieved")
 })
 
 # getAOIRespondentData ================================================================================================
@@ -388,4 +388,3 @@ test_that("remote return - should work when inout data is already loaded", {
     resultList <- mockedGetAOIRespondentData(study_cloud, AOI_cloud_inout, respondent, aoiDetails_inout)
     expect_named(resultList, c("inOutGaze", "inOutMouseClick", "intervals"), info = "wrong names")
 })
-
