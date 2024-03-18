@@ -55,10 +55,9 @@ mockedPrivateGetAOIDetails <- function(study, imObject, expected_endpoint, respo
 
     getJSON_Stub <- mock(jsonlite::fromJSON(mockUrl(study, expectedUrl)))
 
-    AOIdetails <- mockr::with_mock(
-        getJSON = getJSON_Stub, {
-            privateGetAOIDetails(study, imObject, respondent)
-        })
+    AOIdetails <- mockr::with_mock(getJSON = getJSON_Stub, {
+        privateGetAOIDetails(study, imObject, respondent)
+    })
 
     expect_called(getJSON_Stub, expectedAOICall)
 
@@ -161,8 +160,8 @@ mockedGetAOIRespondentData  <- function(study, AOI, respondent, AOIDetailsFile) 
     privateGetAOIDetails_Stub <- mock(AOIDetailsFile)
 
     listResult <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub, {
-                                        getAOIRespondentData(study, AOI, respondent)
-                                   })
+        getAOIRespondentData(study, AOI, respondent)
+    })
 
     expect_args(privateGetAOIDetails_Stub, 1, study = study, imObject = AOI, respondent = respondent)
     return(listResult)

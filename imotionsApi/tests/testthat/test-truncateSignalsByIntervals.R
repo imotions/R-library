@@ -11,7 +11,7 @@ test_that("error - arguments are missing or not from the good class", {
     # in case of missing signals
     expect_error(truncateSignalsByIntervals(),
                  paste("Please specify an imSignals object as returned by `getSensorData()`",
-                 "or a data.table including a `Timestamp` column"),
+                       "or a data.table including a `Timestamp` column"),
                  fixed = TRUE, info = "missing `signals` param not handled properly")
 
     # in case of missing intervals
@@ -59,7 +59,8 @@ test_that("return - truncated signals", {
     expect_equal(sum(truncSignals2$Timestamp >= intervals$fragments.end[2]), 0, info = "timestamps should be removed")
     expect_equal(sum(truncSignals2$Timestamp <= intervals$fragments.start[1]), 0, info = "timestamps should be removed")
     expect_equal(sum(truncSignals2$Timestamp >= intervals$fragments.end[1] &
-                     truncSignals2$Timestamp <= intervals$fragments.start[2]), 0, info = "timestamps should be removed")
+                         truncSignals2$Timestamp <= intervals$fragments.start[2]), 0,
+                 info = "timestamps should be removed")
 
     expect_equal(row.names(truncSignals2), expected, info = "row names should be as expected")
     expect_s3_class(truncSignals2, "imSignals")

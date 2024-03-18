@@ -11,7 +11,7 @@ mockedStopOnHttpError <- function(response) {
 
     mockr::with_mock(status_code = status_code_Stub, {
         stopOnHttpError(mockResponse, "Test API")
-        })
+    })
 }
 
 test_that("error - token is not authorized", {
@@ -56,8 +56,8 @@ mockedRetryHttr <- function(message, url, mockResponse) {
     }
 
     response <- mockr::with_mock(RETRY = RETRY_Stub, {
-                                     retryHttr(message, "GET", url, config, terminate_on)
-                                 })
+        retryHttr(message, "GET", url, config, terminate_on)
+    })
 
     expect_args(RETRY_Stub, 1, "GET", url, config, terminate_on, 3, 2, 60, 1, FALSE)
     return(response)
@@ -96,8 +96,8 @@ mockedGetHttr <- function(connection, url, mockResponse, terminate_on) {
     retryHttr_Stub <- mock(mockResponse)
 
     response <- mockr::with_mock(retryHttr = retryHttr_Stub, {
-                                     getHttr(connection, url, "Test API")
-                                 })
+        getHttr(connection, url, "Test API")
+    })
 
     expect_args(retryHttr_Stub, 1, "Test API", "GET", url, config, terminate_on)
     return(response)
@@ -124,8 +124,8 @@ mockedGetJSON <- function(connection, url, mockResponse) {
     getHttr_Stub <- mock(mockResponse)
 
     data <- mockr::with_mock(getHttr = getHttr_Stub, {
-            getJSON(connection, url, "Test API")
-        })
+        getJSON(connection, url, "Test API")
+    })
 
     expect_args(getHttr_Stub, 1, connection, url, "Test API")
     return(data)
@@ -206,8 +206,8 @@ mockedPostHttr <- function(connection, url, mockResponse, body) {
     retryHttr_Stub <- mock(mockResponse)
 
     response <- mockr::with_mock(retryHttr = retryHttr_Stub, {
-                                     postHttr(connection, url, body, "Test API")
-                                 })
+        postHttr(connection, url, body, "Test API")
+    })
 
     expect_args(retryHttr_Stub, 1, "Test API", "POST", url, body, config, jsonHeaders(), "json")
     return(response)
@@ -234,8 +234,8 @@ mockedPostJSON <- function(connection, url, body, mockResponse = NULL) {
     postHttr_Stub <- mock(mockResponse)
 
     fileInfos <- mockr::with_mock(postHttr = postHttr_Stub, {
-                                     postJSON(connection, url, body, "Test Upload API")
-                                 })
+        postJSON(connection, url, body, "Test Upload API")
+    })
 
     expect_args(postHttr_Stub, 1, connection, url, body, "Test Upload API")
     return(fileInfos)
@@ -275,8 +275,8 @@ mockedPutHttr <- function(connection, url, mockResponse, fileName = NULL, reqBod
     retryHttr_Stub <- mock(mockResponse)
 
     mockr::with_mock(retryHttr = retryHttr_Stub, {
-                        putHttr(connection, url, fileName, reqBody, "Test Put API")
-                     })
+        putHttr(connection, url, fileName, reqBody, "Test Put API")
+    })
 
     expect_args(retryHttr_Stub, 1, "Test Put API", "PUT", url, body = expectedBody, config = expectedConfig)
 }

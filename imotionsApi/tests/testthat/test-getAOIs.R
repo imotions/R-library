@@ -42,9 +42,8 @@ studyAOIsCloudPath <- "../data/no_scenes_annotations_aoidetails.json"
 mockedPrivateAOIFormatting <- function(study, AOIsUrl, endpoint) {
     getJSON_Stub <- mock(jsonlite::fromJSON(AOIsUrl))
 
-    AOIs <- mockr::with_mock(
-        getJSON = getJSON_Stub, {
-            privateAOIFormatting(study, AOIsUrl, endpoint)
+    AOIs <- mockr::with_mock(getJSON = getJSON_Stub, {
+        privateAOIFormatting(study, AOIsUrl, endpoint)
     })
 
     expect_args(getJSON_Stub, 1, connection = study$connection, url = AOIsUrl,
@@ -133,11 +132,10 @@ mockedPrivateAOIFiltering <- function(study, stimulus = NULL, respondent = NULL,
 
     privateAOIFormatting_Stub <- mock(mockedPrivateAOIFormatting(study, mockUrl(study, expectedUrl), expectedEndpoint))
 
-    AOIs <- mockr::with_mock(
-      privateAOIFormatting = privateAOIFormatting_Stub,
-      privateGetAOIDetails = privateGetAOIDetails_Stub, {
-          privateAOIFiltering(study, stimulus, respondent)
-      })
+    AOIs <- mockr::with_mock(privateAOIFormatting = privateAOIFormatting_Stub,
+                             privateGetAOIDetails = privateGetAOIDetails_Stub, {
+                                 privateAOIFiltering(study, stimulus, respondent)
+                             })
 
     expect_args(privateAOIFormatting_Stub, 1, study, AOIsUrl = expectedUrl, endpoint =  expectedEndpoint)
 
@@ -262,7 +260,7 @@ test_that("remote return - filtered AOIs data.table", {
 
     # Should return all AOIs from this study for a specific respondent and stimulus
     AOIs <- mockedPrivateAOIFiltering(study_cloud, stimulus = stimuli[14, ], respondent = respondents[1, ],
-                                    expectedCallAoiDetails = 2)
+                                      expectedCallAoiDetails = 2)
 
     expect_equal(nrow(AOIs), 1, info = "combination should contain 1 AOIs")
 })
@@ -276,11 +274,10 @@ mockedGetAOIs <- function(study, stimulus = NULL, respondent = NULL, generateInO
     privateAOIFiltering_Stub <- mock(mockedPrivateAOIFiltering(study, stimulus, respondent, expectedCallFiltering))
     privateGetAOIDetails_Stub <- mock(jsonlite::fromJSON("../data/AOIDetailsForStimulusRespondent.json"))
 
-    AOIs <- mockr::with_mock(
-        privateAOIFiltering = privateAOIFiltering_Stub,
-        privateGetAOIDetails = privateGetAOIDetails_Stub, {
-            getAOIs(study, stimulus, respondent, generateInOutFiles)
-        })
+    AOIs <- mockr::with_mock(privateAOIFiltering = privateAOIFiltering_Stub,
+                             privateGetAOIDetails = privateGetAOIDetails_Stub, {
+                                 getAOIs(study, stimulus, respondent, generateInOutFiles)
+                             })
 
     expect_args(privateAOIFiltering_Stub, 1, study, stimulus, respondent)
 
@@ -415,9 +412,8 @@ context("getAOI()")
 AOIId <- "a966ada8-2428-4748-91d8-884f7b31eebf"
 
 mockedGetAOI <- function(study, AOIId) {
-    mockr::with_mock(
-        getAOIs = mockedGetAOIs, {
-            getAOI(study, AOIId)
+    mockr::with_mock(getAOIs = mockedGetAOIs, {
+        getAOI(study, AOIId)
     })
 }
 

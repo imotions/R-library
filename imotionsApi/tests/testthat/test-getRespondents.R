@@ -219,8 +219,8 @@ test_that("local return - imRespondentList for a specific segment/AOI", {
     segments <- getSegments(study)
 
     respondents <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub, {
-                                        getRespondents(study, AOI = AOI, segment = segments[1, ])
-                                    })
+        getRespondents(study, AOI = AOI, segment = segments[1, ])
+    })
 
     expect_equal(nrow(respondents), 1, info = "respondents should only contain a 1 respondent")
     expect_identical(respondents$name, c("Olana"), "respondent name is not matching")

@@ -475,7 +475,7 @@ privateAOIFormatting <- function(study, AOIsUrl, endpoint) {
     AOIs <- getJSON(study$connection, AOIsUrl, message = paste("Retrieving AOIs for", endpoint))
 
     if (length(AOIs) == 0 || (exists("aois", AOIs) && all(lengths(AOIs$aois) == 0)) ||
-        (exists("currentCalculationTimeline", AOIs) && all(lengths(AOIs$currentCalculationTimeline) == 0))) {
+            (exists("currentCalculationTimeline", AOIs) && all(lengths(AOIs$currentCalculationTimeline) == 0))) {
         warning(paste("No AOI defined for", endpoint))
         return(NULL)
     }
