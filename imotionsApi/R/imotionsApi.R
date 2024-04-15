@@ -433,9 +433,9 @@ getAOIs <- function(study, stimulus = NULL, respondent = NULL, generateInOutFile
     } else if (generateInOutFiles && study$connection$localIM) {
         AOIDetails <- privateGetAOIDetails(study, stimulus, respondent)
         AOIs <- merge(AOIs, AOIDetails[, c("aoiId", "respId", "fileId", "resultId")], by.x = "id", by.y = "aoiId")
-        setcolorder(AOIs, c("stimulusId", "stimulusName"))
     }
 
+    setcolorder(AOIs, c("stimulusId", "stimulusName"))
     AOIs <- createImObject(AOIs, "AOI")
     return(AOIs)
 }
@@ -475,7 +475,7 @@ privateAOIFormatting <- function(study, AOIsUrl, endpoint) {
     AOIs <- getJSON(study$connection, AOIsUrl, message = paste("Retrieving AOIs for", endpoint))
 
     if (length(AOIs) == 0 || (exists("aois", AOIs) && all(lengths(AOIs$aois) == 0)) ||
-        (exists("currentCalculationTimeline", AOIs) && all(lengths(AOIs$currentCalculationTimeline) == 0))) {
+            (exists("currentCalculationTimeline", AOIs) && all(lengths(AOIs$currentCalculationTimeline) == 0))) {
         warning(paste("No AOI defined for", endpoint))
         return(NULL)
     }
@@ -611,7 +611,18 @@ privateAOIFiltering.imRespondent <- function(study, stimulus = NULL, respondent)
     # Retrieving AOI definitions for this respondent
     AOIs <- privateAOIFormatting(study, getAOIsUrl(study, respondentId = respondent$id), endpoint)
 
-    if (!is.null(stimulus) && !is.null(AOIs)) {
+    if (is.null(AOIs)) {
+        return(NULL)
+    }
+
+    if (!study$connection$localIM) {
+        # For remote study, we need to filter for a specific respondent after getting AOIs for the whole study
+        AOIDetails <- rbindlist(by(AOIs, AOIs$id, function(AOI) privateGetAOIDetails(study, AOI)))
+        AOIs <- merge(AOIs, AOIDetails[respId %like% respondent$id, c("aoiId", "startMediaOffset", "aoiInOuts")],
+                      by.x = "id", by.y = "aoiId")
+    }
+
+    if (!is.null(stimulus)) {
         # Filtering to only keep AOI definitions for the stimulus of interest
         AOIs <- AOIs[stimulusId %like% stimulus$id, ]
 
@@ -1514,7 +1525,7 @@ getAOIRespondentData <- function(study, AOI, respondent) {
 
     AOIDetails <- privateGetAOIDetails(study, AOI, respondent)
 
-    if (length(AOIDetails) == 0) {
+    if (length(AOIDetails) == 0 || nrow(AOIDetails) == 0) {
         warning(paste("AOI", AOI$name, "was not found for respondent", respondent$name))
         return(NULL)
     }
@@ -1660,7 +1671,11 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
         # Filtering out respondents without data if any
         AOIDetails <- AOIDetails[!is.na(AOIDetails$fileId), ]
     } else {
-        # For remote study, we rely on the already provided AOI fileId
+        if (exists("aoiInOuts", imObject)) {
+            # in case the InOut data was already loaded, we return the AOI object with information about it
+            return(imObject)
+        }
+
         AOIDetails <- getJSON(study$connection, imObject$fileId, message = paste("Retrieving details for", endpoint))
         setnames(AOIDetails, c("stimuliId", "respondentId", "aoiDefinitionId"), c("stimId", "respId", "aoiId"))
 

@@ -543,10 +543,9 @@ test_that("check - should call privateUpload with the good parameters", {
     additionalMetadata <- data.frame("Group" = c("", "Thresholded"), "Units" = c("ms", "binary"))
     privateUpload_Stub <- mock()
 
-    mockr::with_mock(
-        privateUpload = privateUpload_Stub, {
-            uploadSensorData(params, study, data, respondent, sensorName, scriptName, additionalMetadata)
-        })
+    mockr::with_mock(privateUpload = privateUpload_Stub, {
+        uploadSensorData(params, study, data, respondent, sensorName, scriptName, additionalMetadata)
+    })
 
     expect_called(privateUpload_Stub, 1)
     expect_args(privateUpload_Stub, 1, params = params, study = study, data = data, target = respondent,
@@ -560,24 +559,22 @@ test_that("check - should not call privateUpload if data is of wrong format", {
     wrongData <- data.frame("NotTimestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
     privateUpload_Stub <- mock()
 
-    expect_error(mockr::with_mock(
-        privateUpload = privateUpload_Stub, {
-            uploadSensorData(params, study, wrongData, respondent, sensorName, scriptName)
-        }),
-        "Wrong data format for upload (must be imSignals, imMetrics or imEvents)", fixed = TRUE,
-        info = "Timestamp column should be present")
+    expect_error(mockr::with_mock(privateUpload = privateUpload_Stub, {
+        uploadSensorData(params, study, wrongData, respondent, sensorName, scriptName)
+    }),
+    "Wrong data format for upload (must be imSignals, imMetrics or imEvents)", fixed = TRUE,
+    info = "Timestamp column should be present")
 
     expect_called(privateUpload_Stub, 0)
 
     # in case data is actually an event table
     wrongData <- data.frame("Timestamp" = seq(1:100), "EventName" = "Event 1", "Description" = "Description 1")
 
-    expect_warning(mockr::with_mock(
-        privateUpload = privateUpload_Stub, {
-            uploadSensorData(params, study, wrongData, respondent, sensorName, scriptName)
-        }),
-        "Data to upload should be a data.frame/data.table containing a Timestamp column",
-        info = "wrong data type detected")
+    expect_warning(mockr::with_mock(privateUpload = privateUpload_Stub, {
+        uploadSensorData(params, study, wrongData, respondent, sensorName, scriptName)
+    }),
+    "Data to upload should be a data.frame/data.table containing a Timestamp column",
+    info = "wrong data type detected")
 
     expect_called(privateUpload_Stub, 0)
 })
@@ -661,10 +658,9 @@ test_that("check - should call privateUpload with the good parameters", {
     additionalMetadata <- data.table("Units" = c("ms", "", ""), "Show" = c("FALSE", "TRUE", "TRUE"))
     privateUpload_Stub <- mock()
 
-    mockr::with_mock(
-        privateUpload = privateUpload_Stub, {
-            uploadEvents(params, study, dataEvents, respondent, eventsName, scriptName, additionalMetadata)
-        })
+    mockr::with_mock(privateUpload = privateUpload_Stub, {
+        uploadEvents(params, study, dataEvents, respondent, eventsName, scriptName, additionalMetadata)
+    })
 
     expect_called(privateUpload_Stub, 1)
     expect_args(privateUpload_Stub, 1, params = params, study = study, data = dataEvents, target = respondent,
@@ -676,24 +672,22 @@ test_that("check - should not call privateUpload if data is of wrong format", {
     wrongData <- data.frame("NotTimestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
     privateUpload_Stub <- mock()
 
-    expect_error(mockr::with_mock(
-        privateUpload = privateUpload_Stub, {
-            uploadEvents(params, study, wrongData, respondent, eventsName, scriptName)
-        }),
-        "Wrong data format for upload (must be imSignals, imMetrics or imEvents)", fixed = TRUE,
-        info = "Timestamp column should be present")
+    expect_error(mockr::with_mock(privateUpload = privateUpload_Stub, {
+        uploadEvents(params, study, wrongData, respondent, eventsName, scriptName)
+    }),
+    "Wrong data format for upload (must be imSignals, imMetrics or imEvents)", fixed = TRUE,
+    info = "Timestamp column should be present")
 
     expect_called(privateUpload_Stub, 0)
 
     # in case data is actually a signal table
     wrongData <- data.frame("Timestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
 
-    expect_warning(mockr::with_mock(
-        privateUpload = privateUpload_Stub, {
-            uploadEvents(params, study, wrongData, respondent, eventsName, scriptName)
-        }),
-        "Events should be a data.frame/data.table containing EventName, Timestamp and Description columns",
-        info = "wrong data type detected")
+    expect_warning(mockr::with_mock(privateUpload = privateUpload_Stub, {
+        uploadEvents(params, study, wrongData, respondent, eventsName, scriptName)
+    }),
+    "Events should be a data.frame/data.table containing EventName, Timestamp and Description columns",
+    info = "wrong data type detected")
 
     expect_called(privateUpload_Stub, 0)
 })
@@ -777,10 +771,9 @@ test_that("check - should call privateUpload with the good parameters", {
     additionalMetadata <- data.table("Units" = c("", "ms", "", ""), "Show" = c("FALSE", "FALSE", "TRUE", "TRUE"))
     privateUpload_Stub <- mock()
 
-    mockr::with_mock(
-        privateUpload = privateUpload_Stub, {
-            uploadMetrics(params, study, dataMetrics, respondent, metricsName, scriptName, additionalMetadata)
-        })
+    mockr::with_mock(privateUpload = privateUpload_Stub, {
+        uploadMetrics(params, study, dataMetrics, respondent, metricsName, scriptName, additionalMetadata)
+    })
 
     expect_called(privateUpload_Stub, 1)
     expect_args(privateUpload_Stub, 1, params = params, study = study, data = dataMetrics, target = respondent,
@@ -792,25 +785,23 @@ test_that("check - should not call privateUpload if data is of wrong format", {
     wrongData <- data.frame("NotTimestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
     privateUpload_Stub <- mock()
 
-    expect_error(mockr::with_mock(
-        privateUpload = privateUpload_Stub, {
-            uploadMetrics(params, study, wrongData, respondent, metricsName, scriptName)
-        }),
-        "Wrong data format for upload (must be imSignals, imMetrics or imEvents)", fixed = TRUE,
-        info = "Timestamp column should be present")
+    expect_error(mockr::with_mock(privateUpload = privateUpload_Stub, {
+        uploadMetrics(params, study, wrongData, respondent, metricsName, scriptName)
+    }),
+    "Wrong data format for upload (must be imSignals, imMetrics or imEvents)", fixed = TRUE,
+    info = "Timestamp column should be present")
 
     expect_called(privateUpload_Stub, 0)
 
     # in case data is actually a signal table
     wrongData <- data.frame("Timestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
 
-    expect_warning(mockr::with_mock(
-        privateUpload = privateUpload_Stub, {
-            uploadMetrics(params, study, wrongData, respondent, metricsName, scriptName)
-        }),
-        paste("Metrics should be a data.frame/data.table containing a StimulusId column, a Timestamp",
-              "column and at least one other column containing metrics"),
-        info = "wrong data type detected")
+    expect_warning(mockr::with_mock(privateUpload = privateUpload_Stub, {
+        uploadMetrics(params, study, wrongData, respondent, metricsName, scriptName)
+    }),
+    paste("Metrics should be a data.frame/data.table containing a StimulusId column, a Timestamp",
+          "column and at least one other column containing metrics"),
+    info = "wrong data type detected")
 
     expect_called(privateUpload_Stub, 0)
 })
@@ -869,12 +860,11 @@ mockedCreateExport <- function(params, study, data, outputDirectory, fileName, e
     privateSaveToFile_Stub <- mock()
     dir.create_Stub <- mock()
 
-    mockr::with_mock(
-        privateUpload = privateUpload_Stub,
-        privateSaveToFile = privateSaveToFile_Stub,
-        dir.create = dir.create_Stub, {
-            createExport(params, study, data, outputDirectory, fileName, additionalMetadata, segment)
-        })
+    mockr::with_mock(privateUpload = privateUpload_Stub,
+                     privateSaveToFile = privateSaveToFile_Stub,
+                     dir.create = dir.create_Stub, {
+                         createExport(params, study, data, outputDirectory, fileName, additionalMetadata, segment)
+                     })
 
     expect_called(privateUpload_Stub, expectCallUpload)
     expect_called(privateSaveToFile_Stub, expectCallWrite)

@@ -94,8 +94,8 @@ mockedGetSensorData <- function(study, sensor, signalsName = NULL, intervals = N
     privateDownloadData_Stub <- mock(signals)
 
     signals <- mockr::with_mock(privateDownloadData = privateDownloadData_Stub, {
-                                    getSensorData(study, sensor, signalsName, intervals)
-                                })
+        getSensorData(study, sensor, signalsName, intervals)
+    })
 
     expect_args(privateDownloadData_Stub, 1, study = study, sensor = sensor, signalsName = signalsName)
     return(signals)

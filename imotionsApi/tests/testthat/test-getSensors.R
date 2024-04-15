@@ -35,10 +35,9 @@ mockedGetSensors <- function(study, target, stimulus = NULL, expectedEndpoint) {
     expectedUrl <- getSensorsUrl(study, target, stimulus)
     getJSON_Stub <- mock(jsonlite::fromJSON(mockUrl(expectedUrl), simplifyDataFrame = FALSE))
 
-    sensors <- mockr::with_mock(
-        getJSON = getJSON_Stub, {
-            getSensors(study, target, stimulus)
-        })
+    sensors <- mockr::with_mock(getJSON = getJSON_Stub, {
+        getSensors(study, target, stimulus)
+    })
 
     expect_args(getJSON_Stub, 1, connection = study$connection, url = expectedUrl, message = expectedEndpoint,
                 simplifyDataFrame = FALSE)

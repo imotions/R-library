@@ -10,10 +10,9 @@ respondent <- getRespondent(study, "09bd22e6-29b6-4a8a-8cc1-4780a5163e63")
 mockedGetSensors <- function(study, respondent, stimulus = NULL) {
     getJSON_Stub <- mock(jsonlite::fromJSON("../data/respondentSensors.json", simplifyDataFrame = FALSE))
 
-    sensors <- mockr::with_mock(
-        getJSON = getJSON_Stub, {
-            getSensors(study, respondent, stimulus)
-        })
+    sensors <- mockr::with_mock(getJSON = getJSON_Stub, {
+        getSensors(study, respondent, stimulus)
+    })
 
     return(sensors)
 }
