@@ -9,9 +9,7 @@ privateCalculateAreaAOI(x, y)
 \arguments{
 \item{x}{The X coordinates of the polygon.}
 
-\item{AOIsUrl}{The path/url to the AOIs for this study/respondent/stimulus.}
-
-\item{endpoint}{A string indicating which endpoint is being targeted.}
+\item{y}{The Y coordinates of the polygon.}
 }
 \value{
 A data.table with AOIs.

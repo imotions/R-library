@@ -126,6 +126,18 @@ test_that("local return - AOI details with missing fileId should be filtered out
                      "AOI id should be the same for the 3 respondents")
 })
 
+AOIDetailForStimulusPath <- "../data/AOIDetails_failed.json"
+
+test_that("local warning - failed to generate AOI details", {
+    expected_endpoint <- "Stimulus: IAAF"
+
+    expect_warning(aoiDetails <- mockedPrivateGetAOIDetails(study, stimulus, expected_endpoint),
+                   "Stimulus: IAAF in/out file generation failed, check the IVT data and gazemapping fragments.",
+                   info = "no AOI defined for this respondent should throw an error")
+
+    expect_null(aoiDetails, info = "result should be null")
+})
+
 expectedNames <- c("stimId", "respId", "startMediaOffset", "endMediaOffset", "aoiId", "aoiInOuts")
 
 test_that("remote return - AOI details for a specific AOI", {
@@ -199,6 +211,16 @@ test_that("warning - AOI has not been defined for this respondent", {
     expect_warning(AOI <- mockedGetAOIRespondentData(study, AOI, respondent, AOIDetailsFile),
                    "AOI New Aoi was not found for respondent Wendy",
                    info = "no AOI defined for this respondent should throw an error")
+
+    expect_null(AOI, info = "result should be null")
+})
+
+test_that("warning - AOI in/out generation failed for this respondent", {
+    AOIDetailsFile <- NULL
+
+    expect_warning(AOI <- mockedGetAOIRespondentData(study, AOI, respondent, AOIDetailsFile),
+                   "AOI New Aoi was not found for respondent Wendy",
+                   info = "AOI in/out generation failed for this respondent should throw an error")
 
     expect_null(AOI, info = "result should be null")
 })
