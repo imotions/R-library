@@ -1,6 +1,6 @@
 Package: imotionsApi
 Type: Package
-Title: iMotions Api Library
+Title: iMotions R library
 Version: 2.8.0-0000000000
 Date: 2020-04-16
 Authors@R: c(

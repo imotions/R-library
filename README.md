@@ -8,11 +8,7 @@ Notebooks combine R code and markdown and can be knitted (compiled) to a documen
 
 ## Getting started
 
-1. Download and install [R](https://www.r-project.org/).
-2. Download and install [RStudio](https://www.rstudio.com/products/rstudio/download/#download).
-3. Open RStudio and go to Tools →  Global Options →  Code →  Saving and set "Default text encoding" to UTF-8.
-4. Download and install the `imotionsApi` package using `devtools::install_github("imotions/R-library", subdir = 'imotionsApi')` and load it with the command `library(imotionsApi)`.
-
+Download and install the `imotionsApi` package using `devtools::install_github("imotions/R-library", subdir = 'imotionsApi')` and load it with the command `library(imotionsApi)`.
 To see the library's inline documentation, type `?imotionsApi` in the RStudio console.
 
 ## How to write notebooks
@@ -22,6 +18,11 @@ To see the library's inline documentation, type `?imotionsApi` in the RStudio co
 Make sure that iMotions is running on your computer. You can connect to iMotions from R with the command:
 ```r
 connection <- imConnection("xxxxxxxx")
+```
+
+Note that this generic token only gives access to raw data collected in a study. To access data specific to an analysis in the software, right-click on the analysis and select "Get token for R API connection". Start a connection by copying this token and replacing the generic token:
+```r
+connection <- imConnection(token_copied)
 ```
 
 Please refer to the documentation of the methods in the `imotionsApi` package for further instructions and examples.
