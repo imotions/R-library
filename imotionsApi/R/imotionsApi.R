@@ -1,9 +1,9 @@
 #' iMotions R API package
 #'
-#' A client for accessing data from the iMotions Biometrics Research Platform.
+#' A client for accessing data from the iMotions Lab or iMotions Online platform.
 #'
-#' Use tokens (found on a study's R Analysis page) to load information from the
-#' iMotions API
+#' Use tokens (found on a remote study's R Analysis page or by right-clicking on an analysis in the software)
+#' to start accessing your data.
 #'
 #' @examples
 #' myToken <- "xxxxxxxx"
@@ -432,7 +432,12 @@ getAOIs <- function(study, stimulus = NULL, respondent = NULL, generateInOutFile
         warning("InOut files can only be generated when both respondent and stimulus argument are provided.")
     } else if (generateInOutFiles && study$connection$localIM) {
         AOIDetails <- privateGetAOIDetails(study, stimulus, respondent)
-        AOIs <- merge(AOIs, AOIDetails[, c("aoiId", "respId", "fileId", "resultId")], by.x = "id", by.y = "aoiId")
+
+        if (is.null(AOIDetails)) {
+            return(NULL)
+        } else {
+            AOIs <- merge(AOIs, AOIDetails[, c("aoiId", "respId", "fileId", "resultId")], by.x = "id", by.y = "aoiId")
+        }
     }
 
     setcolorder(AOIs, c("stimulusId", "stimulusName"))
@@ -445,8 +450,7 @@ getAOIs <- function(study, stimulus = NULL, respondent = NULL, generateInOutFile
 #' Private function to compute the area of an AOI (adapted from pracma::polyarea).
 #'
 #' @param x The X coordinates of the polygon.
-#' @param AOIsUrl The path/url to the AOIs for this study/respondent/stimulus.
-#' @param endpoint A string indicating which endpoint is being targeted.
+#' @param y The Y coordinates of the polygon.
 #'
 #' @return A data.table with AOIs.
 #' @keywords internal
@@ -604,7 +608,7 @@ privateAOIFiltering.imStimulus <- function(study, stimulus, ...) {
 #' @return A data.table with all AOIs defined for a specific respondent.
 #' @keywords internal
 privateAOIFiltering.imRespondent <- function(study, stimulus = NULL, respondent) {
-    stimulusId <- NULL # set local variable to remove warnings in `devtools::check()`
+    stimulusId <- respId <- NULL # set local variable to remove warnings in `devtools::check()`
 
     endpoint <- paste("respondent:", respondent$name)
 
@@ -1139,6 +1143,15 @@ privateGetIntervalsForScenes <- function(study, respondent, stimuli) {
     # Filtering for scenes included in the analysis
     scenes <- scenes[scenes$sceneId %in% stimuli$id, ]
 
+    # Some gazemapping scenes can be missing intervals
+    brokenId <- setdiff(stimuli[stimuli$type %like% "_SCENE", ]$id, scenes$sceneId)
+
+    if (length(brokenId) > 0) {
+        warning(paste("Intervals were not found for scenes:", paste(stimuli[id %in% brokenId, ]$name, collapse = ", ")))
+        scenes <- bind_rows(scenes, data.frame(sceneId = brokenId, fragmentStart = 0, fragmentEnd = 0,
+                                               fragmentDuration = 0))
+    }
+
     if (nrow(scenes) == 0) {
         return(NULL)
     }
@@ -1275,7 +1288,7 @@ truncateSignalsByIntervals <- function(signals, intervals, dropIntervals = FALSE
         signals <- signals[!idxInIntervals, ]
 
         # Keeping original signals row number (can be used to detect gap in data later)
-        setattr(signals, "row.names", which(!allIdx %in% idxInIntervals))
+        setattr(signals, "row.names", which(allIdx %notin% idxInIntervals))
     } else {
         signals <- signals[idxInIntervals, ]
 
@@ -1578,10 +1591,10 @@ getAOIRespondentData <- function(study, AOI, respondent) {
         inOutMouseClick <- data[(data$IsMouseDown), c("Timestamp", "IsMouseInAOI")]
     }
 
-    intervals <- intervals[, `:=`(fragments.duration = intervals$fragments.end - intervals$fragments.start,
-                                  name = AOI$name, type = "AOI", parentId = AOI$stimulusId,
-                                  parentName = AOI$stimulusName, id = AOI$id, text = NA_character_,
-                                  respondent = list(respondent))]
+    intervals <- intervals[, let(fragments.duration = intervals$fragments.end - intervals$fragments.start,
+                                 name = AOI$name, type = "AOI", parentId = AOI$stimulusId,
+                                 parentName = AOI$stimulusName, id = AOI$id, text = NA_character_,
+                                 respondent = list(respondent))]
 
     intervals[is.na(intervals$fragments.duration), ]$fragments.duration <- 0
     intervals <- createImObject(intervals, "Interval")
@@ -1667,6 +1680,12 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
 
         dataUrl <- getAOIDetailsUrl(study, imObject, respondent)
         AOIDetails <- getJSON(study$connection, dataUrl, message = paste("Retrieving details for", endpoint))
+
+        # Give a warning in case some AOIs data are missing due to IVT/gazemapping issues
+        if (length(AOIDetails) == 0) {
+            warning(paste(endpoint, "in/out file generation failed, check the IVT data and gazemapping fragments."))
+            return(NULL)
+        }
 
         # Filtering out respondents without data if any
         AOIDetails <- AOIDetails[!is.na(AOIDetails$fileId), ]
@@ -2145,11 +2164,8 @@ privateSaveToFile <- function(params, study, data, sampleName, scriptName, metad
         data <- cbind(RowNumber = seq(0, nrow(data) - 1), data)
     }
 
-    # Make sure column containing characters are correctly encoded
-    data <- data %>% modify_if(is.character, function(x) iconv(x, to = "utf-8"))
-
     fwrite(data, file = dataFileName, append = TRUE, col.names = TRUE, scipen = 999, na = na_option, dec = dec_char,
-           sep = sep_char)
+           sep = sep_char, encoding = "UTF-8")
 
     return(dataFileName)
 }
@@ -2383,6 +2399,7 @@ createImObject <- function(data, typeOfObject) {
 
     if (!missing(i)) {
         i <- eval(substitute(i), x, parent.frame())
+        if (typeof(i) == "logical") i <- which(i)
         x <- x[i, ...]
     }
 
@@ -2408,6 +2425,7 @@ createImObject <- function(data, typeOfObject) {
 
     if (!missing(i)) {
         i <- eval(substitute(i), x, parent.frame())
+        if (typeof(i) == "logical") i <- which(i)
         x <- x[i, ...]
     }
 
@@ -2440,7 +2458,7 @@ print.imObject <- function(x, ...) {
     objectType <- gsub("^im|List", "", class(x)[1])
     if (nrow(x) == 0) {
         cat("No iMotions", objectType, "found", sep = " ")
-    } else if (nrow(x) == 1 && !objectType %in% c("Sensor", "Interval")) {
+    } else if (nrow(x) == 1 && objectType %notin% c("Sensor", "Interval")) {
         cat("iMotions ", objectType, " `", x$name, "` with ID = ", x$id, sep = "")
     } else {
         print.default(x)
@@ -2984,7 +3002,7 @@ stopOnHttpError <- function(response, message = NULL) {
     response_status <- status_code(response)
     if (response_status == 401) stop(paste(message, "- Token not authorized to access requested resource"))
     if (response_status == 404) stop(paste(message, "- Resource not found"))
-    if (!response_status %in% c(200, 204)) {
+    if (response_status %notin% c(200, 204)) {
         stop(paste0(message, " - unexpected response status (", response_status, ")"))
     }
 }

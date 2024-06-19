@@ -167,6 +167,24 @@ test_that("local return - NULL if no scenes available", {
     expect_null(scenesIntervals, "no scenes should have been found")
 })
 
+test_that("local return and warning - should add intervals in case some scenes intervals are missing", {
+    # Retrieve missing scenes intervals
+    expect_warning(scenesIntervals <- mockedPrivateGetIntervalsForScenes(study, respondent, stimuli, scenesEvents[0, ]),
+                   "Intervals were not found for scenes: IAAF_Scene[1]", fixed = TRUE,
+                   info = "not intervals found not handled properly")
+
+    expect_equal(ncol(scenesIntervals), 9, info = "scene intervals should have 9 columns")
+    expect_identical(scenesIntervals$type, "Scene", "interval should all be of scene type")
+    expect_identical(scenesIntervals$parentId, "1002", "scene interval should have a parent")
+    expect_identical(scenesIntervals$parentName, "IAAF", "scene interval should have a parent")
+    expect_identical(scenesIntervals$name, "IAAF_Scene[1]", "wrong scene name")
+    expect_equal(scenesIntervals$fragments.start, 0, 1e-2, info = "wrong fragments start")
+    expect_equal(scenesIntervals$fragments.end, 0, 1e-2, info = "wrong fragments end")
+    expect_equal(scenesIntervals$fragments.duration, 0, 1e-2, info = "wrong fragments duration")
+    expect_identical(scenesIntervals$id, "1008", "wrong id")
+    expect_identical(scenesIntervals$text, "", "scenes intervals should have no text")
+})
+
 test_that("remote return - NULL as not supported", {
     # Retrieve scenes intervals and check returned value
     scenesIntervals <- mockedPrivateGetIntervalsForScenes(study_cloud, respondent, stimuli, scenesEvents, 0)

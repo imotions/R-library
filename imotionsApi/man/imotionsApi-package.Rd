@@ -6,11 +6,11 @@
 \alias{imotionsApi-package}
 \title{iMotions R API package}
 \description{
-A client for accessing data from the iMotions Biometrics Research Platform.
+A client for accessing data from the iMotions Lab or iMotions Online platform.
 }
 \details{
-Use tokens (found on a study's R Analysis page) to load information from the
-iMotions API
+Use tokens (found on a remote study's R Analysis page or by right-clicking on an analysis in the software)
+to start accessing your data.
 }
 \examples{
 myToken <- "xxxxxxxx"
@@ -21,6 +21,20 @@ Useful links:
 \itemize{
   \item \url{https://imotions.com}
   \item \url{https://my.imotions.com/#studies}
+}
+
+}
+\author{
+\strong{Maintainer}: iMotions \email{support@imotions.com}
+
+Authors:
+\itemize{
+  \item Amandine Grappe
+}
+
+Other contributors:
+\itemize{
+  \item Paolo Masulli [contributor]
 }
 
 }
