@@ -86,7 +86,7 @@ jobs:
             ./imotionsApi/check/*.tar.gz
 
       - name: Publish test results
-        uses: EnricoMi/publish-unit-test-result-action/composite@v1
+        uses: EnricoMi/publish-unit-test-result-action/windows@v2
         if: always()
         with:
           files: './imotionsApi/check/imotionsApi.Rcheck/tests/test-results-tests.xml'
