@@ -1730,6 +1730,9 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
 #' @param stimulus Optional - an imStimulus object as returned from \code{\link{getStimuli}} to upload data specific to
 #'                 this stimulus. In case of a segment target, this parameter needs to be provided.
 #'
+#' @param overwrite Optional - a boolean indicating if the new sensor should overwrite sensors generated for the same
+#'                  flowName. By default, they are overwritten.
+#'
 #' @export
 #' @examples
 #' \dontrun{
@@ -1759,7 +1762,9 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
 #' uploadSensorData(params, study, data, respondents[1, ], sensorName = "New sensor",
 #'                  scriptName = "Example Script", metadata)
 #' }
-uploadSensorData <- function(params, study, data, target, sensorName, scriptName, metadata = NULL, stimulus = NULL) {
+uploadSensorData <- function(params, study, data, target, sensorName, scriptName, metadata = NULL, stimulus = NULL,
+                             overwrite = TRUE) {
+
     assertValid(hasArg(params), "Please specify parameters used for your script")
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
     assertValid(hasArg(data), "Please specify a data.table with signals to upload")
@@ -1786,7 +1791,7 @@ uploadSensorData <- function(params, study, data, target, sensorName, scriptName
     assertUploadFormat(data)
 
     if (inherits(data, "imSignals")) {
-        privateUpload(params, study, data, target, sensorName, scriptName, metadata, stimulus)
+        privateUpload(params, study, data, target, sensorName, scriptName, metadata, stimulus, overwrite)
     } else {
         warning("Data to upload should be a data.frame/data.table containing a Timestamp column")
     }
@@ -2053,16 +2058,21 @@ uploadMetrics <- function(params, study, metrics, target, metricsName, scriptNam
 #' @param stimulus Optional - an imStimulus object as returned from \code{\link{getStimuli}} to upload data specific to
 #'                 this stimulus.
 #'
+#' @param overwrite Optional - a boolean indicating if the new sensor/metrics/events/export should overwrite
+#'                  sensor/metrics/events/export generated for the same flowName. By default, they are overwritten.
+#'
 #' @keywords internal
 #' @importFrom utils tail
-privateUpload <- function(params, study, data, target, sampleName, scriptName, metadata = NULL,  stimulus = NULL) {
+privateUpload <- function(params, study, data, target, sampleName, scriptName, metadata = NULL,  stimulus = NULL,
+                          overwrite = TRUE) {
+
     # Create a temporary file with the data/metadata that needs to be uploaded
     tempFileName <- privateSaveToFile(params, study, data, sampleName, scriptName, metadata)
 
     # Prepare the http request
     if (inherits(data, "imSignals")) {
         uploadUrl <- getUploadSensorDataUrl(study, target, stimulus)
-        postData <- privateCreatePostRequest(params, study, sampleName, tempFileName)
+        postData <- privateCreatePostRequest(params, study, sampleName, tempFileName, overwrite)
         endpoint_data <- "sensor data"
     } else if (inherits(data, "imEvents")) {
         uploadUrl <- getUploadEventsUrl(study, target)
@@ -2178,11 +2188,12 @@ privateSaveToFile <- function(params, study, data, sampleName, scriptName, metad
 #' @inheritParams privateUpload
 #'
 #' @keywords internal
-privateCreatePostRequest <- function(params, study, sampleName, fileName) {
+privateCreatePostRequest <- function(params, study, sampleName, fileName, overwrite = TRUE) {
     postRequest <- list(params$flowName, sampleName, fileName)
 
     if (study$connection$localIM) {
-        names(postRequest) <- c("flowName", "sampleName", "fileName")
+        postRequest <- append(postRequest, overwrite)
+        names(postRequest) <- c("flowName", "sampleName", "fileName", "overwrite")
     } else {
         names(postRequest) <- c("instance", "name", "fileName")
     }

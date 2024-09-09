@@ -12,7 +12,8 @@ privateUpload(
   sampleName,
   scriptName,
   metadata = NULL,
-  stimulus = NULL
+  stimulus = NULL,
+  overwrite = TRUE
 )
 }
 \arguments{
@@ -35,6 +36,9 @@ and there must be a row corresponding to each data column.}
 
 \item{stimulus}{Optional - an imStimulus object as returned from \code{\link{getStimuli}} to upload data specific to
 this stimulus.}
+
+\item{overwrite}{Optional - a boolean indicating if the new sensor/metrics/events/export should overwrite
+sensor/metrics/events/export generated for the same flowName. By default, they are overwritten.}
 }
 \description{
 Upload signals/events/metrics to a given respondent/segment.

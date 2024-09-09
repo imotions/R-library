@@ -253,10 +253,11 @@ context("privateCreatePostRequest()")
 
 test_that("local/remote return - post request data", {
     # In case of local connection
-    expectedPostData <- '{"flowName":"flowName","sampleName":"TestSensor","fileName":"../data/testFile.csv"}'
+    expectedPostData <- paste0('{"flowName":"flowName","sampleName":"TestSensor","fileName":"../data/testFile.csv",',
+                               '"overwrite":true}')
+
     class(expectedPostData) <- "json"
     postData <- privateCreatePostRequest(params, study, "TestSensor", "../data/testFile.csv")
-
     expect_identical(postData, expectedPostData, info = "wrong post body for local connection")
 
     # In case of remote connection
@@ -392,7 +393,9 @@ test_that("remote error - missing reportRunId parameter", {
 
 test_that("local check - upload signals to a given respondent/segment", {
     data <- checkDataFormat(data)
-    expectedBody <- '{"flowName":"flowName","sampleName":"TestSensor","fileName":"../data/testFile.csv"}'
+    expectedBody <- paste0('{"flowName":"flowName","sampleName":"TestSensor","fileName":"../data/testFile.csv",',
+                           '"overwrite":true}')
+
     expectedEndpoint <- "Uploading sensor data for respondent: Wendy"
 
     res <- mockedPrivateUpload(params, study, data, respondent, expectedBody, expectedEndpoint, sampleName, scriptName)
@@ -428,7 +431,9 @@ test_that("remote check - upload signals to a given respondent/segment", {
 
 test_that("local check - upload events to a given respondent/segment", {
     dataEvents <- checkDataFormat(dataEvents)
-    expectedBody <- '{"flowName":"flowName","sampleName":"ET_REventApi","fileName":"../data/testFile.csv"}'
+    expectedBody <- paste0('{"flowName":"flowName","sampleName":"ET_REventApi","fileName":"../data/testFile.csv",',
+                           '"overwrite":true}')
+
     expectedEndpoint <- "Uploading events for respondent: Wendy"
 
     res <- mockedPrivateUpload(params, study, dataEvents, respondent, expectedBody, expectedEndpoint)
@@ -437,7 +442,9 @@ test_that("local check - upload events to a given respondent/segment", {
 
 test_that("local check - upload metrics to a given respondent/segment", {
     dataMetrics <- checkDataFormat(dataMetrics)
-    expectedBody <- '{"flowName":"flowName","sampleName":"ET_RMetricsApi","fileName":"../data/testFile.csv"}'
+    expectedBody <- paste0('{"flowName":"flowName","sampleName":"ET_RMetricsApi","fileName":"../data/testFile.csv",',
+                           '"overwrite":true}')
+
     expectedEndpoint <- "Uploading metrics for respondent: Wendy"
 
     res <- mockedPrivateUpload(params, study, dataMetrics, respondent, expectedBody, expectedEndpoint)
@@ -550,7 +557,7 @@ test_that("check - should call privateUpload with the good parameters", {
     expect_called(privateUpload_Stub, 1)
     expect_args(privateUpload_Stub, 1, params = params, study = study, data = data, target = respondent,
                 sampleName = sensorName, scriptName = scriptName, metadata = additionalMetadata,
-                stimulus = NULL)
+                stimulus = NULL, overwrite = TRUE)
 
 })
 
