@@ -12,7 +12,8 @@ uploadSensorData(
   sensorName,
   scriptName,
   metadata = NULL,
-  stimulus = NULL
+  stimulus = NULL,
+  overwrite = TRUE
 )
 }
 \arguments{
@@ -34,6 +35,9 @@ and there must be a row corresponding to each data column.}
 
 \item{stimulus}{Optional - an imStimulus object as returned from \code{\link{getStimuli}} to upload data specific to
 this stimulus. In case of a segment target, this parameter needs to be provided.}
+
+\item{overwrite}{Optional - a boolean indicating if the new sensor should overwrite sensors generated for the same
+flowName. By default, they are overwritten.}
 }
 \description{
 Signals data.table (with a Timestamp column) can be uploaded.
