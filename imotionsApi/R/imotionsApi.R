@@ -1642,7 +1642,7 @@ getAOIRespondentMetrics <- function(study, AOI, respondent) {
         return(NULL)
     }
 
-    metrics <- setDT(read.csv(AOIDetails$resultId))
+    metrics <- fread(AOIDetails$resultId)
     metrics <- checkDataFormat(metrics)
     return(metrics)
 }
@@ -1845,7 +1845,7 @@ uploadAOIMetrics <- function(study, AOI, target, metrics) {
             }
 
             dataFileName <- paste0(tools::file_path_sans_ext(AOIDetails$fileId), "metrics.csv")
-            write.csv(x = metrics, file = dataFileName, col.names = TRUE, row.names = FALSE)
+            fwrite(x = metrics, file = dataFileName, col.names = TRUE, row.names = FALSE)
         } else {
             # Replace NaN by NA for the cloud
             metrics[is.na(metrics)] <- NA_real_
@@ -2355,6 +2355,9 @@ createExport <- function(params, study, data, outputDirectory, fileName, metadat
     # Verify that data is a data.table of the good format
     data <- checkDataFormat(data)
     assertExportFormat(data)
+
+    # Change values added by the merge of data
+    data[data == "-123456"] <- ""
 
     # Creating folder if needed
     if (!dir.exists(outputDirectory)) dir.create(path = outputDirectory)
