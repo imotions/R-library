@@ -58,25 +58,25 @@ test_that("error - arguments are missing or not from the good class", {
 })
 
 mockLocalUploadAOIMetrics <- function(study, AOI, respondent, metrics, AOIDetailsFile, filepath = NULL,
-                                      expectCallDetails = 0, expectCallsWritecsv = 0) {
+                                      expectCallDetails = 0, expectCallsfwrite = 0) {
 
     privateGetAOIDetails_Stub <- mock(AOIDetailsFile)
-    writecsv_Stub <- mock()
+    fwrite_Stub <- mock()
 
     mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub,
-                     write.csv = writecsv_Stub, {
+                     fwrite = fwrite_Stub, {
                          uploadAOIMetrics(study, AOI, respondent, metrics)
                      })
 
     expect_called(privateGetAOIDetails_Stub, expectCallDetails)
-    expect_called(writecsv_Stub, expectCallsWritecsv)
+    expect_called(fwrite_Stub, expectCallsfwrite)
 
     if (expectCallDetails > 0) {
         expect_args(privateGetAOIDetails_Stub, 1, study = study, imObject = AOI, respondent = respondent)
     }
 
-    if (expectCallsWritecsv > 0) {
-        expect_args(writecsv_Stub, 1, x = metrics, file = filepath, col.names = TRUE, row.names = FALSE)
+    if (expectCallsfwrite > 0) {
+        expect_args(fwrite_Stub, 1, x = metrics, file = filepath, col.names = TRUE, row.names = FALSE)
     }
 }
 
@@ -102,7 +102,7 @@ test_that("local check - should call privateGetAOIDetails and write.csv if metri
     filepath <- paste0(tools::file_path_sans_ext(AOIDetailsFile$fileId), "metrics.csv")
 
     mockLocalUploadAOIMetrics(study, AOI, respondent, metrics, AOIDetailsFile, filepath, expectCallDetails = 1,
-                              expectCallsWritecsv = 1)
+                              expectCallsfwrite = 1)
 })
 
 segment <- getSegments(study_cloud)
