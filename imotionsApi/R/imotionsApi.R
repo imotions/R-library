@@ -1492,14 +1492,14 @@ privateDownloadData <- function(study, sensor, signalsName = NULL) {
 
 
 
-#' Get the inOutGaze information, inOutMouseClick information and AOI's intervals for a specific AOI/respondent
+#' Get the inOutGaze information, inOutMouse information and AOI's intervals for a specific AOI/respondent
 #' combination. Note that imAOI object, by definition, are linked to a specific stimulus.
 #'
 #' The inOutGaze data.table has a IsGazeInAOI column that is TRUE when a gaze was recorded inside the AOI and FALSE if
 #' outside (timestamps correspond to the actual gazepoint Timestamp). To reduce the size of the file created,
 #' only timestamps where a change of value occur are given. If the AOI was never active, the table is empty.
 #'
-#' The inOutMouseClick data.table has a IsMouseInAOI column that is TRUE when a click was recorded inside the AOI and
+#' The inOutMouse data.table has a IsMouseInAOI column that is TRUE when a click was recorded inside the AOI and
 #' FALSE if outside (timestamps correspond to the actual Timestamp of each click). If no click was recorded or if the
 #' AOI was never active, the table is empty.
 #'
@@ -1508,7 +1508,7 @@ privateDownloadData <- function(study, sensor, signalsName = NULL) {
 #' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
 #'
 #' @importFrom dplyr mutate_at %>%
-#' @return A list with inOutGaze/inOutMouseClick information for the specific AOI/respondent combination and an
+#' @return A list with inOutGaze/inOutMouse information for the specific AOI/respondent combination and an
 #'         imIntervalList object (data.table) composed of the start, end, duration, id and name of this AOI.
 #' @export
 #' @examples
@@ -1573,8 +1573,8 @@ getAOIRespondentData <- function(study, AOI, respondent) {
         intervals <- data.table(fragments.start = NA_real_, fragments.end = NA_real_)
         inOutGaze <- data.table(matrix(data = NA_integer_, ncol = 2, nrow = 0))
         names(inOutGaze) <- c("Timestamp", "IsGazeInAOI")
-        inOutMouseClick <- data.table(matrix(data = NA_integer_, ncol = 2, nrow = 0))
-        names(inOutMouseClick) <- c("Timestamp", "IsMouseInAOI")
+        inOutMouse <- data.table(matrix(data = NA_integer_, ncol = 3, nrow = 0))
+        names(inOutMouse) <- c("Timestamp", "IsMouseInAOI", "IsMouseDown")
     } else {
         data$id <- AOI$id
 
@@ -1588,7 +1588,10 @@ getAOIRespondentData <- function(study, AOI, respondent) {
         inOutGaze <- inOutGaze[, c("Timestamp", "IsGazeInAOI")]
 
         # Get clicks events
-        inOutMouseClick <- data[(data$IsMouseDown), c("Timestamp", "IsMouseInAOI")]
+        mouseChange <- data[, c(IsMouseInAOI = unique(IsMouseInAOI), .SD[1]), by = rleid(IsMouseInAOI)][, -1]
+        mouseChange <- rbind(mouseChange, data[IsMouseDown == TRUE, ])
+
+        inOutMouse <- mouseChange[order(Timestamp), c("Timestamp", "IsMouseInAOI", "IsMouseDown")]
     }
 
     intervals <- intervals[, let(fragments.duration = intervals$fragments.end - intervals$fragments.start,
@@ -1598,7 +1601,7 @@ getAOIRespondentData <- function(study, AOI, respondent) {
 
     intervals[is.na(intervals$fragments.duration), ]$fragments.duration <- 0
     intervals <- createImObject(intervals, "Interval")
-    return(list(inOutGaze = inOutGaze, inOutMouseClick = inOutMouseClick, intervals = intervals))
+    return(list(inOutGaze = inOutGaze, inOutMouse = inOutMouse, intervals = intervals))
 }
 
 

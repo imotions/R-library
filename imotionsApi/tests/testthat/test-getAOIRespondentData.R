@@ -274,14 +274,15 @@ test_that("local return - inOutGaze for a specific AOI/respondent pair", {
                  1e-2, info = "wrong in/off Timestamp")
 })
 
-test_that("local return - inOutMouseClick for a specific AOI/respondent pair", {
-    inOutMouseClick <- mockedGetAOIRespondentData(study, AOI, respondent, AOIDetailsFile)$inOutMouseClick
+test_that("local return - inOutMouse for a specific AOI/respondent pair", {
+    inOutMouse <- mockedGetAOIRespondentData(study, AOI, respondent, AOIDetailsFile)$inOutMouse
 
-    # Check inOutMouseClick data.table
-    expect_named(inOutMouseClick, c("Timestamp", "IsMouseInAOI"), info = "wrong column names")
-    expect_equal(nrow(inOutMouseClick), 1, info = "should have 1 in/off values")
-    expect_true(inOutMouseClick$IsMouseInAOI, "wrong value")
-    expect_equal(inOutMouseClick$Timestamp, 22109.5, 1e-2, info = "wrong in/off Timestamp")
+    # Check inOutMouse data.table
+    expect_named(inOutMouse, c("Timestamp", "IsMouseInAOI", "IsMouseDown"), info = "wrong column names")
+    expect_equal(nrow(inOutMouse[(IsMouseDown), ]), 1, info = "should have 1 mouse click value")
+    expect_equal(nrow(inOutMouse[!(IsMouseDown), ]), 7, info = "should have 7 mouse in/out values")
+    expect_true(inOutMouse[(IsMouseDown), ]$IsMouseInAOI, "wrong value")
+    expect_equal(inOutMouse[(IsMouseDown), ]$Timestamp, 22109.5, 1e-2, info = "wrong in/off Timestamp")
 })
 
 # Modify AOIDetailsFile so it returns an empty event (no gaze, mouse click in AOI)
@@ -290,8 +291,8 @@ AOIDetailsFile$fileId <- "../data/aoiEmptyRespondentData.pbin"
 test_that("local check - work if no gazes or mouse click in", {
     resultList <- mockedGetAOIRespondentData(study, AOI, respondent, AOIDetailsFile)
 
-    expect_named(resultList, c("inOutGaze", "inOutMouseClick", "intervals"), info = "wrong names")
-    expect_equal(nrow(resultList$inOutMouseClick), 0, info = "should be empty (no click)")
+    expect_named(resultList, c("inOutGaze", "inOutMouse", "intervals"), info = "wrong names")
+    expect_equal(nrow(resultList$inOutMouse), 1, info = "should only have one value (no mouse in or mouse click)")
     expect_equal(nrow(resultList$inOutGaze), 1, info = "should only have one value (no gaze in)")
     expect_false(resultList$inOutGaze$IsGazeInAOI, info = "wrong value")
 })
@@ -302,11 +303,11 @@ AOIDetailsFile$fileId <- "../data/AOInotDefined.pbin"
 
 test_that("local check - work if no AOI exposure", {
     resultList <- mockedGetAOIRespondentData(study, AOI, respondent, AOIDetailsFile)
-    expect_named(resultList, c("inOutGaze", "inOutMouseClick", "intervals"), info = "wrong names")
+    expect_named(resultList, c("inOutGaze", "inOutMouse", "intervals"), info = "wrong names")
 
-    # Check inOutMouseClick
-    expect_named(resultList$inOutMouseClick, c("Timestamp", "IsMouseInAOI"), info = "wrong column names")
-    expect_equal(nrow(resultList$inOutMouseClick), 0, info = "should be empty (no exposure)")
+    # Check inOutMouse
+    expect_named(resultList$inOutMouse, c("Timestamp", "IsMouseInAOI", "IsMouseDown"), info = "wrong column names")
+    expect_equal(nrow(resultList$inOutMouse), 0, info = "should be empty (no exposure)")
 
     # Check inOutGaze
     expect_named(resultList$inOutGaze, c("Timestamp", "IsGazeInAOI"), info = "wrong column names")
@@ -382,12 +383,12 @@ test_that("remote return - inOutGaze for a specific AOI/respondent pair", {
     expect_equal(inOutGaze$Timestamp, c(44639, 46091, 46639, 49919, 50381), 1e-2, info = "wrong in/off Timestamp")
 })
 
-test_that("remote return - inOutMouseClick for a specific AOI/respondent pair", {
-    inOutMouseClick <- mockedGetAOIRespondentData(study_cloud, AOI_cloud, respondent, aoiDetails)$inOutMouseClick
+test_that("remote return - inOutMouse for a specific AOI/respondent pair", {
+    inOutMouse <- mockedGetAOIRespondentData(study_cloud, AOI_cloud, respondent, aoiDetails)$inOutMouse
 
-    # Check inOutMouseClick data.table
-    expect_named(inOutMouseClick, c("Timestamp", "IsMouseInAOI"), info = "wrong column names")
-    expect_equal(nrow(inOutMouseClick), 0, info = "should have 0 in/off values")
+    # Check inOutMouse data.table
+    expect_named(inOutMouse, c("Timestamp", "IsMouseInAOI", "IsMouseDown"), info = "wrong column names")
+    expect_equal(nrow(inOutMouse), 1, info = "should have only one value (never entered)")
 })
 
 AOIDetailsPath_cloud <- "../data/AOIDetails_cloud_dynamic.json"
@@ -407,5 +408,5 @@ test_that("remote return - intervals should work on dynamic AOIs", {
 
 test_that("remote return - should work when inout data is already loaded", {
     resultList <- mockedGetAOIRespondentData(study_cloud, AOI_cloud_inout, respondent, aoiDetails_inout)
-    expect_named(resultList, c("inOutGaze", "inOutMouseClick", "intervals"), info = "wrong names")
+    expect_named(resultList, c("inOutGaze", "inOutMouse", "intervals"), info = "wrong names")
 })
