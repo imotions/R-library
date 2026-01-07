@@ -93,6 +93,20 @@ test_that("remote return - AOIs data.table", {
     expect_identical(unique(AOIs$group), NA_character_, "group is wrong")
 })
 
+
+test_that("remote return - AOIs data.table with respondent defined timeline", {
+    studyAOIsPath <- "../data/studyAOIs_respondent_cloud.json"
+
+    # Should return all well formed AOIs from this study if no stimulus is provided (removing 2 malformed studies)
+    AOIs <- mockedPrivateAOIFormatting(study_cloud, studyAOIsPath, "expected endpoint")
+    expect_equal(nrow(AOIs), 8, info = "study should contain 8 AOIs")
+    expect_named(AOIs, c("stimulusId", "stimulusName", "id", "name", "type", "group", "area", "displayColor", "fileId",
+                         "timelineType", "updatedDate", "aoiStatsNeedCalculating"), info = "AOIs infos not matching")
+
+    # Group can be either missing or filled
+    expect_identical(unique(AOIs$group), NA_character_, "group is wrong")
+})
+
 # privateAOIFiltering =================================================================================================
 context("privateAOIFiltering()")
 

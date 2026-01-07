@@ -478,16 +478,20 @@ privateAOIFormatting <- function(study, AOIsUrl, endpoint) {
     # Retrieving AOI definitions for url of interest
     AOIs <- getJSON(study$connection, AOIsUrl, message = paste("Retrieving AOIs for", endpoint))
 
-    if (length(AOIs) == 0 || (exists("aois", AOIs) && all(lengths(AOIs$aois) == 0)) ||
-            (exists("currentCalculationTimeline", AOIs) && all(lengths(AOIs$currentCalculationTimeline) == 0))) {
+    validate_cols <- intersect(c("currentCalculationTimeline", "respondentDefinitions"), names(AOIs))
+
+    if (length(validate_cols) > 0) {
+        # We are filtering out incomplete AOIs
+        AOIs <- AOIs[rowSums(sapply(AOIs[validate_cols], lengths) == 0) < length(validate_cols), ]
+    }
+
+    if (length(AOIs) == 0 || (study$connection$localIM && all(lengths(AOIs$aois) == 0)) ||
+        (!study$connection$localIM && nrow(AOIs) == 0)) {
         warning(paste("No AOI defined for", endpoint))
         return(NULL)
     }
 
     if (!study$connection$localIM) {
-        # We are filtering out incomplete AOIs
-        AOIs <- AOIs[!lengths(AOIs$currentCalculationTimeline) == 0, ]
-
         stimuli <- getStimuli(study)
         AOIs$stimulusId <- AOIs$stimuli$id
         AOIs$stimulusName <- privateGetParentStimulusNames(AOIs$stimulusId, stimuli)
