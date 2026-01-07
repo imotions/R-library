@@ -623,13 +623,6 @@ privateAOIFiltering.imRespondent <- function(study, stimulus = NULL, respondent)
         return(NULL)
     }
 
-    if (!study$connection$localIM) {
-        # For remote study, we need to filter for a specific respondent after getting AOIs for the whole study
-        AOIDetails <- rbindlist(by(AOIs, AOIs$id, function(AOI) privateGetAOIDetails(study, AOI)))
-        AOIs <- merge(AOIs, AOIDetails[respId %like% respondent$id, c("aoiId", "startMediaOffset", "aoiInOuts")],
-                      by.x = "id", by.y = "aoiId")
-    }
-
     if (!is.null(stimulus)) {
         # Filtering to only keep AOI definitions for the stimulus of interest
         AOIs <- AOIs[stimulusId %like% stimulus$id, ]
@@ -638,6 +631,13 @@ privateAOIFiltering.imRespondent <- function(study, stimulus = NULL, respondent)
             warning(paste0("No AOI defined for ", endpoint, ", stimulus: ", stimulus$name))
             return(NULL)
         }
+    }
+
+    if (!study$connection$localIM) {
+        # For remote study, we need to filter for a specific respondent after getting AOIs for the whole study
+        AOIDetails <- rbindlist(by(AOIs, AOIs$id, function(AOI) privateGetAOIDetails(study, AOI)))
+        AOIs <- merge(AOIs, AOIDetails[respId %like% respondent$id, c("aoiId", "startMediaOffset", "aoiInOuts")],
+                      by.x = "id", by.y = "aoiId")
     }
 
     return(AOIs)
