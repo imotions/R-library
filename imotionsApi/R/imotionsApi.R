@@ -26,6 +26,7 @@ imotionsApiEnvironment$loadedStudies <- list()
 #' @param token The token to be used for authentication.
 #' @param baseUrl Optional - The server to connect to in case of remote connection.
 #' @param s3BaseUrl Optional - The server to use to write back data in case of remote connection.
+#' @param localPath Optional - The path to write local file in case of remote connection (default to temporary folder).
 #'
 #' @return An imConnection object to be passed to other methods.
 #' @import methods
@@ -38,9 +39,9 @@ imotionsApiEnvironment$loadedStudies <- list()
 #'
 #' # Remote connection
 #' myToken <- "token"
-#' connection <- imotionsApi::imConnection(myToken, "myBaseUrl", "myS3BaseUrl")
+#' connection <- imotionsApi::imConnection(myToken, "myBaseUrl", "myS3BaseUrl", "myLocalPath")
 #' }
-imConnection <- function(token, baseUrl = NULL, s3BaseUrl = NULL) {
+imConnection <- function(token, baseUrl = NULL, s3BaseUrl = NULL, localPath = NULL) {
     assertValid(hasArg(token), "You need a token to connect.")
 
     # token starting with xxxxxxxx is assumed to be a local "manual" session
@@ -57,11 +58,12 @@ imConnection <- function(token, baseUrl = NULL, s3BaseUrl = NULL) {
         assertValid(!is.null(s3BaseUrl), "You need a s3BaseUrl for remote connection.")
     }
 
-    connection <- list(token = token, baseUrl = baseUrl, localIM = localIM, s3BaseUrl = s3BaseUrl)
+    connection <- list(token = token, baseUrl = baseUrl, localIM = localIM, s3BaseUrl = s3BaseUrl,
+                       localPath = localPath)
 
     attr(connection, "class") <- c("imConnection", "list")
 
-    message(paste("Connecting to iMotions API...", baseUrl))
+    message("Connecting to iMotions API... ", baseUrl)
     return(connection)
 }
 
@@ -98,12 +100,12 @@ imStudy <- function(connection, studyId) {
     if (studyId %in% names(imotionsApiEnvironment$loadedStudies)) {
         study <- imotionsApiEnvironment$loadedStudies[[studyId]]
 
-        message(paste0("Loading the study ", study$name, " (id = ", studyId, ") from loaded studies..."))
+        message("Loading the study ", study$name, " (id = ", studyId, ") from loaded studies...")
     } else {
         study <- getJSON(connection, getStudyUrlById(connection, studyId),
                          message = paste("Retrieving study with ID:", studyId))
 
-        message(paste0("Loading the study ", study$name, " (id = ", studyId, ") from the server..."))
+        message("Loading the study ", study$name, " (id = ", studyId, ") from the server...")
 
         attr(study, "class") <- c("imStudy", "list")
         imotionsApiEnvironment$loadedStudies[[studyId]] <- study
@@ -1486,8 +1488,10 @@ privateDownloadData <- function(study, sensor, signalsName = NULL) {
         index <- str_which(readLines(fileInfos$file_path, warn = FALSE), "#DATA")
         data <- fread(fileInfos$file_path, header = TRUE, skip = index, select = signalsName)
 
-        # Make sure we remove all the files in the temporary folder
-        unlink(file.path(fileInfos$tmp_dir, "*"), recursive = TRUE)
+        if (is.null(study$connection$localPath)) {
+            # Make sure we remove all the files in the temporary folder - in case a local path is provided keep it
+            unlink(file.path(fileInfos$tmp_dir, "*"), recursive = TRUE)
+        }
     }
 
     setDT(data)
@@ -2856,12 +2860,21 @@ getFile <- function(connection, url, message = NULL, fileName = NULL) {
     response <- getHttr(connection, url, message)
 
     # Use temporary directory to download data
-    tmp_dir <- tempdir(check = TRUE)
-    file_path <- file.path(tmp_dir, "tmp_data")
+    if (!is.null(connection$localPath)) {
+        tmp_dir <- connection$localPath
+        file_path <- file.path(tmp_dir, sub("^.*/StudyUpload/", "", url))
+        dir.create(dirname(file_path), showWarnings = FALSE, recursive = TRUE)
+    } else {
+        tmp_dir <- tempdir(check = TRUE)
+        file_path <- file.path(tmp_dir, basename(url))
+    }
 
-    # Detect if the file of interest is a zip or a csv file
-    file_path <- paste0(file_path, ifelse(response$headers$`content-type` == "application/zip", ".zip", ".csv"))
-    download.file(response$url, file_path, method = "auto", mode = "wb")
+    if (!file.exists(file_path)) {
+        # We only download the file if it's not there yet
+        download.file(response$url, file_path, method = "auto", mode = "wb")
+    } else {
+        message("Retrieving local data for ", file_path)
+    }
 
     if (grepl(".zip$", file_path)) {
         files_in_zip <- unzip(file_path, exdir = tmp_dir)

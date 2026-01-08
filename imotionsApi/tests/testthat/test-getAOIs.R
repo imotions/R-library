@@ -223,7 +223,7 @@ test_that("local warning - no AOIs for a specific respondent/stimulus pair", {
 test_that("remote warning - no AOIs for a specific respondent/stimulus pair or a specific stimulus", {
     # if no AOIs is present for a specific respondent/stimulus pair in remote study, should return the correct warning
     expect_warning(AOIs <- mockedPrivateAOIFiltering(study_cloud, respondent = respondents[1, ],
-                                                     stimulus = stimuli[1, ], expectedCallAoiDetails = 2),
+                                                     stimulus = stimuli[1, ], expectedCallAoiDetails = 0),
                    "No AOI defined for respondent: Wendy, stimulus: AntiSmoking40Sec",
                    info = "no AOI warning should have been thrown for this respondent/stimulus")
 
@@ -265,7 +265,7 @@ test_that("remote return - filtered AOIs data.table", {
     expect_equal(nrow(AOIs), 2, info = "study should contain 2 AOIs")
 
     # Should return all AOIs from this study for a specific stimulus
-    AOIs <- mockedPrivateAOIFiltering(study_cloud, stimulus = stimuli[14, ])
+    AOIs <- mockedPrivateAOIFiltering(study_cloud, stimulus = stimuli[15, ])
     expect_equal(nrow(AOIs), 1, info = "stimulus should contain 1 AOI")
 
     # Should return all AOIs from this study for a specific respondent
@@ -273,8 +273,8 @@ test_that("remote return - filtered AOIs data.table", {
     expect_equal(nrow(AOIs), 2, info = "study for this respondent should contain 2 AOIs")
 
     # Should return all AOIs from this study for a specific respondent and stimulus
-    AOIs <- mockedPrivateAOIFiltering(study_cloud, stimulus = stimuli[14, ], respondent = respondents[1, ],
-                                      expectedCallAoiDetails = 2)
+    AOIs <- mockedPrivateAOIFiltering(study_cloud, stimulus = stimuli[15, ], respondent = respondents[1, ],
+                                      expectedCallAoiDetails = 1)
 
     expect_equal(nrow(AOIs), 1, info = "combination should contain 1 AOIs")
 })
@@ -385,8 +385,8 @@ test_that("check - generateInOutFiles parameter", {
     # For remote study, should have the in/out data in case a respondent was provided
     stimuli <- getStimuli(study_cloud)
     respondents <- getRespondents(study_cloud)
-    AOIs <- mockedGetAOIs(study_cloud, stimulus = stimuli[14, ], respondent = respondents[1, ],
-                          generateInOutFiles = TRUE, expectedCallFiltering = 2)
+    AOIs <- mockedGetAOIs(study_cloud, stimulus = stimuli[15, ], respondent = respondents[1, ],
+                          generateInOutFiles = TRUE, expectedCallFiltering = 1)
 
     expect_s3_class(AOIs, "imAOI")
     expect_equal(nrow(AOIs), 1, info = "combination should contain 1 AOI")
@@ -395,7 +395,7 @@ test_that("check - generateInOutFiles parameter", {
                  info = "AOIs infos not matching")
 
     # For remote study, should not have the in/out data in case no respondent was provided
-    expect_warning(AOIs <- mockedGetAOIs(study_cloud, stimulus = stimuli[14, ], generateInOutFiles = TRUE))
+    expect_warning(AOIs <- mockedGetAOIs(study_cloud, stimulus = stimuli[15, ], generateInOutFiles = TRUE))
 
     expect_s3_class(AOIs, "imAOI")
     expect_equal(nrow(AOIs), 1, info = "combination should contain 1 AOI")
