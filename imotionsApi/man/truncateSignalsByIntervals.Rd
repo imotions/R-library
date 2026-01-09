@@ -11,7 +11,7 @@ truncateSignalsByIntervals(signals, intervals, dropIntervals = FALSE)
 "Timestamp" column that needs to be cut.}
 
 \item{intervals}{An imInterval or imIntervalList object with start/end of data to subset as given by
-\code{\link{getRespondentIntervals}} or \code{\link{getAOIRespondentData}}.}
+\code{\link{getRespondentIntervals}} or \code{\link{getAoiRespondentData}}.}
 
 \item{dropIntervals}{A boolean indicating whether Timestamps falling between an interval start/end should be
 discarded, by default there are kept and other Timestamps are removed.}

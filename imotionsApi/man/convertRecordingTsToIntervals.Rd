@@ -13,7 +13,7 @@ convertRecordingTsToIntervals(recordingTs, intervals, keepTs = FALSE)
 returned by \code{\link{getSensorData}} or data.table with a column Timestamp are also accepted.}
 
 \item{intervals}{An imInterval or imIntervalList object with start/end of a stimulus/scene/AOI as given by
-\code{\link{getRespondentIntervals}} or \code{\link{getAOIRespondentData}}.}
+\code{\link{getRespondentIntervals}} or \code{\link{getAoiRespondentData}}.}
 
 \item{keepTs}{A boolean (or string) indicating whether timestamps falling outside an interval start/end should be
 kept unchanged, by default there are discarded. If keepTs is set to "NA", timestamps falling outside

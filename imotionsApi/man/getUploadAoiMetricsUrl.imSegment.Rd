@@ -11,7 +11,7 @@
 
 \item{imObject}{An imRespondent or imSegment object of interest.}
 
-\item{AOI}{An imAOI object as returned from \code{\link{getAOIs}}.}
+\item{AOI}{An imAOI object as returned from \code{\link{getAois}}.}
 }
 \description{
 getUploadAoiMetricsUrl method to get the path/url to upload AOI metrics to this segment object.

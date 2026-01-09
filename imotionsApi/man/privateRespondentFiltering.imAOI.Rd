@@ -9,7 +9,7 @@
 \arguments{
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
-\item{obj}{An imAOI object as returned from \code{\link{getAOIs}} for which you would like to get the respondents.}
+\item{obj}{An imAOI object as returned from \code{\link{getAois}} for which you would like to get the respondents.}
 }
 \value{
 A data.table with all respondents for whom a specific AOI has been defined.

@@ -14,7 +14,7 @@ getUploadAoiMetricsUrl(study, imObject, AOI)
 
 \item{imObject}{An imRespondent or imSegment object of interest.}
 
-\item{AOI}{An imAOI object as returned from \code{\link{getAOIs}}.}
+\item{AOI}{An imAOI object as returned from \code{\link{getAois}}.}
 }
 \description{
 Generic getUploadAoiMetricsUrl function that takes as parameter a study object, a respondent/segment object and

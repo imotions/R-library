@@ -68,10 +68,6 @@ imConnection <- function(token, baseUrl = NULL, s3BaseUrl = NULL, localPath = NU
 }
 
 
-
-
-
-
 ## Study  =============================================================================================================
 
 #' Load an iMotions study by id.
@@ -191,9 +187,6 @@ unloadStudies <- function() {
 }
 
 
-
-
-
 ## Segment ===========================================================================================================
 
 #' Get all segments from a study.
@@ -251,9 +244,6 @@ getSegment <- function(study, segmentId) {
 }
 
 
-
-
-
 ## Stimulus ===========================================================================================================
 
 #' Get all stimuli from a study.
@@ -309,7 +299,6 @@ getStimuli <- function(study, respondent = NULL, relevant = TRUE) {
 }
 
 
-
 #' Private function to get parent stimulus names from a vector of parent ids and a stimuli data.table.
 #'
 #' The parent name is set to "" if a stimulus has no parent and to "N/A" if the stimulus parent was not found in the
@@ -331,7 +320,6 @@ privateGetParentStimulusNames <- function(parentIds, stimuli) {
     parentNames[!hasParent] <- ""
     return(parentNames)
 }
-
 
 
 #' Get a specific stimulus from a study.
@@ -362,15 +350,11 @@ getStimulus <- function(study, stimulusId) {
 }
 
 
-
-
-
-
 ## AOI ================================================================================================================
 
 #' Get AOIs from a study.
 #'
-#' Generic getAOIs function that takes as parameter a study object and optionally a respondent/stimulus object.
+#' Generic getAois function that takes as parameter a study object and optionally a respondent/stimulus object.
 #' In case no AOIs is defined for the combination, return NULL.
 #'
 #' Important to note: to speed up the computation of gazes falling in/out AOIs at the respondent/stimulus level, an
@@ -378,7 +362,7 @@ getStimulus <- function(study, stimulusId) {
 #' When enabled, a file will be generated for each AOI of this stimulus/respondent combination containing information
 #' regarding AOI activation/deactivation and gazes/clicks falling in. Filepaths to these newly generated files
 #' will be stored in their corresponding AOI object. If available, these filepaths will then directly be used by the
-#' \code{\link{getAOIRespondentData}} function instead of re-generating the files. This is particularly useful in case
+#' \code{\link{getAoiRespondentData}} function instead of re-generating the files. This is particularly useful in case
 #' multiple AOIs are defined for the same stimulus. For remote studies, InOutFiles are already generated so this
 #' parameter doesn't apply.
 #'
@@ -400,30 +384,30 @@ getStimulus <- function(study, stimulusId) {
 #' respondents <- imotionsApi::getRespondents(study)
 #'
 #' ## Get all AOIs in the study
-#' AOIs <- imotionsApi::getAOIs(study)
+#' AOIs <- imotionsApi::getAois(study)
 #'
 #' ## Get all AOIs defined for a specific stimulus
-#' AOIs <- imotionsApi::getAOIs(study, stimulus = stimuli[1, ])
+#' AOIs <- imotionsApi::getAois(study, stimulus = stimuli[1, ])
 #'
 #' ## Get all AOIs defined for a specific respondent
-#' AOIs <- imotionsApi::getAOIs(study, respondent = respondents[1, ])
+#' AOIs <- imotionsApi::getAois(study, respondent = respondents[1, ])
 #'
 #' ## Get all AOIs defined for a specific stimulus/respondent combination
-#' AOIs <- imotionsApi::getAOIs(study, respondent = respondents[1, ], stimulus = stimuli[1, ])
+#' AOIs <- imotionsApi::getAois(study, respondent = respondents[1, ], stimulus = stimuli[1, ])
 #'
 #' ## Get all AOIs defined for a specific stimulus/respondent combination and process their InOut data
-#' AOIs <- imotionsApi::getAOIs(study, respondent = respondents[1, ], stimulus = stimuli[1, ],
+#' AOIs <- imotionsApi::getAois(study, respondent = respondents[1, ], stimulus = stimuli[1, ],
 #'                              generateInOutFiles = T)
 #'
 #' print(AOIs$fileId) # a field "fileId" should have been added with the path to the InOut file
 #' }
-getAOIs <- function(study, stimulus = NULL, respondent = NULL, generateInOutFiles = FALSE) {
+getAois <- function(study, stimulus = NULL, respondent = NULL, generateInOutFiles = FALSE) {
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
     assertClass(study, "imStudy", "`study` argument is not an imStudy object")
     assertClass(stimulus, "imStimulus", "`stimulus` argument is not an imStimulus object")
     assertClass(respondent, "imRespondent", "`respondent` argument is not an imRespondent object")
 
-    AOIs <- privateAOIFiltering(study, stimulus, respondent)
+    AOIs <- privateAoiFiltering(study, stimulus, respondent)
 
     if (is.null(AOIs)) {
         return(NULL)
@@ -433,7 +417,7 @@ getAOIs <- function(study, stimulus = NULL, respondent = NULL, generateInOutFile
     if (generateInOutFiles && (is.null(stimulus) || is.null(respondent))) {
         warning("InOut files can only be generated when both respondent and stimulus argument are provided.")
     } else if (generateInOutFiles && study$connection$localIM) {
-        AOIDetails <- privateGetAOIDetails(study, stimulus, respondent)
+        AOIDetails <- privateGetAoiDetails(study, stimulus, respondent)
 
         if (is.null(AOIDetails)) {
             return(NULL)
@@ -448,7 +432,6 @@ getAOIs <- function(study, stimulus = NULL, respondent = NULL, generateInOutFile
 }
 
 
-
 #' Private function to compute the area of an AOI (adapted from pracma::polyarea).
 #'
 #' @param x The X coordinates of the polygon.
@@ -456,7 +439,7 @@ getAOIs <- function(study, stimulus = NULL, respondent = NULL, generateInOutFile
 #'
 #' @return A data.table with AOIs.
 #' @keywords internal
-privateCalculateAreaAOI <- function(x, y) {
+privateCalculateAreaAoi <- function(x, y) {
     # Compute the polygon area
     len <- length(x)
 
@@ -467,7 +450,6 @@ privateCalculateAreaAOI <- function(x, y) {
 }
 
 
-
 #' Private function to return the AOIs for a specific path/url.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
@@ -476,9 +458,14 @@ privateCalculateAreaAOI <- function(x, y) {
 #'
 #' @return A data.table with AOIs.
 #' @keywords internal
-privateAOIFormatting <- function(study, AOIsUrl, endpoint) {
-    # Retrieving AOI definitions for url of interest
-    AOIs <- getJSON(study$connection, AOIsUrl, message = paste("Retrieving AOIs for", endpoint))
+privateAoiFormatting <- function(study, AOIsUrl, endpoint) {
+    if (is.null(attr(study, "AOIs"))) {
+        # Retrieving AOI definitions for url of interest
+        AOIs <- getJSON(study$connection, AOIsUrl, message = paste("Retrieving AOIs for", endpoint))
+    } else {
+        # AOIs were already loaded once for online study and there is only an endpoint for the whole study
+        return(attr(study, "AOIs"))
+    }
 
     validate_cols <- intersect(c("currentCalculationTimeline", "respondentDefinitions"), names(AOIs))
 
@@ -508,7 +495,7 @@ privateAOIFormatting <- function(study, AOIsUrl, endpoint) {
                 x_pixels <- AOI$currentCalculationTimeline[[1]]$points[[1]]$x * 1920
                 y_pixels <- AOI$currentCalculationTimeline[[1]]$points[[1]]$y * 1080
 
-                return(privateCalculateAreaAOI(x_pixels, y_pixels))
+                return(privateCalculateAreaAoi(x_pixels, y_pixels))
             })
         }
 
@@ -527,9 +514,13 @@ privateAOIFormatting <- function(study, AOIsUrl, endpoint) {
 
     setDT(AOIs)
     setcolorder(AOIs, c("stimulusId", "stimulusName", "id", "name", "type", "group", "area"))
+
+    if (!study$connection$localIM) {
+        setattr(study, "AOIs", AOIs)
+    }
+
     return(AOIs)
 }
-
 
 
 #' Private generic function to filter the list of AOIs to return based on stimulus/respondent object.
@@ -540,13 +531,13 @@ privateAOIFormatting <- function(study, AOIsUrl, endpoint) {
 #'
 #' @return A data.table with AOIs filtered.
 #' @keywords internal
-privateAOIFiltering <- function(study, stimulus = NULL, respondent = NULL) {
+privateAoiFiltering <- function(study, stimulus = NULL, respondent = NULL) {
     if (is.null(stimulus) && is.null(respondent)) {
-        UseMethod("privateAOIFiltering", object = study)
+        UseMethod("privateAoiFiltering", object = study)
     } else if (!is.null(stimulus) && is.null(respondent)) {
-        UseMethod("privateAOIFiltering", object = stimulus)
+        UseMethod("privateAoiFiltering", object = stimulus)
     } else if (!is.null(respondent)) {
-        UseMethod("privateAOIFiltering", object = respondent)
+        UseMethod("privateAoiFiltering", object = respondent)
     }
 }
 
@@ -556,15 +547,15 @@ privateAOIFiltering <- function(study, stimulus = NULL, respondent = NULL) {
 #' S3 method default method to get all AOIs for a study.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#' @param ... Further arguments passed from the \code{\link{privateAOIFiltering}} method.
+#' @param ... Further arguments passed from the \code{\link{privateAoiFiltering}} method.
 #'
 #' @return A data.table with all AOIs for the study.
 #' @keywords internal
-privateAOIFiltering.imStudy <- function(study, ...) {
+privateAoiFiltering.imStudy <- function(study, ...) {
     endpoint <- paste("study:", study$name)
 
     # Retrieving AOI definitions for this study
-    AOIs <- privateAOIFormatting(study, getAOIsUrl(study), endpoint)
+    AOIs <- privateAoiFormatting(study, getAoisUrl(study), endpoint)
 
     return(AOIs)
 }
@@ -576,17 +567,17 @@ privateAOIFiltering.imStudy <- function(study, ...) {
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param stimulus An imStimulus object as returned from \code{\link{getStimuli}} for which you want to get the AOIs.
-#' @param ... Further arguments passed from the \code{\link{privateAOIFiltering}} method.
+#' @param ... Further arguments passed from the \code{\link{privateAoiFiltering}} method.
 #'
 #' @return A data.table with all AOIs defined for a specific stimulus.
 #' @keywords internal
-privateAOIFiltering.imStimulus <- function(study, stimulus, ...) {
+privateAoiFiltering.imStimulus <- function(study, stimulus, ...) {
     stimulusId <- NULL # set local variable to remove warnings in `devtools::check()`
 
     endpoint <- paste("stimulus:", stimulus$name)
 
     # Retrieving AOI definitions for this stimulus
-    AOIs <- privateAOIFormatting(study, getAOIsUrl(study, stimulusId = stimulus$id), endpoint)
+    AOIs <- privateAoiFormatting(study, getAoisUrl(study, stimulusId = stimulus$id), endpoint)
 
     if (!study$connection$localIM && !is.null(AOIs)) {
         # Filtering to only keep AOI definitions for the stimulus of interest
@@ -613,13 +604,13 @@ privateAOIFiltering.imStimulus <- function(study, stimulus, ...) {
 #'
 #' @return A data.table with all AOIs defined for a specific respondent.
 #' @keywords internal
-privateAOIFiltering.imRespondent <- function(study, stimulus = NULL, respondent) {
+privateAoiFiltering.imRespondent <- function(study, stimulus = NULL, respondent) {
     stimulusId <- respId <- NULL # set local variable to remove warnings in `devtools::check()`
 
     endpoint <- paste("respondent:", respondent$name)
 
     # Retrieving AOI definitions for this respondent
-    AOIs <- privateAOIFormatting(study, getAOIsUrl(study, respondentId = respondent$id), endpoint)
+    AOIs <- privateAoiFormatting(study, getAoisUrl(study, respondentId = respondent$id), endpoint)
 
     if (is.null(AOIs)) {
         return(NULL)
@@ -628,18 +619,25 @@ privateAOIFiltering.imRespondent <- function(study, stimulus = NULL, respondent)
     if (!is.null(stimulus)) {
         # Filtering to only keep AOI definitions for the stimulus of interest
         AOIs <- AOIs[stimulusId %like% stimulus$id, ]
+        endpoint <- paste0(endpoint, ", stimulus: ", stimulus$name)
+    }
 
-        if (nrow(AOIs) == 0) {
-            warning(paste0("No AOI defined for ", endpoint, ", stimulus: ", stimulus$name))
-            return(NULL)
+    if (!study$connection$localIM && nrow(AOIs) > 0) {
+        # For remote study, we need to filter for a specific respondent after getting AOIs for the whole study
+        AOIDetails <- rbindlist(by(AOIs, AOIs$id, function(AOI) privateGetAoiDetails(study, AOI)))
+
+        if (length(AOIDetails) > 0) {
+            AOIs <- merge(AOIs, AOIDetails[respId %like% respondent$id, c("aoiId", "startMediaOffset", "aoiInOuts")],
+                          by.x = "id", by.y = "aoiId")
+        } else {
+            # In/out details were not generated properly
+            AOIs <- AOIs[0, ]
         }
     }
 
-    if (!study$connection$localIM) {
-        # For remote study, we need to filter for a specific respondent after getting AOIs for the whole study
-        AOIDetails <- rbindlist(by(AOIs, AOIs$id, function(AOI) privateGetAOIDetails(study, AOI)))
-        AOIs <- merge(AOIs, AOIDetails[respId %like% respondent$id, c("aoiId", "startMediaOffset", "aoiInOuts")],
-                      by.x = "id", by.y = "aoiId")
+    if (nrow(AOIs) == 0) {
+        warning(paste("No AOI defined for", endpoint))
+        return(NULL)
     }
 
     return(AOIs)
@@ -648,7 +646,7 @@ privateAOIFiltering.imRespondent <- function(study, stimulus = NULL, respondent)
 
 #' Get a specific AOI from a study.
 #'
-#' Available AOIs can be found with \code{\link{getAOIs}}. In case no AOI is found, return NULL.
+#' Available AOIs can be found with \code{\link{getAois}}. In case no AOI is found, return NULL.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param AOIId The id of the AOI you would like to retrieve.
@@ -660,13 +658,13 @@ privateAOIFiltering.imRespondent <- function(study, stimulus = NULL, respondent)
 #' connection <- imotionsApi::imConnection("xxxxxxxx")
 #' studies <- imotionsApi::listStudies(connection)
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
-#' AOIs <- imotionsApi::getAOIs(study)
-#' AOI <- imotionsApi::getAOI(study, AOIs$id[1])
+#' AOIs <- imotionsApi::getAois(study)
+#' AOI <- imotionsApi::getAoi(study, AOIs$id[1])
 #' }
-getAOI <- function(study, AOIId) {
-    assertValid(hasArg(AOIId), "Please specify an AOIId. Available AOIs can be found with `getAOIs()`")
+getAoi <- function(study, AOIId) {
+    assertValid(hasArg(AOIId), "Please specify an AOIId. Available AOIs can be found with `getAois()`")
 
-    AOIs <- getAOIs(study)
+    AOIs <- getAois(study)
 
     if (is.null(AOIs)) {
         return(NULL)
@@ -683,9 +681,6 @@ getAOI <- function(study, AOIId) {
 }
 
 
-
-
-
 ## Respondent =========================================================================================================
 
 #' Get respondents from a study.
@@ -695,7 +690,7 @@ getAOI <- function(study, AOIId) {
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param stimulus Optional - An imStimulus object as returned from \code{\link{getStimuli}}.
-#' @param AOI Optional - An imAOI object as returned from \code{\link{getAOIs}}.
+#' @param AOI Optional - An imAOI object as returned from \code{\link{getAois}}.
 #' @param segment Optional - An imSegment object as returned from \code{\link{getSegments}}.
 #' @param keepRespondentVariables Optional - A boolean indicating whether respondent variables should be kept (if they
 #'                                are available). If this has the default value of FALSE, only the "group" variable is
@@ -710,7 +705,7 @@ getAOI <- function(study, AOIId) {
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
 #' stimuli <- imotionsApi::getStimuli(study)
 #' segments <- imotionsApi::getSegments(study)
-#' AOIs <- imotionsApi::getAOIs(study)
+#' AOIs <- imotionsApi::getAois(study)
 #'
 #' ## Get all respondents in the study
 #' respondents <- imotionsApi::getRespondents(study)
@@ -761,6 +756,7 @@ getRespondents <- function(study, stimulus = NULL, AOI = NULL, segment = NULL, k
     return(respondents)
 }
 
+
 #' Private generic function to filter the list of respondents to return based on stimulus/AOI object.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
@@ -775,6 +771,7 @@ privateRespondentFiltering <- function(study, obj = NULL) {
         UseMethod("privateRespondentFiltering", object = obj)
     }
 }
+
 
 #' Get all respondents from a study.
 #'
@@ -839,7 +836,7 @@ privateRespondentFiltering.imStimulus <- function(study, obj) {
 #' S3 method to get all respondents for a specific AOI.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#' @param obj An imAOI object as returned from \code{\link{getAOIs}} for which you would like to get the respondents.
+#' @param obj An imAOI object as returned from \code{\link{getAois}} for which you would like to get the respondents.
 #'
 #' @return A data.table with all respondents for whom a specific AOI has been defined.
 #' @keywords internal
@@ -847,7 +844,7 @@ privateRespondentFiltering.imAOI <- function(study, obj) {
     respondents <- privateRespondentFiltering.imStudy(study)
 
     # Retrieve AOI specific information
-    AOIRespondents <- privateGetAOIDetails(study, obj)
+    AOIRespondents <- privateGetAoiDetails(study, obj)
     AOIRespondents <- respondents[respondents$id %in% AOIRespondents$respId, ]
     return(AOIRespondents)
 }
@@ -880,9 +877,6 @@ getRespondent <- function(study, respondentId) {
     assertValid(nrow(respondent) == 1, paste("No respondent found matching id:", respondentId))
     return(respondent)
 }
-
-
-
 
 
 ## Sensor =============================================================================================================
@@ -1032,7 +1026,7 @@ getSensorsMetadata <- function(sensors) {
 #'
 #' This imIntervalList is composed of stimuli/scenes/annotations intervals.
 #' For remote study, only stimuli intervals are supported as of now.
-#' Note that AOIs intervals can be retrieved using \code{\link{getAOIRespondentData}}.
+#' Note that AOIs intervals can be retrieved using \code{\link{getAoiRespondentData}}.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
@@ -1238,7 +1232,6 @@ privateGetIntervalsForAnnotations <- function(study, respondent, stimuli) {
 }
 
 
-
 #' Truncate signals data based on given intervals.
 #'
 #' Any interval combination can be asked. Timestamps falling between an interval start/end will be kept, others will be
@@ -1248,7 +1241,7 @@ privateGetIntervalsForAnnotations <- function(study, respondent, stimuli) {
 #'                "Timestamp" column that needs to be cut.
 #'
 #' @param intervals An imInterval or imIntervalList object with start/end of data to subset as given by
-#'                  \code{\link{getRespondentIntervals}} or \code{\link{getAOIRespondentData}}.
+#'                  \code{\link{getRespondentIntervals}} or \code{\link{getAoiRespondentData}}.
 #'
 #' @param dropIntervals A boolean indicating whether Timestamps falling between an interval start/end should be
 #'                      discarded, by default there are kept and other Timestamps are removed.
@@ -1276,7 +1269,7 @@ truncateSignalsByIntervals <- function(signals, intervals, dropIntervals = FALSE
                                        "or a data.table including a `Timestamp` column"))
 
     assertValid(hasArg(intervals),
-                paste("Please specify intervals loaded with `getRespondentIntervals()` or `getAOIRespondentData()`"))
+                paste("Please specify intervals loaded with `getRespondentIntervals()` or `getAoiRespondentData()`"))
 
     assertClass(intervals, c("imInterval", "imIntervalList"),
                 "`intervals` argument is not an imInterval or imIntervalList object")
@@ -1306,7 +1299,6 @@ truncateSignalsByIntervals <- function(signals, intervals, dropIntervals = FALSE
 }
 
 
-
 #' Convert recording's timestamps (relative to data recording start) into stimulus/scene/AOI timestamps (relative to the
 #' interval first fragment start). Fragments are concatenated to give new array of timestamps in range [0,
 #' concatenated duration of stimulus/scene/AOI].
@@ -1318,7 +1310,7 @@ truncateSignalsByIntervals <- function(signals, intervals, dropIntervals = FALSE
 #'
 #'
 #' @param intervals An imInterval or imIntervalList object with start/end of a stimulus/scene/AOI as given by
-#'                  \code{\link{getRespondentIntervals}} or \code{\link{getAOIRespondentData}}.
+#'                  \code{\link{getRespondentIntervals}} or \code{\link{getAoiRespondentData}}.
 #'
 #' @param keepTs A boolean (or string) indicating whether timestamps falling outside an interval start/end should be
 #'               kept unchanged, by default there are discarded. If keepTs is set to "NA", timestamps falling outside
@@ -1342,7 +1334,7 @@ truncateSignalsByIntervals <- function(signals, intervals, dropIntervals = FALSE
 convertRecordingTsToIntervals <- function(recordingTs, intervals, keepTs = FALSE) {
     assertValid(hasArg(recordingTs), "Please specify an array, scalar or data.table with timestamps to modify")
     assertValid(hasArg(intervals), paste("Please specify intervals loaded with `getRespondentIntervals()`",
-                                         "or `getAOIRespondentData()`"))
+                                         "or `getAoiRespondentData()`"))
 
     assertClass(intervals, c("imInterval", "imIntervalList"),
                 "`intervals` argument is not an imInterval or imIntervalList object")
@@ -1441,7 +1433,6 @@ getSensorData <- function(study, sensor, signalsName = NULL, intervals = NULL) {
 }
 
 
-
 #' Return metrics / signals (with modified Timestamp if needed) for the sensor of interest.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
@@ -1499,7 +1490,6 @@ privateDownloadData <- function(study, sensor, signalsName = NULL) {
 }
 
 
-
 #' Get the inOutGaze information, inOutMouse information and AOI's intervals for a specific AOI/respondent
 #' combination. Note that imAOI object, by definition, are linked to a specific stimulus.
 #'
@@ -1512,7 +1502,7 @@ privateDownloadData <- function(study, sensor, signalsName = NULL) {
 #' AOI was never active, the table is empty.
 #'
 #' @param study An imStudy object as returned from imStudy()
-#' @param AOI An imAOI object as returned from \code{\link{getAOIs}}.
+#' @param AOI An imAOI object as returned from \code{\link{getAois}}.
 #' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
 #'
 #' @importFrom dplyr mutate_at %>%
@@ -1524,27 +1514,27 @@ privateDownloadData <- function(study, sensor, signalsName = NULL) {
 #' connection <- imotionsApi::imConnection("xxxxxxxx")
 #' studies <- imotionsApi::listStudies(connection)
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
-#' AOIs <- imotionsApi::getAOIs(study)
+#' AOIs <- imotionsApi::getAois(study)
 #' respondents <- imotionsApi::getRespondents(study, AOI = AOIs[1, ])
-#' AOIData <- imotionsApi::getAOIRespondentData(study, AOIs[1, ], respondents[1, ])
+#' AOIData <- imotionsApi::getAoiRespondentData(study, AOIs[1, ], respondents[1, ])
 #'
 #' # Retrieving list items
 #' inOutData <- AOIData$inOutData
 #' intervals <- AOIData$intervals
 #' }
-getAOIRespondentData <- function(study, AOI, respondent) {
+getAoiRespondentData <- function(study, AOI, respondent) {
     # set local variable to remove warnings in `devtools::check()`
-    IsActiveAOI <- IsGazeInAOI <- timestamp <- rowNumber <- NULL
+    IsActiveAOI <- IsGazeInAOI <- timestamp <- rowNumber <- IsMouseDown <- IsMouseInAOI <- Timestamp <- NULL
 
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
-    assertValid(hasArg(AOI), "Please specify an AOI loaded with `getAOIs()`")
+    assertValid(hasArg(AOI), "Please specify an AOI loaded with `getAois()`")
     assertValid(hasArg(respondent), "Please specify a respondent loaded with `getRespondents()`")
 
     assertClass(study, "imStudy", "`study` argument is not an imStudy object")
     assertClass(AOI, "imAOI", "`AOI` argument is not an imAOI object")
     assertClass(respondent, "imRespondent", "`respondent` argument is not an imRespondent object")
 
-    AOIDetails <- privateGetAOIDetails(study, AOI, respondent)
+    AOIDetails <- privateGetAoiDetails(study, AOI, respondent)
 
     if (length(AOIDetails) == 0 || nrow(AOIDetails) == 0) {
         warning(paste("AOI", AOI$name, "was not found for respondent", respondent$name))
@@ -1613,11 +1603,10 @@ getAOIRespondentData <- function(study, AOI, respondent) {
 }
 
 
-
 #' Get the metrics for a specific AOI/respondent combination.
 #'
 #' @param study An imStudy object as returned from imStudy()
-#' @param AOI An imAOI object as returned from \code{\link{getAOIs}}.
+#' @param AOI An imAOI object as returned from \code{\link{getAois}}.
 #' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
 #'
 #' @importFrom utils read.csv
@@ -1628,36 +1617,56 @@ getAOIRespondentData <- function(study, AOI, respondent) {
 #' connection <- imotionsApi::imConnection("xxxxxxxx")
 #' studies <- imotionsApi::listStudies(connection)
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
-#' AOIs <- imotionsApi::getAOIs(study)
+#' AOIs <- imotionsApi::getAois(study)
 #' respondents <- imotionsApi::getRespondents(study, AOI = AOIs[1, ])
-#' AOImetrics <- imotionsApi::getAOIRespondentMetrics(study, AOIs[1, ], respondents[1, ])
+#' AOImetrics <- imotionsApi::getAoiRespondentMetrics(study, AOIs[1, ], respondents[1, ])
 #' }
-getAOIRespondentMetrics <- function(study, AOI, respondent) {
+getAoiRespondentMetrics <- function(study, AOI, respondent) {
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
-    assertValid(hasArg(AOI), "Please specify an AOI loaded with `getAOIs()`")
+    assertValid(hasArg(AOI), "Please specify an AOI loaded with `getAois()`")
     assertValid(hasArg(respondent), "Please specify a respondent loaded with `getRespondents()`")
 
     assertClass(study, "imStudy", "`study` argument is not an imStudy object")
     assertClass(AOI, "imAOI", "`AOI` argument is not an imAOI object")
     assertClass(respondent, "imRespondent", "`respondent` argument is not an imRespondent object")
 
-    AOIDetails <- privateGetAOIDetails(study, AOI, respondent)
+    endpoint <- paste0("AOI: ", AOI$name, ", Respondent: ", respondent$name)
 
-    if (length(AOIDetails) == 0) {
-        warning(paste("AOI", AOI$name, "was not found for respondent", respondent$name))
-        return(NULL)
+    if (study$connection$localIM) {
+        AOIDetails <- privateGetAoiDetails(study, AOI, respondent)
+
+        if (length(AOIDetails) == 0) {
+            warning(paste("AOI", AOI$name, "was not found for respondent", respondent$name))
+            return(NULL)
+        }
+
+        if (is.na(AOIDetails$resultId)) {
+            warning(paste0("No metrics found for ", endpoint))
+            return(NULL)
+        }
+
+        metrics <- fread(AOIDetails$resultId)
+    } else {
+        # For online we load metrics written locally
+        if (is.null(study$connection$localPath)) {
+            warning("No localPath set when calling imConnection(), not possible to read metrics locally.")
+            return(NULL)
+        }
+
+        tmp_dir <- study$connection$localPath
+        file_name <- file.path(tmp_dir, sub("^.*/aoiDefinition/", "", AOI$fileId), paste0(respondent$id, "metrics.csv"))
+
+        if (file.exists(file_name)) {
+            metrics <- fread(file_name)
+        } else {
+            warning(paste0("No metrics found for ", endpoint))
+            return(NULL)
+        }
     }
 
-    if (is.na(AOIDetails$resultId)) {
-        warning(paste0("No metrics found for AOI: ", AOI$name, ", Respondent: ", respondent$name))
-        return(NULL)
-    }
-
-    metrics <- fread(AOIDetails$resultId)
     metrics <- checkDataFormat(metrics)
     return(metrics)
 }
-
 
 
 #' Private function that takes as parameter a study object, an imObject(imAOI or imStimulus) object and, optionally
@@ -1667,7 +1676,7 @@ getAOIRespondentMetrics <- function(study, AOI, respondent) {
 #' file paths to their corresponding IsGazeInAOI data).
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#' @param imObject An imAOI or imStimulus object as returned from \code{\link{getAOIs}} or \code{\link{getStimuli}}.
+#' @param imObject An imAOI or imStimulus object as returned from \code{\link{getAois}} or \code{\link{getStimuli}}.
 #'                 For remote study, only an imAOI object should ever be used.
 #'
 #' @param respondent Optional - An imRespondent object as returned from \code{\link{getRespondents}}.
@@ -1676,7 +1685,7 @@ getAOIRespondentMetrics <- function(study, AOI, respondent) {
 #'         to their IsGazeInAOI data).
 #'
 #' @keywords internal
-privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
+privateGetAoiDetails <- function(study, imObject, respondent = NULL) {
     endpoint <- paste0(gsub("^im|List", "", class(imObject)[1]), ": ", imObject$name)
 
     if (!is.null(respondent)) {
@@ -1689,7 +1698,7 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
             return(imObject)
         }
 
-        dataUrl <- getAOIDetailsUrl(study, imObject, respondent)
+        dataUrl <- getAoiDetailsUrl(study, imObject, respondent)
         AOIDetails <- getJSON(study$connection, dataUrl, message = paste("Retrieving details for", endpoint))
 
         # Give a warning in case some AOIs data are missing due to IVT/gazemapping issues
@@ -1707,6 +1716,13 @@ privateGetAOIDetails <- function(study, imObject, respondent = NULL) {
         }
 
         AOIDetails <- getJSON(study$connection, imObject$fileId, message = paste("Retrieving details for", endpoint))
+
+        # Give a warning in case some AOIs data are missing due to IVT issues
+        if (length(AOIDetails) == 0) {
+            warning(paste("AOI:", imObject$name, "in/out file generation failed, check the IVT data."))
+            return(NULL)
+        }
+
         setnames(AOIDetails, c("stimuliId", "respondentId", "aoiDefinitionId"), c("stimId", "respId", "aoiId"))
 
         if (!is.null(respondent)) {
@@ -1810,11 +1826,10 @@ uploadSensorData <- function(params, study, data, target, sensorName, scriptName
 }
 
 
-
 #' Upload metrics for a specific respondent and AOI in a study.
 #'
 #' @param study An imStudy object as returned from imStudy()
-#' @param AOI An imAOI object as returned from \code{\link{getAOIs}}.
+#' @param AOI An imAOI object as returned from \code{\link{getAois}}.
 #' @param target The target respondent/segment for the sensor (an imRespondent/imSegment object as returned from
 #'               \code{\link{getRespondents}} or \code{\link{getSegments}}).
 #' @param metrics A data.table containing the metrics to upload.
@@ -1825,14 +1840,14 @@ uploadSensorData <- function(params, study, data, target, sensorName, scriptName
 #' connection <- imotionsApi::imConnection("xxxxxxxx")
 #' studies <- imotionsApi::listStudies(connection)
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
-#' AOIs <- imotionsApi::getAOIs(study)
+#' AOIs <- imotionsApi::getAois(study)
 #' respondents <- imotionsApi::getRespondents(study, AOI = AOIs[1, ])
 #' metrics <- data.frame("metric1" = 2, "metric2" = 234, "metric3" = 1234)
-#' uploadAOIMetrics(study, AOIs[1, ], respondents[1, ], metrics)
+#' uploadAoiMetrics(study, AOIs[1, ], respondents[1, ], metrics)
 #' }
-uploadAOIMetrics <- function(study, AOI, target, metrics) {
+uploadAoiMetrics <- function(study, AOI, target, metrics) {
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
-    assertValid(hasArg(AOI), "Please specify an AOI loaded with `getAOIs()`")
+    assertValid(hasArg(AOI), "Please specify an AOI loaded with `getAois()`")
     assertValid(hasArg(target), paste("Please specify a target respondent/segment loaded with `getRespondents()` or",
                                       "`getSegments()`"))
 
@@ -1847,32 +1862,81 @@ uploadAOIMetrics <- function(study, AOI, target, metrics) {
     assertUploadFormat(metrics)
 
     if (inherits(metrics, "imAOIMetrics")) {
-        if (study$connection$localIM) {
-            AOIDetails <- privateGetAOIDetails(study, AOI, target)
-
-            if (length(AOIDetails) == 0) {
-                warning(paste("AOI", AOI$name, "was not found for respondent", target$name))
-                return(NULL)
-            }
-
-            dataFileName <- paste0(tools::file_path_sans_ext(AOIDetails$fileId), "metrics.csv")
-            fwrite(x = metrics, file = dataFileName, col.names = TRUE, row.names = FALSE)
-        } else {
-            # Replace NaN by NA for the cloud
-            metrics[is.na(metrics)] <- NA_real_
-            uploadUrl <- getUploadAoiMetricsUrl(study, target, AOI)
-
-            body <- list(aoiDefinition = list(id = AOI$id), segment = list(id = target$id), stats = as.list(metrics),
-                         updatedDate = AOI$updatedDate)
-
-            putHttr(study$connection, uploadUrl, reqBody = toJSON(body, na = "null"),
-                    message = paste0("Updating AOI metrics for segment: ", target$name, ", AOI: ", AOI$name))
-        }
+        privateUploadAoiMetrics(study, target, AOI, metrics)
     } else {
         warning("AOI metrics should be a data.frame/data.table composed of only one row")
     }
 }
 
+
+#' Generic privateUploadAoiMetrics function that takes as parameter a study object, a respondent/segment object, an AOI
+#' and some metrics to upload.
+#'
+#' Writes back metrics locally or upload them based on the workflow selected.
+#'
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#' @param obj An imRespondent or imSegment object of interest.
+#' @param AOI An imAOI object as returned from \code{\link{getAois}}.
+#' @param metrics A data.table containing the metrics to upload.
+#'
+#' @keywords internal
+privateUploadAoiMetrics <- function(study, obj, AOI, metrics) {
+    UseMethod("privateUploadAoiMetrics", object = obj)
+}
+
+
+#' Writes back metrics locally for a respondent of interest.
+#'
+#' S3 method to write back metrics locally for a specific respondent.
+#'
+#' @inheritParams privateUploadAoiMetrics
+#'
+#' @keywords internal
+privateUploadAoiMetrics.imRespondent <- function(study, obj, AOI, metrics) {
+    AOIDetails <- privateGetAoiDetails(study, AOI, obj)
+
+    if (length(AOIDetails) == 0) {
+        warning(paste("AOI", AOI$name, "was not found for respondent", obj$name))
+        return()
+    }
+
+    if (study$connection$localIM) {
+        dataFileName <- paste0(tools::file_path_sans_ext(AOIDetails$fileId), "metrics.csv")
+    } else {
+        if (is.null(study$connection$localPath)) {
+            warning("Please set a localPath when calling imConnection() to write back metrics locally.")
+            return()
+        }
+
+        # For online we write back metrics locally
+        tmp_dir <- study$connection$localPath
+        dataFileName <- file.path(tmp_dir, sub("^.*/aoiDefinition/", "", AOI$fileId), paste0(obj$id, "metrics.csv"))
+
+        dir.create(dirname(dataFileName), showWarnings = FALSE, recursive = TRUE)
+    }
+
+    fwrite(x = metrics, file = dataFileName, col.names = TRUE, row.names = FALSE)
+}
+
+
+#' Upload metrics for a segment of interest.
+#'
+#' S3 method to upload metrics for a specific segment.
+#'
+#' @inheritParams privateUploadAoiMetrics
+#'
+#' @keywords internal
+privateUploadAoiMetrics.imSegment <- function(study, obj, AOI, metrics) {
+    # Replace NaN by NA for online (segment upload)
+    metrics[is.na(metrics)] <- NA_real_
+    uploadUrl <- getUploadAoiMetricsUrl(study, obj, AOI)
+
+    body <- list(aoiDefinition = list(id = AOI$id), segment = list(id = obj$id), stats = as.list(metrics),
+                 updatedDate = AOI$updatedDate)
+
+    putHttr(study$connection, uploadUrl, reqBody = toJSON(body, na = "null"),
+            message = paste0("Updating AOI metrics for segment: ", obj$name, ", AOI: ", AOI$name))
+}
 
 
 #' Upload AOI metrics metadata for a specific study. The "Group" and "Group description" fields are mandatory
@@ -1890,9 +1954,9 @@ uploadAOIMetrics <- function(study, AOI, target, metrics) {
 #' metadata <- data.table("Units" = c("ms", ""), "Show" = c("FALSE", "TRUE"), "Group" = c("1", "2"),
 #'                        "Group description" = c("1", "2"))
 #'
-#' uploadAOIMetadata(study, metadata)
+#' uploadAoiMetadata(study, metadata)
 #' }
-uploadAOIMetadata <- function(study, metadata) {
+uploadAoiMetadata <- function(study, metadata) {
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
     assertValid(hasArg(metadata), "Please specify a data.table with metadata to upload")
 
@@ -1912,7 +1976,6 @@ uploadAOIMetadata <- function(study, metadata) {
         warning("Saving of AOI metadata is only available for remote studies.")
     }
 }
-
 
 
 #' Create events for a specific respondent in a study.
@@ -1982,7 +2045,6 @@ uploadEvents <- function(params, study, events, target, eventsName, scriptName, 
 }
 
 
-
 #' Create metrics for a specific respondent in a study.
 #'
 #' Metrics data.table must be composed of a StimulusId column, a Timestamp column, and at least one additional column
@@ -2050,6 +2112,7 @@ uploadMetrics <- function(params, study, metrics, target, metricsName, scriptNam
     }
 
 }
+
 
 #' Upload signals/events/metrics to a given respondent/segment.
 #'
@@ -2130,7 +2193,6 @@ privateUpload <- function(params, study, data, target, sampleName, scriptName, m
 }
 
 
-
 #' Create a temporary file with the data/metadata that needs to be uploaded.
 #'
 #' @inheritParams privateUpload
@@ -2192,8 +2254,6 @@ privateSaveToFile <- function(params, study, data, sampleName, scriptName, metad
 }
 
 
-
-
 #' Create headers specific to the data format (signals, events, exports).
 #'
 #' @inheritParams privateUpload
@@ -2212,8 +2272,6 @@ privateCreatePostRequest <- function(params, study, sampleName, fileName, overwr
     postRequest <- toJSON(postRequest, null = "null")
     return(postRequest)
 }
-
-
 
 
 #' Create headers specific to the data format (signals, events, exports).
@@ -2240,8 +2298,6 @@ privateGetFileHeader <- function(data, params, sampleName, scriptName, metadata 
     headers[1] <- paste0("\ufeff", headers[1])
     return(headers)
 }
-
-
 
 
 #' Create header for the file that needs to be uploaded.
@@ -2275,7 +2331,6 @@ privateCreateHeader <- function(params, data, sampleName, scriptName) {
     dataHeader <- c(params$iMotionsVersion, "#HEADER", class_type, params$flowName, signal_type, "", metadata)
     return(dataHeader)
 }
-
 
 
 #' Create metadata for the file that needs to be uploaded.
@@ -2322,6 +2377,7 @@ privateCreateMetadata <- function(data, metadata = NULL) {
     metadata <- c("#METADATA", metadata_values)
     return(unname(metadata))
 }
+
 
 ## Exporting Data =====================================================================================================
 
@@ -2502,6 +2558,7 @@ getStudyBaseUrl <- function(study) {
     file.path(study$connection$baseUrl)
 }
 
+
 #' Return the s3basePath/s3baseUrl to the iMotions server based on a specific study object (used to download data).
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
@@ -2514,6 +2571,7 @@ getStudyS3BaseUrl <- function(study) {
         file.path(study$connection$s3BaseUrl)
     }
 }
+
 
 #' Return the path/url to the studies available.
 #'
@@ -2697,6 +2755,7 @@ getUploadAoiMetadataUrl <- function(study) {
     }
 }
 
+
 #' Generic getUploadAoiMetricsUrl function that takes as parameter a study object, a respondent/segment object and
 #' an AOI
 #' .
@@ -2704,7 +2763,7 @@ getUploadAoiMetadataUrl <- function(study) {
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param imObject An imRespondent or imSegment object of interest.
-#' @param AOI An imAOI object as returned from \code{\link{getAOIs}}.
+#' @param AOI An imAOI object as returned from \code{\link{getAois}}.
 #'
 #' @keywords internal
 getUploadAoiMetricsUrl <- function(study, imObject, AOI) {
@@ -2719,12 +2778,12 @@ getUploadAoiMetricsUrl <- function(study, imObject, AOI) {
 #' @keywords internal
 getUploadAoiMetricsUrl.imSegment <- function(study, imObject, AOI) {
     if (!study$connection$localIM) {
-        file.path(getAOIsUrl(study), AOI$id, "segments", imObject$id, "stats")
+        file.path(getAoisUrl(study), AOI$id, "segments", imObject$id, "stats")
     }
 }
 
 
-#' getAOIUrl function that takes as parameter a study object and optionally a respondent or a stimulus id.
+#' getAoiUrl function that takes as parameter a study object and optionally a respondent or a stimulus id.
 #'
 #' Return the path/url to the AOIs for this study/respondent/stimulus.
 #'
@@ -2733,7 +2792,7 @@ getUploadAoiMetricsUrl.imSegment <- function(study, imObject, AOI) {
 #' @param respondentId Optional - the id of the respondent of interest.
 #'
 #' @keywords internal
-getAOIsUrl <- function(study, stimulusId = NULL, respondentId = NULL) {
+getAoisUrl <- function(study, stimulusId = NULL, respondentId = NULL) {
     if (!is.null(stimulusId) && !is.null(respondentId)) {
         stop("Please provide either stimulusId or respondentId, not both.")
     }
@@ -2753,7 +2812,8 @@ getAOIsUrl <- function(study, stimulusId = NULL, respondentId = NULL) {
     return(url)
 }
 
-#' Generic getAOIDetailsUrl function that takes as parameter a study object, an AOI/stimulus object and optionally
+
+#' Generic getAoiDetailsUrl function that takes as parameter a study object, an AOI/stimulus object and optionally
 #' a respondent object. This function is only used in case of a local study.
 #'
 #' Return the path/url to a specific AOI's details information or to all AOIs' details for a specific stimulus.
@@ -2763,18 +2823,18 @@ getAOIsUrl <- function(study, stimulusId = NULL, respondentId = NULL) {
 #' @param respondent Optional - An imRespondent object as returned from  \code{\link{getRespondents}}.
 #'
 #' @keywords internal
-getAOIDetailsUrl <- function(study, imObject, respondent = NULL) {
-    UseMethod("getAOIDetailsUrl", object = imObject)
+getAoiDetailsUrl <- function(study, imObject, respondent = NULL) {
+    UseMethod("getAoiDetailsUrl", object = imObject)
 }
 
 
-#' getAOIDetailsUrl.imAOI method to return the path/url to a specific AOI's details information.
+#' getAoiDetailsUrl.imAOI method to return the path/url to a specific AOI's details information.
 #'
-#' @inheritParams getAOIDetailsUrl
+#' @inheritParams getAoiDetailsUrl
 #'
 #' @keywords internal
-getAOIDetailsUrl.imAOI <- function(study, imObject, respondent = NULL) {
-    url <- file.path(getAOIsUrl(study, imObject$stimulusId))
+getAoiDetailsUrl.imAOI <- function(study, imObject, respondent = NULL) {
+    url <- file.path(getAoisUrl(study, imObject$stimulusId))
 
     if (!is.null(respondent)) {
         url <- file.path(url, "respondent", respondent$id)
@@ -2785,13 +2845,13 @@ getAOIDetailsUrl.imAOI <- function(study, imObject, respondent = NULL) {
 }
 
 
-#' getAOIDetailsUrl.imStimulus method to return the path/url to all AOIs' details for a specific stimulus.
+#' getAoiDetailsUrl.imStimulus method to return the path/url to all AOIs' details for a specific stimulus.
 #'
-#' @inheritParams getAOIDetailsUrl
+#' @inheritParams getAoiDetailsUrl
 #'
 #' @keywords internal
-getAOIDetailsUrl.imStimulus <- function(study, imObject, respondent = NULL) {
-    url <- file.path(getAOIsUrl(study, imObject$id))
+getAoiDetailsUrl.imStimulus <- function(study, imObject, respondent = NULL) {
+    url <- file.path(getAoisUrl(study, imObject$id))
 
     if (!is.null(respondent)) {
         url <- file.path(url, "respondent", respondent$id)
@@ -2800,6 +2860,7 @@ getAOIDetailsUrl.imStimulus <- function(study, imObject, respondent = NULL) {
     url <- file.path(url, "*")
     return(url)
 }
+
 
 #' Return the path/url to the scenes of a specific respondent.
 #'
@@ -3042,8 +3103,6 @@ stopOnHttpError <- function(response, message = NULL) {
 }
 
 
-
-
 ## Test helper and data reformating functions =========================================================================
 
 #' Stop if a condition is not fulfilled and print an error message.
@@ -3070,6 +3129,7 @@ assertClass <- function(object, className, message) {
     }
 }
 
+
 #' Stop if the data to upload is in a wrong format.
 #'
 #' @param data An imSignals or imMetrics object of the good format.
@@ -3086,6 +3146,7 @@ assertUploadFormat <- function(data) {
     }
 }
 
+
 #' Stop if the data to export is in a wrong format.
 #'
 #' @param data An imExport object of the good format.
@@ -3096,6 +3157,7 @@ assertExportFormat <- function(data) {
         stop("Wrong data format for export (must be imMetrics or imExport)")
     }
 }
+
 
 #' Check the format of a data.table and classify it as an imSignals, imMetrics, imEvents or imExport object.
 #'
@@ -3135,6 +3197,7 @@ checkDataFormat <- function(data) {
     return(data)
 }
 
+
 #' Reorder columns of a data.table based on a vector of column names.
 #'
 #' @param data A data.table with columns to reorder.
@@ -3147,6 +3210,7 @@ reorderColnames <- function(data, explicitlyOrdered) {
     setcolorder(data, explicitlyOrdered)
     return(data)
 }
+
 
 #' Make sensors columns order a bit more intuitive, and reliable.
 #'

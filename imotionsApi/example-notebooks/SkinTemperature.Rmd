@@ -1,6 +1,6 @@
 ---
 title: "Skin Temperature"
-description: "Computes the calibrated skin temperature assuming amp run in DC, according to corresponding gain and chosen temperature scale for each respondent"
+description: "Computes for each respondent the calibrated skin temperature assuming amp run in DC, according to corresponding gain and chosen temperature scale."
 helpUrl: https://go.imotions.com/Skin_Temperature
 dependencies:
   sensor: "Biopac"
@@ -30,14 +30,15 @@ output:
     code_download: true
 ---
 
-```{r global_options, include=FALSE}
-library(imotionsApi)
-library(data.table)
-library(dplyr)
-library(kableExtra)
-library(knitr)
+```{r Setup, include = FALSE, purl = FALSE}
+knitr::opts_chunk$set(message = FALSE, results = "asis", dev = "ragg_png")
 
-start_time <- Sys.time()
+suppressPackageStartupMessages({
+    library(imotionsApi)
+    library(signal)
+    library(data.table)
+    library(stringr)
+})
 ```
 
 ```{r Parameters, purl = TRUE}
@@ -46,116 +47,113 @@ gain <- as.numeric(params$GainSelection)
 temp_scale <- params$TemperatureScaleSelection
 ```
 
-```{r Get skin temperature sensor, purl = TRUE}
-#' Retrieving skin temperature data
+```{r Functions specific to this script, purl = FALSE}
+#' Retrieve the Skin Temperature data for a given respondent.
+#' The signal names are determined automatically.
 #'
-#' @param study An imStudy object as returned from \code{\link{imotionsApi::imStudy}}.
-#' @param respondent An imRespondent object as returned from \code{\link{imotionsApi::getRespondents}}.
-#' @param selectedSensorName selectedSensorName from software dropdown - cloud value is empty and we use autodetection
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
+#' @param selected_sensor_name selectedSensorName from software dropdown - cloud value is "" and we use autodetection.
 #'
-#' @details Supports Biopac
-#'
-#' @return A data.table containing the requested skin temperature data
-getSkintempData <- function(study, respondent, selectedSensorName) {
-    # Now it retrieves all sensors for a respondent of interest
-    rSensors <- getSensors(study, respondent)
+#' @return A data.table containing the requested Skin Temperature data.
+getSktData <- function(study, respondent, selected_sensor_name) {
+    # Retrieves all sensors for a respondent of interest
+    sensors <- getSensors(study, respondent)
+    sensors <- sensors[sensor != "R Analysis" & eventSourceType == "Sensor", ]
 
-    rSensors <- rSensors[!sensor == "R Analysis" & eventSourceType == "Sensor", ]
+    # in case a device has been selected, we just use this one
+    if (selected_sensor_name != "") {
+        device_info <- unlist(str_split(selected_sensor_name, "\\|\\|"))
+        selected_sensor <- sensors[sensor == device_info[1] & name == device_info[2] & instance == device_info[3], ]
 
-    # in case of empty selectedSensorName (cloud data), the function will autodetect it
-    sensorSensor <- unlist(strsplit(selectedSensorName, "||", fixed = T))[1]
-    sensorName <- unlist(strsplit(selectedSensorName, "||", fixed = T))[2]
-    sensorInstance <<- unlist(strsplit(selectedSensorName, "||", fixed = T))[3]
-
-    if ((!is.na(sensorSensor) & sensorSensor == "Biopac") || (is.na(sensorSensor) && "Biopac" %in% rSensors$sensor)) {
-        message("Biopac Sensor identified.")
-        tempSensorIdx <- grepl("SKT100C", rSensors$instance) & grepl("Biopac", rSensors$sensor)
-        instanceIdx <- sensorInstance == rSensors$instance
-
-        # if the instance name match a skin temperature data we use this one, else we select the first device found
-        if (sum(tempSensorIdx & instanceIdx, na.rm = T) == 1) {
-            tempSensorIdx <- tempSensorIdx & instanceIdx
+        if (nrow(selected_sensor) == 0) {
+            # Handle the case where multiple stations are used with different devices (i.e. NBC lab setup)
+            htmlWarning("The device selected was not found for this respondent, trying autodetection instead.")
+            selected_sensor_name <- ""
+        } else {
+            sensors <- selected_sensor
         }
-
-        if (sum(tempSensorIdx) == 0) {
-            message("Skin temperature sensor not found.")
-            return(NULL)
-        }
-
-        if (sum(tempSensorIdx) > 1) {
-            infoMessage("More than one Biopac device is present. Using the first one.")
-        }
-
-        ## Retrieves the names of the signals as they can vary...
-        sensor <- rSensors[tempSensorIdx, ][1, ]
-        signalNames <- rSensors[tempSensorIdx, ]$signals[[1]]
-        signalName <- signalNames[grepl("Raw", signalNames)]
-
-        if (!signalName %in% signalNames) {
-            message("The skin temperature signal was not found.")
-            return(NULL)
-        }
-
-        # Retrieves data for respondent, containing the Timestamp and Signal column
-        Temp_Raw <- getSensorData(study, sensor, signalName)
-
-        estimated_sample_rate <- 1000 / median(diff(Temp_Raw$Timestamp))
-        message(paste("Sample rate:", estimated_sample_rate, "Hz"))
-
-        attr(Temp_Raw, "sensor") <- sensorInstance
-        attr(Temp_Raw, "sensor and channel type") <- "Biopac"
     }
 
-    # Renames the Signal column to Volt
-    names(Temp_Raw)[2] <- "Volt"
-    return(Temp_Raw)
+    if (any(grepl("Biopac", sensors$sensor) & grepl("SKT", sensors$instance))) {
+        device_type <- "Biopac"
+        signal_instance <- "SKT100C"
+        signal_name <- "Raw"
+        skt_sensor_idx <- grepl(signal_instance, sensors$instance) & grepl("Biopac", sensors$sensor)
+    } else {
+        if (selected_sensor_name == "") {
+            htmlError("Autodetection could not find any skin temperature sensor.")
+        } else {
+            htmlError("The device selected do not include any skin temperature signal.")
+        }
+        return(NULL)
+    }
+
+    message(paste(device_type, "identified."))
+
+    # If more than one device has been found by autodetection, throw a warning and select the first one
+    if (sum(skt_sensor_idx) > 1) {
+        htmlWarning(paste("More than one", device_type, "skin temperature device is present.",
+                          "Using the first one for processing."))
+    }
+
+    # Select the sensor and signals of interest
+    sensor <- sensors[skt_sensor_idx, ][1, ]
+    signals <- sensor$signals[[1]]
+    selected_signal_names <- grep(paste(signal_name, collapse = "|"), signals, value = TRUE)
+
+    # Retrieve the Skin Temperature data
+    skt_data <- getSensorData(study, sensor, selected_signal_names)
+
+    # Renames signal column to Volt
+    names(skt_data)[2] <- "Volt"
+
+    instance <- unique(strsplit(paste(sensor$sensor, sensor$instance, sensor$name), "\\s+")[[1]])
+    attr(skt_data, "instance") <- paste(gsub(":", "", instance), collapse = " ")
+    attr(skt_data, "device") <- device_type
+
+    return(skt_data)
 }
 ```
 
-```{r set, purl = FALSE}
-studyId <- params$studyId
-respondentId <- params$respondentId
-selectedSensorName <- params$selectedSensorName
-
-### Connect to iMotions and retrieve informations
+```{r Connecting to iMotions, purl = FALSE}
+# Creating connection and loading respondent
 connection <- imConnection(params$token)
-study <- imStudy(connection, studyId)
-respondent <- getRespondent(study, respondentId)
+study <- imStudy(connection, params$studyId)
+respondent <- getRespondent(study, params$respondentId)
 
-studyName <- study$name
-respondentName <- respondent$name
+study_name <- study$name
+respondent_name <- respondent$name
 ```
 
 ```{r Raw data to temperature, purl = FALSE}
-Temp_signal <- getSkintempData(study, respondent, selectedSensorName)
+# Extracting data
+skt_data <- getSktData(study, respondent, selectedSensorName)
 
 # Converting to Fahrenheit and adjusting with corresponding gain
-Temp_signal$Volt <- (Temp_signal$Volt * gain) + 90
+skt_data$`Skin Temperature` <- (skt_data$Volt * gain) + 90
 
-# Converts to Celsius if it is chosen, otherwise proceeded with Fahrenheit
-# Columns are furthermore renamed according to chosen temperature scale
-if (temp_scale == "Celsius (deg C)") {
-    colname <- "Skin Temperature (deg C)"
-    Temp_signal$Volt <- (Temp_signal$Volt - 30) / 2
+# Skin temperture calculation (convertion into celcius if chosen)
+if (temp_scale == "Celcius (deg C)") {
+    skt_data$`Skin Temperature` <- round((skt_data$`Skin Temperature` - 30) / 2, 1)
 } else {
-    colname <- "Skin Temperature (deg F)"
+    skt_data$`Skin Temperature` <- round(skt_data$`Skin Temperature`, 1)
 }
-
-setnames(Temp_signal, "Volt", colname)
 ```
 
 
 ```{r Upload, purl = FALSE}
-#Uploading the converted signals
-ul_temp_signal <- uploadSensorData(params, study, Temp_signal, respondent, sensorName = "Calibrated Skin Temperature",
-                                   scriptName = "Skin-Temperature")
+# Creates metadata for appropriate grouping of the signal
+group <- c("", "Skin Temperature")
+metadata <- data.table("Provided By" = "iMotions", "Group" = group)
 
-end_time <- Sys.time()
-time_taken <- end_time - start_time
+# Uploading the converted signals
+ul_temp_signal <- uploadSensorData(params, study, skt_data, respondent, "Calibrated Skin Temperature",
+                                   scriptName = "Skin Temperature", metadata)
 ```
 
-#### Study: ``r studyName``
-#### Respondent: ``r respondentName``
+#### Study: ``r study_name``
+#### Respondent: ``r respondent_name``
 
 --- 
 This R notebook has performed the following steps:
@@ -163,8 +161,6 @@ This R notebook has performed the following steps:
 * Retrieval of the raw signal (Volt, V) from the sensor.
 
 * Generates the calibrated skin temperature in `r temp_scale` based on raw signal amplified by a gain of `r gain`. 
-
-*Computation started at `r format(start_time, usetz = TRUE)` / Notebook execution time: `r format(time_taken)`*
 
 ### References
 

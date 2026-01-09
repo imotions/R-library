@@ -74,22 +74,22 @@ Then list all available studies you have in iMotions with the command:
 imotionsApi::listStudies(connection)
 ```
 
-A list of studies with their corresponding IDs will be listed, locate the one you need and fill it into `studyId`:
+A list of studies with their corresponding IDs will be listed, locate the one you need and fill it into `study_id`:
 
 ![Find the study ID.](tutorial2-3.png)
 
-Use command in R console to directly define studyId:
+Use command in R console to directly define study_id:
 
 ```{r, eval=F, echo=T}
-studyId <- "7f4d87c1-add3-462f-b6e0-73c1e11d340e"
+study_id <- "7f4d87c1-add3-462f-b6e0-73c1e11d340e"
 ```
 
 
-Then load an iMotions study by studyId. This will retrieve detailed information about a study including stimuli, 
+Then load an iMotions study by study_id. This will retrieve detailed information about a study including stimuli, 
 respondents, segments, and more. The returned value is an imStudy object that can be passed to other methods later:
 
 ```{r, eval=F, echo=T}
-study <- imotionsApi::imStudy(connection, studyId)
+study <- imotionsApi::imStudy(connection, study_id)
 ```
 
 Then list all available respondents of that study in iMotions with the command:
@@ -99,18 +99,18 @@ imotionsApi::getRespondents(study)
 ```
 
 A list of respondents with their corresponding IDs will be listed, locate the one you need and fill it into 
-`respondentId`.
+`respondent_id`.
 
-Use command in R console to directly define `respondentId`:
+Use command in R console to directly define `respondent_id`:
 
 ```{r, eval=F, echo=T}
-respondentId <- "b5c4abef-7856-4a08-ac4a-6922dda6b674"
+respondent_id <- "b5c4abef-7856-4a08-ac4a-6922dda6b674"
 ```
 
-Last, get information of a specific respondent by `respondentId`:
+Last, get information of a specific respondent by `respondent_id`:
 
 ```{r, eval=F, echo=T}
-respondent <-  imotionsApi::getRespondent(study, respondentId)
+respondent <-  imotionsApi::getRespondent(study, respondent_id)
 ```
 
 
@@ -120,10 +120,10 @@ First retrieves all sensors information for a respondent of interest with the co
 
 
 ```{r, eval=F, echo=T}
-rSensors <-  imotionsApi::getSensors(study, respondent)[!sensor == "R Analysis" & eventSourceType == "Sensor", ]
+repondent_sensor <-  imotionsApi::getSensors(study, respondent)[!sensor == "R Analysis" & eventSourceType == "Sensor", ]
 ```
 
-In this example, the 4th row’s sensor information is what we want to extract from the returned rSensors:
+In this example, the 4th row’s sensor information is what we want to extract from the returned repondent_sensor:
 
 ![Respondent samples.](tutorial2-4.png)
 
@@ -131,8 +131,8 @@ We extract the 4th row by columns “sensor” (a value given by iMotions based 
 example, it’s “Biopac”) and “instance” (a device name given by users. In this example, it’s “SKT100C”):
 
 ```{r, eval=F, echo=T}
-tempSampleIdx <- grepl("SKT100C", rSensors$instance) & grepl("Biopac", rSensors$sensor)
-sensor <- rSensors[tempSampleIdx, ][1, ]
+temp_sensor_idx <- grepl("SKT100C", repondent_sensor$instance) & grepl("Biopac", repondent_sensor$sensor)
+sensor <- repondent_sensor[temp_sensor_idx, ][1, ]
 ```
 
 The returned sensor contains all information of the sensor that our wanted signal (raw skin temperature) belongs to:
@@ -143,19 +143,19 @@ Next, we retrieve the name of our wanted signal with commands:
 
 
 ```{r, eval=F, echo=T}
-signalNames <- sensor$signals[[1]]
-signalName <- signalNames[grepl("Raw", signalNames)]
+signal_names <- sensor$signals[[1]]
+signal_name <- signal_names[grepl("Raw", signal_names)]
 ```
 
-In this example, the returned signalName is `Channel 2 (Raw)`.
+In this example, the returned signal_name is `Channel 2 (Raw)`.
 
-As the last step, we retrieve the wanted signal for a given respondent by study, sensor and signalName:
+As the last step, we retrieve the wanted signal for a given respondent by study, sensor and signal_name:
 
 ```{r, eval=F, echo=T}
-Temp_Raw <-  imotionsApi::getSensorData(study, sensor, signalName)
+raw_temp_data <-  imotionsApi::getSensorData(study, sensor, signal_name)
 ```
 
-The returned object “Temp_Raw” contains wanted signal and its corresponding Timestamp, you can do further data extraction and analysis from now on:
+The returned object “raw_temp_data” contains wanted signal and its corresponding Timestamp, you can do further data extraction and analysis from now on:
 
 ![The returned temperature data.](tutorial2-6.png)
 

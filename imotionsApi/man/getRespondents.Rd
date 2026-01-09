@@ -17,7 +17,7 @@ getRespondents(
 
 \item{stimulus}{Optional - An imStimulus object as returned from \code{\link{getStimuli}}.}
 
-\item{AOI}{Optional - An imAOI object as returned from \code{\link{getAOIs}}.}
+\item{AOI}{Optional - An imAOI object as returned from \code{\link{getAois}}.}
 
 \item{segment}{Optional - An imSegment object as returned from \code{\link{getSegments}}.}
 
@@ -39,7 +39,7 @@ studies <- imotionsApi::listStudies(connection)
 study <- imotionsApi::imStudy(connection, studies$id[1])
 stimuli <- imotionsApi::getStimuli(study)
 segments <- imotionsApi::getSegments(study)
-AOIs <- imotionsApi::getAOIs(study)
+AOIs <- imotionsApi::getAois(study)
 
 ## Get all respondents in the study
 respondents <- imotionsApi::getRespondents(study)

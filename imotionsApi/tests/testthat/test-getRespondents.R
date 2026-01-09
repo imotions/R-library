@@ -61,27 +61,27 @@ test_that("remote return - respondents for a specific stimulus", {
 })
 
 test_that("local return - respondents for a specific AOI", {
-    privateGetAOIDetails_Stub <- mock(jsonlite::fromJSON(AOIDetailsPath))
+    privateGetAoiDetails_Stub <- mock(jsonlite::fromJSON(AOIDetailsPath))
 
     # Case where only two respondents (out of 3) have an AOI defined
-    respondents <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub, {
+    respondents <- mockr::with_mock(privateGetAoiDetails = privateGetAoiDetails_Stub, {
         privateRespondentFiltering(study, obj = AOI)
     })
 
-    expect_args(privateGetAOIDetails_Stub, 1, study = study, imObject = AOI)
+    expect_args(privateGetAoiDetails_Stub, 1, study = study, imObject = AOI)
     expect_equal(nrow(respondents), 2, info = "respondents should only contain a 2 respondents")
     expect_identical(respondents$name, c("Quilana", "Olana"), "respondents name is not matching")
 })
 
 test_that("remote return - respondents for a specific AOI", {
-    privateGetAOIDetails_Stub <- mock(jsonlite::fromJSON(AOIDetailsPath_cloud))
+    privateGetAoiDetails_Stub <- mock(jsonlite::fromJSON(AOIDetailsPath_cloud))
 
     # Case where only 2 respondents (out of 7) have an AOI defined
-    respondents <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub, {
+    respondents <- mockr::with_mock(privateGetAoiDetails = privateGetAoiDetails_Stub, {
         privateRespondentFiltering(study_cloud, obj = AOI_cloud)
     })
 
-    expect_args(privateGetAOIDetails_Stub, 1, study = study_cloud, imObject = AOI_cloud)
+    expect_args(privateGetAoiDetails_Stub, 1, study = study_cloud, imObject = AOI_cloud)
     expect_equal(nrow(respondents), 2, info = "respondents should only contain 2 respondents")
     expect_identical(respondents$name, c("bab55356-43fc-4c25-a39d-a1d513965614",
                                          "0b042e95-93e7-4e00-8534-5307452cc757"), "respondents name are not matching")
@@ -213,12 +213,12 @@ test_that("remote return - imRespondentList for a specific segment/stimulus", {
 })
 
 test_that("local return - imRespondentList for a specific segment/AOI", {
-    privateGetAOIDetails_Stub <- mock(jsonlite::fromJSON(AOIDetailsPath))
+    privateGetAoiDetails_Stub <- mock(jsonlite::fromJSON(AOIDetailsPath))
 
     # Only 1 respondent (out of 2) from the segment has the AOI defined
     segments <- getSegments(study)
 
-    respondents <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub, {
+    respondents <- mockr::with_mock(privateGetAoiDetails = privateGetAoiDetails_Stub, {
         getRespondents(study, AOI = AOI, segment = segments[1, ])
     })
 
@@ -227,12 +227,12 @@ test_that("local return - imRespondentList for a specific segment/AOI", {
 })
 
 test_that("remote return - imRespondentList for a specific segment/AOI", {
-    privateGetAOIDetails_Stub <- mock(jsonlite::fromJSON(AOIDetailsPath_cloud))
+    privateGetAoiDetails_Stub <- mock(jsonlite::fromJSON(AOIDetailsPath_cloud))
 
     # Only 1 respondent from the segment has the AOI defined
     segments <- getSegments(study_cloud)
 
-    respondents <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub, {
+    respondents <- mockr::with_mock(privateGetAoiDetails = privateGetAoiDetails_Stub, {
         getRespondents(study_cloud, AOI = AOI_cloud, segment = segments[1, ])
     })
 

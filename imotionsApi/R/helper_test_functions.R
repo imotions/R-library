@@ -14,16 +14,17 @@ toJSON <- function(...) {
     jsonlite::toJSON(..., auto_unbox = TRUE)
 }
 
+file.exists <- function(...) {
+    base::file.exists(...)
+}
 
 fwrite <- function(...) {
     data.table::fwrite(...)
 }
 
-
-write.csv <- function(...) {
-    utils::write.csv(...)
+fread <- function(...) {
+    data.table::fread(...)
 }
-
 
 writeLines <- function(...) {
     base::writeLines(...)

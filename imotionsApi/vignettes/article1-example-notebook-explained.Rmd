@@ -27,7 +27,7 @@ If you write your own R Notebooks that use the imotionsApi package, please note 
 
 ```{yaml, eval=F, echo=T}
 title: "Skin Temperature"
-description: "Computes absolute skin temperature for each respondent assuming amp run in DC, according to corresponding gain and chosen temperature scale."
+description: "Computes for each respondent the calibrated skin temperature assuming amp run in DC, according to corresponding gain and chosen temperature scale."
 helpUrl: https://go.imotions.com/Skin_Temperature
 dependencies:
   sensor: "Biopac"
@@ -152,20 +152,22 @@ params:
 
 
 
-Please note that the new R library will apply the computation on study level: when you load a signal,
-it will be retrieved for the entire duration of the study recording i.e., for all the stimuli.
+Please note that, using this library: when you load a signal, it will be retrieved for the entire duration of the study recording i.e., for all the stimuli.
 
 ## 2. Defining global options: packages loading
 
-```{r, eval=F, echo=T}
-library(imotionsData)
-library(data.table)
-library(dplyr)
-library(kableExtra)
-library(knitr)
+```{r Setup, include = FALSE, purl = FALSE, eval=F, echo=T}
+knitr::opts_chunk$set(message = FALSE, results = "asis", dev = "ragg_png")
+
+suppressPackageStartupMessages({
+    library(imotionsApi)
+    library(signal)
+    library(data.table)
+    library(stringr)
+})
 ```
 
-Load the packages needed for the notebook running. iMotions already has the iMotions R library and various third-party
+Load the packages needed for the notebook running. iMotions already has the imotionsApi R library and various third-party
 packages needed for released notebooks installed. If you install other packages as part of the code in your notebook, 
 they will not work in iMotions desktop since they need to be installed from iMotions side. You can find all iMotions installed packages from here: `C:\Program Files\iMotions\Lab_XG\R\library`.
 
@@ -174,9 +176,8 @@ here for an overview of available functions and detailed descriptions or type ?i
 
 ## 3. Retrieving parameters
 
-```{r, eval=F, echo=T}
+```{r Parameters, purl = FALSE, eval=F, echo=T}
 # Retrieves parameters
-selectedSensorName <- params$selectedSensorName
 gain <- as.numeric(params$GainSelection)
 temp_scale <- params$TemperatureScaleSelection
 ```
@@ -184,81 +185,104 @@ temp_scale <- params$TemperatureScaleSelection
 
 ## 4. Defining functions
 
-```{r, eval=F, echo=T}
-#' Retrieving skin temperature datasample
-#'
-#' @param study An imStudy object as returned from \code{\link{imotionsApi::imStudy}}.
-#' @param respondent An imRespondent object as returned from \code{\link{imotionsApi::getRespondents}}.
-#' @param selectedSensorName selectedSensorName from software dropdown - cloud value is empty and we use autodetection
-#'
-#' @details Supports Biopac
-#'
-#' @return A data.table containing the requested skin temperature data for a given respondent
-getSkintempSample <- function(study, respondent, selectedSensorName) {
-    # Retrieves all sensors for a respondent of interest
-    rSensors <- getSensors(study, respondent)
-    rSensors <- rSensors[!sensor == "R Analysis" & eventSourceType == "Sensor", ]
+We are providing a set of functions that can be used across scripts, you can load them using the following chunk.
 
-    # in case of empty selectedSensorName (cloud data), the function will autodetect it
-    sensorSensor <- unlist(strsplit(selectedSensorName, "||", fixed = T))[1]
-    sensorName <- unlist(strsplit(selectedSensorName, "||", fixed = T))[2]
-    sensorInstance <<- unlist(strsplit(selectedSensorName, "||", fixed = T))[3]
+```{r Functions common to all scripts, purl = FALSE, eval=F, echo=T}
+# Load function common to all scripts (first look inside the same directory and if empty look inside the parent)
+common_function_file <- "common_export_functions.R"
 
-    if ((!is.na(sensorSensor) & sensorSensor == "Biopac") || (is.na(sensorSensor) && "Biopac" %in% rSamples$sensor)) {
-        message("Biopac Sensor identified.")
-        tempSampleIdx <- grepl("SKT100C", rSensors$instance) & grepl("Biopac", rSensors$sensor)
-        instanceIdx <- sensorInstance == rSensors$instance
-
-        # if the instance name match a skin temperature data we use this one, else we select the first device found
-        if (sum(tempSampleIdx & instanceIdx, na.rm = T) == 1) {
-            tempSampleIdx <- tempSampleIdx & instanceIdx
-        }
-
-        if (sum(tempSampleIdx) == 0) {
-            message("Skin temperature sample not found.")
-            return(NULL)
-        }
-
-        if (sum(tempSampleIdx) > 1) {
-            infoMessage("More than one Biopac device is present. Using the first one.")
-        }
-
-        # Retrieves the name of the wanted signal
-        sensor <- rSensors[tempSampleIdx, ][1, ]
-        signalNames <- sensor$signals[[1]]
-        signalName <- signalNames[grepl("Raw", signalNames)]
-
-        if (!signalName %in% signalNames) {
-            message("The skin temperature signal was not found.")
-            return(NULL)
-        }
-
-        # Retrieves data for respondent, containing the Timestamp and Signal column
-        Temp_Raw <- getSensorData(study, sensor, signalName)
-    }
-
-    # Renames the Signal column to Volt
-    names(Temp_Raw)[2] <- "Volt"
-    return(Temp_Raw)
+if (file.exists(common_function_file)) {
+    sys.source(common_function_file, envir = knitr::knit_global())
+} else {
+    sys.source(dir("..", common_function_file, recursive = TRUE, full.names = TRUE), envir = knitr::knit_global())
 }
+
+# Hide code hide/show button from html report to avoid a lot of skipped lines
+hideCodeButtons()
 ```
 
-Define the function to retrieve skin temperature data samples for given study and respondents from iMotions.
+Define the function to retrieve skin temperature data samples for a given study and respondent from iMotions.
+
+```{r Functions specific to this script, purl = FALSE, eval=F, echo=T}
+#' Retrieve the Skin Temperature data for a given respondent.
+#' The signal names are determined automatically.
+#'
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
+#' @param selected_sensor_name selectedSensorName from software dropdown - cloud value is "" and we use autodetection.
+#'
+#' @return A data.table containing the requested Skin Temperature data.
+getSktData <- function(study, respondent, selected_sensor_name) {
+    # Retrieves all sensors for a respondent of interest
+    sensors <- getSensors(study, respondent)
+    sensors <- sensors[sensor != "R Analysis" & eventSourceType == "Sensor", ]
+
+    # in case a device has been selected, we just use this one
+    if (selected_sensor_name != "") {
+        device_info <- unlist(str_split(selected_sensor_name, "\\|\\|"))
+        selected_sensor <- sensors[sensor == device_info[1] & name == device_info[2] & instance == device_info[3], ]
+
+        if (nrow(selected_sensor) == 0) {
+            # Handle the case where multiple stations are used with different devices (i.e. NBC lab setup)
+            htmlWarning("The device selected was not found for this respondent, trying autodetection instead.")
+            selected_sensor_name <- ""
+        } else {
+            sensors <- selected_sensor
+        }
+    }
+
+    if (any(grepl("Biopac", sensors$sensor) & grepl("SKT", sensors$instance))) {
+        device_type <- "Biopac"
+        signal_instance <- "SKT100C"
+        signal_name <- "Raw"
+        skt_sensor_idx <- grepl(signal_instance, sensors$instance) & grepl("Biopac", sensors$sensor)
+    } else {
+        if (selected_sensor_name == "") {
+            htmlError("Autodetection could not find any skin temperature sensor.")
+        } else {
+            htmlError("The device selected do not include any skin temperature signal.")
+        }
+        return(NULL)
+    }
+
+    message(paste(device_type, "identified."))
+
+    # If more than one device has been found by autodetection, throw a warning and select the first one
+    if (sum(skt_sensor_idx) > 1) {
+        htmlWarning(paste("More than one", device_type, "skin temperature device is present.",
+                          "Using the first one for processing."))
+    }
+
+    # Select the sensor and signals of interest
+    sensor <- sensors[skt_sensor_idx, ][1, ]
+    signals <- sensor$signals[[1]]
+    selected_signal_names <- grep(paste(signal_name, collapse = "|"), signals, value = TRUE)
+
+    # Retrieve the Skin Temperature data
+    skt_data <- getSensorData(study, sensor, selected_signal_names)
+
+    # Renames signal column to Volt
+    names(skt_data)[2] <- "Volt"
+
+    instance <- unique(strsplit(paste(sensor$sensor, sensor$instance, sensor$name), "\\s+")[[1]])
+    attr(skt_data, "instance") <- paste(gsub(":", "", instance), collapse = " ")
+    attr(skt_data, "device") <- device_type
+
+    return(skt_data)
+}
+```
 
 
 ## 5. Connecting to iMotions
 
-```{r, eval=F, echo=T}
-studyId <- params$studyId
-respondentId <- params$respondentId
-
-### Connect to iMotions and retrieve informations
+```{r Connecting to iMotions, purl = FALSE, eval=F, echo=T}
+# Creating connection and loading respondent
 connection <- imConnection(params$token)
-study <- imStudy(connection, studyId)
-respondent <- getRespondent(study, respondentId)
+study <- imStudy(connection, params$studyId)
+respondent <- getRespondent(study, params$respondentId)
 
-studyName <- study$name
-respondentName <- respondent$name
+study_name <- study$name
+respondent_name <- respondent$name
 ```
 
 Establish connection to iMotions API and retrieve study/analysis information (stimuli, respondents and more) by calling
@@ -267,23 +291,19 @@ functions provided by `imotionsApi`.
 ## 6. Executing algorithms
 
 
-```{r, eval=F, echo=T}
-# Extracting data sample
-Temp_signal <- getSkintempSample(study, respondent, selectedSensorName)
+```{r Raw data to temperature, purl = FALSE, eval=F, echo=T}
+# Extracting data
+skt_data <- getSktData(study, respondent, selectedSensorName)
 
-# Converts to Fahrenheit and adjusting with corresponding gain
-Temp_signal$Volt <- (Temp_signal$Volt * gain) + 90
+# Converting to Fahrenheit and adjusting with corresponding gain
+skt_data$`Skin Temperature` <- (skt_data$Volt * gain) + 90
 
-# Converts to Celsius if it is chosen, otherwise proceeded with Fahrenheit
-# Columns are furthermore renamed according to chosen temperature scale
-if (temp_scale == "Celsius (deg C)") {
-    colname <- "Skin Temperature (deg C)"
-    Temp_signal$Volt <- (Temp_signal$Volt - 30) / 2
+# Skin temperture calculation (convertion into celcius if chosen)
+if (temp_scale == "Celcius (deg C)") {
+    skt_data$`Skin Temperature` <- round((skt_data$`Skin Temperature` - 30) / 2, 1)
 } else {
-    colname <- "Skin Temperature (deg F)"
+    skt_data$`Skin Temperature` <- round(skt_data$`Skin Temperature`, 1)
 }
-
-setnames(Temp_signal, "Volt", colname)
 ```
 
 The algorithms (here it’s converting raw data to temperature) are executed and results are generated.
@@ -292,19 +312,17 @@ The algorithms (here it’s converting raw data to temperature) are executed and
 ## 7. Uploading results to iMotions for display
 
 
-```{r, eval=F, echo=T}
+```{r Upload, purl = FALSE, eval=F, echo=T}
 # Creates metadata for appropriate grouping of the signal
 group <- c("", "Skin Temperature")
 metadata <- data.table("Provided By" = "iMotions", "Group" = group)
 
 # Uploading the converted signals
-ul_temp_signal <- uploadSensorData(params, study, Temp_signal, respondent, "Absolute Skin Temperature",
-                                   scriptName = "Skin-Temperature", metadata)
+ul_temp_signal <- uploadSensorData(params, study, skt_data, respondent, "Calibrated Skin Temperature",
+                                   scriptName = "Skin Temperature", metadata)
 ```
 
-After processing, upload either signals (with a Timestamp column) or metrics
-(single values, with no Timestamp) to iMotions by calling the function `uploadSensorData`
-provided by `imotionsApi`. The data then can be viewed and exported locally through the iMotions Desktop software.
+After processing, upload either signals (with a Timestamp column), metrics and/or events to iMotions by calling the function `uploadSensorData`, `uploadMetrics` and/or `uploadEvents` provided by `imotionsApi`. The data then can be viewed and exported locally through the iMotions Desktop software.
 
 
 ## 8. Generating report
