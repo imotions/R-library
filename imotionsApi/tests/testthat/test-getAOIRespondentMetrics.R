@@ -27,8 +27,8 @@ mockedGetAoiRespondentMetrics <- function(study, AOI, respondent, AOIDetailsFile
     metrics <- mockr::with_mock(privateGetAoiDetails = privateGetAoiDetails_Stub,
                                 file.exists = file.exists_Stub,
                                 fread = fread_Stub, {
-        getAoiRespondentMetrics(study, AOI, respondent)
-    })
+                                    getAoiRespondentMetrics(study, AOI, respondent)
+                                })
 
     expect_called(privateGetAoiDetails_Stub, expectCallsDetails)
 

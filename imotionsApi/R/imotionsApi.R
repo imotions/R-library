@@ -475,7 +475,7 @@ privateAoiFormatting <- function(study, AOIsUrl, endpoint) {
     }
 
     if (length(AOIs) == 0 || (study$connection$localIM && all(lengths(AOIs$aois) == 0)) ||
-        (!study$connection$localIM && nrow(AOIs) == 0)) {
+            (!study$connection$localIM && nrow(AOIs) == 0)) {
         warning(paste("No AOI defined for", endpoint))
         return(NULL)
     }
