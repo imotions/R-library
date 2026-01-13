@@ -533,12 +533,14 @@ privateAoiFormatting <- function(study, AOIsUrl, endpoint) {
 #' @keywords internal
 privateAoiFiltering <- function(study, stimulus = NULL, respondent = NULL) {
     if (is.null(stimulus) && is.null(respondent)) {
-        UseMethod("privateAoiFiltering", object = study)
+        object <- study
     } else if (!is.null(stimulus) && is.null(respondent)) {
-        UseMethod("privateAoiFiltering", object = stimulus)
+        object <- stimulus
     } else if (!is.null(respondent)) {
-        UseMethod("privateAoiFiltering", object = respondent)
+        object <- respondent
     }
+
+    UseMethod("privateAoiFiltering", object = object)
 }
 
 
@@ -766,10 +768,10 @@ getRespondents <- function(study, stimulus = NULL, AOI = NULL, segment = NULL, k
 #' @keywords internal
 privateRespondentFiltering <- function(study, obj = NULL) {
     if (is.null(obj)) {
-        UseMethod("privateRespondentFiltering", object = study)
-    } else {
-        UseMethod("privateRespondentFiltering", object = obj)
+        obj <- study
     }
+
+    UseMethod("privateRespondentFiltering", object = obj)
 }
 
 
@@ -1505,7 +1507,7 @@ privateDownloadData <- function(study, sensor, signalsName = NULL) {
 #' @param AOI An imAOI object as returned from \code{\link{getAois}}.
 #' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
 #'
-#' @importFrom dplyr mutate_at %>%
+#' @importFrom dplyr mutate_at
 #' @return A list with inOutGaze/inOutMouse information for the specific AOI/respondent combination and an
 #'         imIntervalList object (data.table) composed of the start, end, duration, id and name of this AOI.
 #' @export
@@ -1549,7 +1551,7 @@ getAoiRespondentData <- function(study, AOI, respondent) {
             notActivatedAOI <- TRUE
         } else {
             data <- read_parquet(AOIDetails$fileId)
-            data <- data %>% mutate_at(namesInout, as.logical)
+            data <- data |> mutate_at(namesInout, as.logical)
             setDT(data)
         }
     } else {
