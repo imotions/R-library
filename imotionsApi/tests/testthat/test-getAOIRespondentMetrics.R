@@ -108,7 +108,7 @@ test_that("local return - metrics for this AOI/respondent pair", {
 test_that("remote warning - in case no local path is set, should send a warning and return NULL", {
     expect_warning(metrics <- mockedGetAoiRespondentMetrics(study_cloud, AOI_cloud, respondent),
                    "No localPath set when calling imConnection(), not possible to read metrics locally.",
-                   fixed = TRUE, info = "no local path should throw an warning")
+                   fixed = TRUE, info = "no local path, should throw an warning")
 
     expect_null(metrics, "result should be null")
 })

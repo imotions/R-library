@@ -974,7 +974,6 @@ getSensors <- function(study, target, stimulus = NULL) {
 #'
 #' @param sensors An imSensorList object as returned from \code{\link{getSensors}}.
 #'
-#' @importFrom utils URLdecode
 #' @importFrom dplyr bind_rows
 #' @importFrom utils type.convert
 #' @return A data.table with sensors metadata (one row by sensor).
@@ -1442,7 +1441,6 @@ getSensorData <- function(study, sensor, signalsName = NULL, intervals = NULL) {
 #' @param signalsName Optional - A vector of specific signals name you would like to return.
 #'
 #' @importFrom arrow read_parquet set_cpu_count
-#' @importFrom tidyselect any_of
 #' @importFrom rlang enquo
 #' @importFrom utils download.file unzip
 #' @return A data.table with all signals (or specified signals) from the sensor of interest.
@@ -1611,7 +1609,6 @@ getAoiRespondentData <- function(study, AOI, respondent) {
 #' @param AOI An imAOI object as returned from \code{\link{getAois}}.
 #' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
 #'
-#' @importFrom utils read.csv
 #' @return A data.table of one row (imMetrics object) with metrics for the AOI /respondent combination of interest.
 #' @export
 #' @examples
@@ -2200,7 +2197,6 @@ privateUpload <- function(params, study, data, target, sampleName, scriptName, m
 #' @inheritParams privateUpload
 #'
 #' @import stringr
-#' @importFrom purrr modify_if %>%
 #' @keywords internal
 privateSaveToFile <- function(params, study, data, sampleName, scriptName, metadata = NULL) {
     # Create the temporary file
