@@ -52,6 +52,7 @@ imConnection <- function(token, baseUrl = NULL, s3BaseUrl = NULL, localPath = NU
         # Assume connecting locally
         envUrl <- Sys.getenv("IMOTIONS_R_SERVER")
         baseUrl <- ifelse(nchar(envUrl) > 0, envUrl, "http://localhost:8086")
+        localPath <- NULL
     } else {
         # Assume remote connection and check that urls are not null
         assertValid(!is.null(baseUrl), "You need a baseUrl for remote connection.")
