@@ -187,8 +187,8 @@ test_that("remote return - correct paths to the file", {
 
     fileInfos <- mockedGetFile(connection_cloud, url, mockResponse, events_fileName)
 
-    expected_path <- "tmp_data.csv"
-    expect_identical(fileInfos$file_path, file.path(fileInfos$tmp_dir, expected_path), "wrong file found")
+    expected_path <- file.path(fileInfos$tmp_dir, "Native_SlideEvents_cloud.csv")
+    expect_identical(fileInfos$file_path, expected_path, "wrong file found")
 
     expect_true(file.exists(fileInfos$file_path), info = "file should exists")
     unlink(c(fileInfos$file_path, file.path(fileInfos$tmp_dir, "ProgramData")), recursive = TRUE)

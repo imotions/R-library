@@ -43,6 +43,15 @@ test_that("remote return - imConnection object", {
 
     expect_false(connection$localIM, info = "should not be tagged as local connection")
     expect_identical(connection$s3BaseUrl, "https://test/", info = "Wrong s3BaseUrl for remote connection")
+    expect_null(connection$localPath, info = "Local path was not set")
+
+    # in case a local path is specified
+    expect_message(connection <- imConnection("remote_token", baseUrl = "https://my.imotions.com/testcustom",
+                                              s3BaseUrl = "https://test/", localPath = "myLocalPath"),
+                   "Connecting to iMotions API... https://my.imotions.com/testcustom\n",
+                   info = "wrong message output")
+
+    expect_identical(connection$localPath, "myLocalPath", info = "Wrong local path for remote connection")
 })
 
 test_that("check - print function", {

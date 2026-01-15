@@ -16,7 +16,7 @@ test_that("error - arguments are missing or not from the good class", {
 
     # in case of missing intervals
     expect_error(truncateSignalsByIntervals(signals),
-                 "Please specify intervals loaded with `getRespondentIntervals()` or `getAOIRespondentData()`",
+                 "Please specify intervals loaded with `getRespondentIntervals()` or `getAoiRespondentData()`",
                  fixed = TRUE, info = "missing `intervals` param not handled properly")
 
     # in case of signals that is not of the good format

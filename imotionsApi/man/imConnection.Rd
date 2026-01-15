@@ -4,7 +4,7 @@
 \alias{imConnection}
 \title{Create a connection with the iMotions API.}
 \usage{
-imConnection(token, baseUrl = NULL, s3BaseUrl = NULL)
+imConnection(token, baseUrl = NULL, s3BaseUrl = NULL, localPath = NULL)
 }
 \arguments{
 \item{token}{The token to be used for authentication.}
@@ -12,6 +12,8 @@ imConnection(token, baseUrl = NULL, s3BaseUrl = NULL)
 \item{baseUrl}{Optional - The server to connect to in case of remote connection.}
 
 \item{s3BaseUrl}{Optional - The server to use to write back data in case of remote connection.}
+
+\item{localPath}{Optional - The path to write local file in case of remote connection (default to temporary folder).}
 }
 \value{
 An imConnection object to be passed to other methods.
@@ -27,6 +29,6 @@ connection <- imotionsApi::imConnection(myToken)
 
 # Remote connection
 myToken <- "token"
-connection <- imotionsApi::imConnection(myToken, "myBaseUrl", "myS3BaseUrl")
+connection <- imotionsApi::imConnection(myToken, "myBaseUrl", "myS3BaseUrl", "myLocalPath")
 }
 }

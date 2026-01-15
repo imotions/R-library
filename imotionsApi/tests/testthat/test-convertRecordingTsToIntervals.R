@@ -15,7 +15,7 @@ test_that("error - arguments are missing or not from the good class", {
 
     # in case of missing intervals
     expect_error(convertRecordingTsToIntervals(recordingTs = 10),
-                 "Please specify intervals loaded with `getRespondentIntervals()` or `getAOIRespondentData()`",
+                 "Please specify intervals loaded with `getRespondentIntervals()` or `getAoiRespondentData()`",
                  fixed = TRUE, info = "missing `intervals` param not handled properly")
 
     # in case of intervals that is not an imInterval or imIntervalList object

@@ -1,5 +1,5 @@
-# privateGetAOIDetails ================================================================================================
-context("privateGetAOIDetails()")
+# privateGetAoiDetails ================================================================================================
+context("privateGetAoiDetails()")
 
 library(mockery)
 
@@ -25,7 +25,7 @@ stimulus <- getStimuli(study)[4, ]
 respondent_cloud <- getRespondents(study_cloud)[1, ]
 stimulus_cloud <- getStimuli(study)[4, ]
 
-mockedPrivateGetAOIDetails <- function(study, imObject, expected_endpoint, respondent = NULL, expectedAOICall = 1) {
+mockedPrivateGetAoiDetails <- function(study, imObject, expected_endpoint, respondent = NULL, expectedAOICall = 1) {
     # Replace url to load test data
     mockUrl <- function(study, url) {
         if (!study$connection$localIM) {
@@ -50,13 +50,13 @@ mockedPrivateGetAOIDetails <- function(study, imObject, expected_endpoint, respo
     if (!study$connection$localIM) {
         expectedUrl <- imObject$fileId
     } else {
-        expectedUrl <- getAOIDetailsUrl(study, imObject, respondent)
+        expectedUrl <- getAoiDetailsUrl(study, imObject, respondent)
     }
 
     getJSON_Stub <- mock(jsonlite::fromJSON(mockUrl(study, expectedUrl)))
 
     AOIdetails <- mockr::with_mock(getJSON = getJSON_Stub, {
-        privateGetAOIDetails(study, imObject, respondent)
+        privateGetAoiDetails(study, imObject, respondent)
     })
 
     expect_called(getJSON_Stub, expectedAOICall)
@@ -73,7 +73,7 @@ expectedNames <- c("aoiId", "respId", "fileId", "resultId", "fileIdIsEmptyPlaceH
 
 test_that("local return - AOI details for a specific AOI", {
     expected_endpoint <- "AOI: New Aoi"
-    aoiDetails <- mockedPrivateGetAOIDetails(study, AOI, expected_endpoint)
+    aoiDetails <- mockedPrivateGetAoiDetails(study, AOI, expected_endpoint)
 
     expect_equal(nrow(aoiDetails), 3, info = "3 respondents should have the AOI defined")
     expect_named(aoiDetails, expectedNames, info = "aoi details infos not matching")
@@ -82,13 +82,13 @@ test_that("local return - AOI details for a specific AOI", {
 
 test_that("local return - AOI details for a specific AOI/respondent", {
     expected_endpoint <- "AOI: New Aoi, Respondent: Wendy"
-    aoiDetails <- mockedPrivateGetAOIDetails(study, AOI, expected_endpoint, respondent)
+    aoiDetails <- mockedPrivateGetAoiDetails(study, AOI, expected_endpoint, respondent)
 
     expect_equal(nrow(aoiDetails), 1, info = "only the respondent of interest should be kept")
     expect_named(aoiDetails, expectedNames, info = "aoi details infos not matching")
 
     # in case a fileId is present, there is no need to call the getAOIDetails function
-    aoiDetails <- mockedPrivateGetAOIDetails(study, AOI_inout, expected_endpoint, respondent, expectedAOICall = 0)
+    aoiDetails <- mockedPrivateGetAoiDetails(study, AOI_inout, expected_endpoint, respondent, expectedAOICall = 0)
 
     expect_identical(aoiDetails$fileId, AOI_inout$fileId, "fileId stored in AOI should be retrieved directly")
     expect_identical(aoiDetails$resultId, AOI_inout$resultId, "resultId stored in AOI should be retrieved directly")
@@ -96,7 +96,7 @@ test_that("local return - AOI details for a specific AOI/respondent", {
 
 test_that("local return - AOI details for a specific stimulus", {
     expected_endpoint <- "Stimulus: IAAF"
-    aoiDetails <- mockedPrivateGetAOIDetails(study, stimulus, expected_endpoint)
+    aoiDetails <- mockedPrivateGetAoiDetails(study, stimulus, expected_endpoint)
 
     expect_equal(nrow(aoiDetails), 9, info = "3 AOIs should be defined for the 3 respondents")
     expect_named(aoiDetails, expectedNames, info = "aoi details infos not matching")
@@ -107,7 +107,7 @@ test_that("local return - AOI details for a specific stimulus", {
 
 test_that("local return - AOI details for a specific stimulus/respondent", {
     expected_endpoint <- "Stimulus: IAAF, Respondent: Wendy"
-    aoiDetails <- mockedPrivateGetAOIDetails(study, stimulus, expected_endpoint, respondent)
+    aoiDetails <- mockedPrivateGetAoiDetails(study, stimulus, expected_endpoint, respondent)
 
     expect_equal(nrow(aoiDetails), 4, info = "only the respondent of interest should be kept")
     expect_named(aoiDetails, expectedNames, info = "aoi details infos not matching")
@@ -117,7 +117,7 @@ AOIDetailForStimulusPath <- "../data/AOIDetailsForStimulus_missingfileId.json"
 
 test_that("local return - AOI details with missing fileId should be filtered out", {
     expected_endpoint <- "Stimulus: IAAF"
-    aoiDetails <- mockedPrivateGetAOIDetails(study, stimulus, expected_endpoint)
+    aoiDetails <- mockedPrivateGetAoiDetails(study, stimulus, expected_endpoint)
 
     expect_equal(nrow(aoiDetails), 7, info = "2 respondents without fileId should be removed")
     expect_named(aoiDetails, expectedNames, info = "aoi details infos not matching")
@@ -131,7 +131,7 @@ AOIDetailForStimulusPath <- "../data/AOIDetails_failed.json"
 test_that("local warning - failed to generate AOI details", {
     expected_endpoint <- "Stimulus: IAAF"
 
-    expect_warning(aoiDetails <- mockedPrivateGetAOIDetails(study, stimulus, expected_endpoint),
+    expect_warning(aoiDetails <- mockedPrivateGetAoiDetails(study, stimulus, expected_endpoint),
                    "Stimulus: IAAF in/out file generation failed, check the IVT data and gazemapping fragments.",
                    info = "no AOI defined for this respondent should throw an error")
 
@@ -142,7 +142,7 @@ expectedNames <- c("stimId", "respId", "startMediaOffset", "endMediaOffset", "ao
 
 test_that("remote return - AOI details for a specific AOI", {
     expected_endpoint <- "AOI: El Manuel Area"
-    aoiDetails <- mockedPrivateGetAOIDetails(study_cloud, AOI_cloud, expected_endpoint)
+    aoiDetails <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud, expected_endpoint)
 
     expect_equal(nrow(aoiDetails), 3, info = "3 respondents should have the AOI defined")
     expect_named(aoiDetails, expectedNames, info = "aoi details infos not matching")
@@ -152,63 +152,76 @@ test_that("remote return - AOI details for a specific AOI", {
 test_that("remote return - AOI details for a specific AOI/respondent", {
     respondent <- getRespondents(study_cloud)[1, ]
     expected_endpoint <- "AOI: El Manuel Area, Respondent: bab55356-43fc-4c25-a39d-a1d513965614"
-    aoiDetails <- mockedPrivateGetAOIDetails(study_cloud, AOI_cloud, expected_endpoint, respondent)
+    aoiDetails <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud, expected_endpoint, respondent)
 
     expect_equal(nrow(aoiDetails), 1, info = "only the respondent of interest should be kept")
     expect_named(aoiDetails, expectedNames, info = "aoi details infos not matching")
 
     # in case a inout data is already loaded, there is no need to call the getAOIDetails function
-    aoiDetails <- mockedPrivateGetAOIDetails(study, AOI_cloud_inout, expected_endpoint, respondent, expectedAOICall = 0)
+    aoiDetails <- mockedPrivateGetAoiDetails(study, AOI_cloud_inout, expected_endpoint, respondent, expectedAOICall = 0)
 
     expect_identical(aoiDetails$aoiInOuts, AOI_cloud_inout$aoiInOuts, "inout stored in AOI should be retrieved")
 })
 
-# getAOIRespondentData ================================================================================================
-context("getAOIRespondentData()")
+AOIDetailsPath_cloud <- "../data/AOIDetails_failed.json"
+
+test_that("remote warning - failed to generate AOI details", {
+    expected_endpoint <- "AOI: El Manuel Area"
+
+    expect_warning(aoiDetails <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud, expected_endpoint),
+                   "AOI: El Manuel Area in/out file generation failed, check the IVT data.",
+                   info = "no AOI defined for this respondent should throw an error")
+
+    expect_null(aoiDetails, info = "result should be null")
+})
+
+# getAoiRespondentData ================================================================================================
+context("getAoiRespondentData()")
 
 AOIDetailsFile <- jsonlite::fromJSON(AOIDetailsRespondentPath)
+AOIDetailsPath_cloud <- "../data/AOIDetails_cloud.json"
 
-mockedGetAOIRespondentData  <- function(study, AOI, respondent, AOIDetailsFile) {
-    privateGetAOIDetails_Stub <- mock(AOIDetailsFile)
+mockedGetAoiRespondentData  <- function(study, AOI, respondent, AOIDetailsFile) {
+    privateGetAoiDetails_Stub <- mock(AOIDetailsFile)
 
-    listResult <- mockr::with_mock(privateGetAOIDetails = privateGetAOIDetails_Stub, {
-        getAOIRespondentData(study, AOI, respondent)
+    listResult <- mockr::with_mock(privateGetAoiDetails = privateGetAoiDetails_Stub, {
+        getAoiRespondentData(study, AOI, respondent)
     })
 
-    expect_args(privateGetAOIDetails_Stub, 1, study = study, imObject = AOI, respondent = respondent)
+    expect_args(privateGetAoiDetails_Stub, 1, study = study, imObject = AOI, respondent = respondent)
     return(listResult)
 }
 
 test_that("error - arguments are missing or not from the good class", {
     # in case of missing study
-    expect_error(getAOIRespondentData(), "Please specify a study loaded with `imStudy()`", fixed = TRUE,
+    expect_error(getAoiRespondentData(), "Please specify a study loaded with `imStudy()`", fixed = TRUE,
                  info = "missing `study` param not handled properly")
 
     # in case of missing AOI
-    expect_error(getAOIRespondentData(study), "Please specify an AOI loaded with `getAOIs()`", fixed = TRUE,
+    expect_error(getAoiRespondentData(study), "Please specify an AOI loaded with `getAois()`", fixed = TRUE,
                  info = "missing `AOI` param not handled properly")
 
     # in case of missing respondent
-    expect_error(getAOIRespondentData(study, AOI), "Please specify a respondent loaded with `getRespondents()`",
+    expect_error(getAoiRespondentData(study, AOI), "Please specify a respondent loaded with `getRespondents()`",
                  fixed = TRUE, info = "missing `respondent` param not handled properly")
 
     # in case of study that is not an imStudy object
-    expect_error(getAOIRespondentData(study = "whatever", AOI, respondent), "`study` argument is not an imStudy object",
+    expect_error(getAoiRespondentData(study = "whatever", AOI, respondent), "`study` argument is not an imStudy object",
                  info = "study not being an imStudy object should throw an error")
 
     # in case of AOI that is not an imAOI object
-    expect_error(getAOIRespondentData(study, AOI = "whatever", respondent), "`AOI` argument is not an imAOI object",
+    expect_error(getAoiRespondentData(study, AOI = "whatever", respondent), "`AOI` argument is not an imAOI object",
                  info = "AOI not being an imAOI object should throw an error")
 
     # in case of respondent that is not an imRespondent object
-    expect_error(getAOIRespondentData(study, AOI, respondent = "whatever"),
+    expect_error(getAoiRespondentData(study, AOI, respondent = "whatever"),
                  "`respondent` argument is not an imRespondent object",
                  info = "respondent not being an imRespondent object should throw an error")
 })
 
 test_that("warning - AOI has not been defined for this respondent", {
     AOIDetailsFile <- jsonlite::fromJSON("../data/no_scenes_annotations_aoidetails.json")
-    expect_warning(AOI <- mockedGetAOIRespondentData(study, AOI, respondent, AOIDetailsFile),
+    expect_warning(AOI <- mockedGetAoiRespondentData(study, AOI, respondent, AOIDetailsFile),
                    "AOI New Aoi was not found for respondent Wendy",
                    info = "no AOI defined for this respondent should throw an error")
 
@@ -218,7 +231,7 @@ test_that("warning - AOI has not been defined for this respondent", {
 test_that("warning - AOI in/out generation failed for this respondent", {
     AOIDetailsFile <- NULL
 
-    expect_warning(AOI <- mockedGetAOIRespondentData(study, AOI, respondent, AOIDetailsFile),
+    expect_warning(AOI <- mockedGetAoiRespondentData(study, AOI, respondent, AOIDetailsFile),
                    "AOI New Aoi was not found for respondent Wendy",
                    info = "AOI in/out generation failed for this respondent should throw an error")
 
@@ -230,7 +243,7 @@ AOIDetailsFile$respId <- respondent$id
 AOIDetailsFile$fileId <- "../data/aoiRespondentData.pbin"
 
 test_that("local return - intervals for a specific AOI/respondent pair", {
-    AOIintervals <- mockedGetAOIRespondentData(study, AOI, respondent, AOIDetailsFile)$intervals
+    AOIintervals <- mockedGetAoiRespondentData(study, AOI, respondent, AOIDetailsFile)$intervals
 
     # Check AOI intervals
     expect_identical(unique(AOIintervals$type), "AOI", "intervals should all be of AOI type")
@@ -264,7 +277,7 @@ test_that("local return - intervals for a specific AOI/respondent pair", {
 })
 
 test_that("local return - inOutGaze for a specific AOI/respondent pair", {
-    inOutGaze <- mockedGetAOIRespondentData(study, AOI, respondent, AOIDetailsFile)$inOutGaze
+    inOutGaze <- mockedGetAoiRespondentData(study, AOI, respondent, AOIDetailsFile)$inOutGaze
 
     # Check inOutGaze data.table
     expect_named(inOutGaze, c("Timestamp", "IsGazeInAOI"), info = "wrong column names")
@@ -275,7 +288,7 @@ test_that("local return - inOutGaze for a specific AOI/respondent pair", {
 })
 
 test_that("local return - inOutMouse for a specific AOI/respondent pair", {
-    inOutMouse <- mockedGetAOIRespondentData(study, AOI, respondent, AOIDetailsFile)$inOutMouse
+    inOutMouse <- mockedGetAoiRespondentData(study, AOI, respondent, AOIDetailsFile)$inOutMouse
 
     # Check inOutMouse data.table
     expect_named(inOutMouse, c("Timestamp", "IsMouseInAOI", "IsMouseDown"), info = "wrong column names")
@@ -289,7 +302,7 @@ test_that("local return - inOutMouse for a specific AOI/respondent pair", {
 AOIDetailsFile$fileId <- "../data/aoiEmptyRespondentData.pbin"
 
 test_that("local check - work if no gazes or mouse click in", {
-    resultList <- mockedGetAOIRespondentData(study, AOI, respondent, AOIDetailsFile)
+    resultList <- mockedGetAoiRespondentData(study, AOI, respondent, AOIDetailsFile)
 
     expect_named(resultList, c("inOutGaze", "inOutMouse", "intervals"), info = "wrong names")
     expect_equal(nrow(resultList$inOutMouse), 1, info = "should only have one value (no mouse in or mouse click)")
@@ -302,7 +315,7 @@ test_that("local check - work if no gazes or mouse click in", {
 AOIDetailsFile$fileId <- "../data/AOInotDefined.pbin"
 
 test_that("local check - work if no AOI exposure", {
-    resultList <- mockedGetAOIRespondentData(study, AOI, respondent, AOIDetailsFile)
+    resultList <- mockedGetAoiRespondentData(study, AOI, respondent, AOIDetailsFile)
     expect_named(resultList, c("inOutGaze", "inOutMouse", "intervals"), info = "wrong names")
 
     # Check inOutMouse
@@ -334,12 +347,12 @@ test_that("local check - work if no AOI exposure", {
 
 respondent <- getRespondents(study_cloud)[1, ]
 expected_endpoint <- "AOI: El Manuel Area, Respondent: bab55356-43fc-4c25-a39d-a1d513965614"
-aoiDetails <- mockedPrivateGetAOIDetails(study_cloud, AOI_cloud, expected_endpoint, respondent)
-aoiDetails_inout <- mockedPrivateGetAOIDetails(study_cloud, AOI_cloud_inout, expected_endpoint, respondent,
+aoiDetails <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud, expected_endpoint, respondent)
+aoiDetails_inout <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud_inout, expected_endpoint, respondent,
                                                expectedAOICall = 0)
 
 test_that("remote return - intervals for a specific AOI/respondent pair", {
-    AOIintervals <- mockedGetAOIRespondentData(study_cloud, AOI_cloud, respondent, aoiDetails)$intervals
+    AOIintervals <- mockedGetAoiRespondentData(study_cloud, AOI_cloud, respondent, aoiDetails)$intervals
 
     # Check AOI intervals
     expect_identical(unique(AOIintervals$type), "AOI", "intervals should all be of AOI type")
@@ -374,7 +387,7 @@ test_that("remote return - intervals for a specific AOI/respondent pair", {
 })
 
 test_that("remote return - inOutGaze for a specific AOI/respondent pair", {
-    inOutGaze <- mockedGetAOIRespondentData(study_cloud, AOI_cloud, respondent, aoiDetails)$inOutGaze
+    inOutGaze <- mockedGetAoiRespondentData(study_cloud, AOI_cloud, respondent, aoiDetails)$inOutGaze
 
     # Check inOutGaze data.table
     expect_named(inOutGaze, c("Timestamp", "IsGazeInAOI"), info = "wrong column names")
@@ -384,7 +397,7 @@ test_that("remote return - inOutGaze for a specific AOI/respondent pair", {
 })
 
 test_that("remote return - inOutMouse for a specific AOI/respondent pair", {
-    inOutMouse <- mockedGetAOIRespondentData(study_cloud, AOI_cloud, respondent, aoiDetails)$inOutMouse
+    inOutMouse <- mockedGetAoiRespondentData(study_cloud, AOI_cloud, respondent, aoiDetails)$inOutMouse
 
     # Check inOutMouse data.table
     expect_named(inOutMouse, c("Timestamp", "IsMouseInAOI", "IsMouseDown"), info = "wrong column names")
@@ -397,8 +410,8 @@ respondent$id <- "7dbdca47-3d70-4d1c-86ba-372f34e20948"
 
 
 test_that("remote return - intervals should work on dynamic AOIs", {
-    aoiDetails <- mockedPrivateGetAOIDetails(study_cloud, AOI_cloud, expected_endpoint, respondent)
-    AOIintervals <- mockedGetAOIRespondentData(study_cloud, AOI_cloud, respondent, aoiDetails)$intervals
+    aoiDetails <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud, expected_endpoint, respondent)
+    AOIintervals <- mockedGetAoiRespondentData(study_cloud, AOI_cloud, respondent, aoiDetails)$intervals
 
     # Check AOI intervals as for remote study dynamic AOIs start with an non-activated row
     expect_equal(AOIintervals$fragments.start, 37397, 1e-2, info = "wrong fragments start")
@@ -407,6 +420,6 @@ test_that("remote return - intervals should work on dynamic AOIs", {
 })
 
 test_that("remote return - should work when inout data is already loaded", {
-    resultList <- mockedGetAOIRespondentData(study_cloud, AOI_cloud_inout, respondent, aoiDetails_inout)
+    resultList <- mockedGetAoiRespondentData(study_cloud, AOI_cloud_inout, respondent, aoiDetails_inout)
     expect_named(resultList, c("inOutGaze", "inOutMouse", "intervals"), info = "wrong names")
 })

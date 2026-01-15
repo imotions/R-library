@@ -57,14 +57,14 @@ test_that("local - all getUrl function should work as expected", {
     expect_identical(getUploadSensorDataUrl(study, respondent, stimulus), paste0(sensorStimulusUrl, "/data"))
     expect_identical(getUploadSensorDataUrl(study, segment, stimulus), paste0(sensorsSegmentUrl, "/data"))
 
-    #getAOIsUrl
+    #getAoisUrl
     AOIUrl <- paste0(baseUrl, "/aois/af8c2165-4389-4cc3-8b1e-b2d3a4bd8be1")
-    expect_identical(getAOIsUrl(study), AOIUrl)
-    expect_identical(getAOIsUrl(study, stimulusId), paste0(AOIUrl, "/stimuli/1000"))
-    expect_identical(getAOIsUrl(study, respondentId = respondentId),
+    expect_identical(getAoisUrl(study), AOIUrl)
+    expect_identical(getAoisUrl(study, stimulusId), paste0(AOIUrl, "/stimuli/1000"))
+    expect_identical(getAoisUrl(study, respondentId = respondentId),
                      paste0(AOIUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63"))
 
-    expect_error(getAOIsUrl(study, stimulusId, respondentId),
+    expect_error(getAoisUrl(study, stimulusId, respondentId),
                  "Please provide either stimulusId or respondentId, not both.",
                  info = "too many params not handled properly")
 
@@ -78,14 +78,14 @@ test_that("local - all getUrl function should work as expected", {
     expect_identical(getUploadMetricsUrl(study, respondent),
                      paste0(metricsUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63/data"))
 
-    #getAOIDetailsForStimulusUrl
-    expect_identical(getAOIDetailsUrl(study, stimulus), paste0(AOIUrl, "/stimuli/", stimulusId, "/*"))
-    expect_identical(getAOIDetailsUrl(study, stimulus, respondent),
+    #getAoiDetailsForStimulusUrl
+    expect_identical(getAoiDetailsUrl(study, stimulus), paste0(AOIUrl, "/stimuli/", stimulusId, "/*"))
+    expect_identical(getAoiDetailsUrl(study, stimulus, respondent),
                      paste0(AOIUrl, "/stimuli/", stimulusId, "/respondent/", respondentId, "/*"))
 
-    #getAOIDetailsUrl
-    expect_identical(getAOIDetailsUrl(study, AOI), paste0(AOIUrl, "/stimuli/", AOI$stimulusId, "/", AOI$id))
-    expect_identical(getAOIDetailsUrl(study, AOI, respondent),
+    #getAoiDetailsUrl
+    expect_identical(getAoiDetailsUrl(study, AOI), paste0(AOIUrl, "/stimuli/", AOI$stimulusId, "/", AOI$id))
+    expect_identical(getAoiDetailsUrl(study, AOI, respondent),
                      paste0(AOIUrl, "/stimuli/", AOI$stimulusId, "/respondent/", respondentId, "/", AOI$id))
 
     #getRespondentScenesUrl
@@ -148,13 +148,13 @@ test_that("remote - all getUrl function should work as expected", {
     expect_identical(getUploadSensorDataUrl(study_cloud, respondent), uploadCloudUrl)
     expect_identical(getUploadSensorDataUrl(study_cloud, segment), uploadsegmentCloudUrl)
 
-    #getAOIsUrl
+    #getAoisUrl
     AOIUrl <- paste0(studyUrl, "/aois/definitions")
-    expect_identical(getAOIsUrl(study_cloud), AOIUrl)
-    expect_identical(getAOIsUrl(study_cloud, stimulusId), AOIUrl)
-    expect_identical(getAOIsUrl(study_cloud, respondentId = respondentId), AOIUrl)
+    expect_identical(getAoisUrl(study_cloud), AOIUrl)
+    expect_identical(getAoisUrl(study_cloud, stimulusId), AOIUrl)
+    expect_identical(getAoisUrl(study_cloud, respondentId = respondentId), AOIUrl)
 
-    expect_error(getAOIsUrl(study_cloud, stimulusId, respondentId),
+    expect_error(getAoisUrl(study_cloud, stimulusId, respondentId),
                  "Please provide either stimulusId or respondentId, not both.",
                  info = "too many params not handled properly")
 
