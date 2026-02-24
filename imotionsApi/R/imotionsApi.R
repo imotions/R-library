@@ -472,7 +472,8 @@ privateAoiFormatting <- function(study, AOIsUrl, endpoint) {
 
     if (length(validate_cols) > 0) {
         # We are filtering out incomplete AOIs
-        AOIs <- AOIs[rowSums(sapply(AOIs[validate_cols], lengths) == 0) < length(validate_cols), ]
+        keep <- !Reduce(`&`, lapply(AOIs[validate_cols], function(x) lengths(x) == 0))
+        AOIs <- AOIs[keep, ]
     }
 
     if (length(AOIs) == 0 || (study$connection$localIM && all(lengths(AOIs$aois) == 0)) ||
