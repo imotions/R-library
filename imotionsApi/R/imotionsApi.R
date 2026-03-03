@@ -2807,6 +2807,10 @@ getAoisUrl <- function(study, stimulusId = NULL, respondentId = NULL) {
         }
     } else {
         url <- file.path(getStudyUrl(study), "aois", "definitions")
+
+        if (!is.null(respondentId)) {
+            url <- file.path(url, "respondent", respondentId)
+        }
     }
 
     return(url)
