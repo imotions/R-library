@@ -1,21 +1,24 @@
-# For help debugging build failures open an issue on the RStudio community with the 'github-actions' tag.
-# https://community.rstudio.com/new-topic?category=Package%20development&tags=github-actions
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [closed, opened, synchronize]
-    branches:
-      - main
-
 name: R test, lint & check, build, release
+
+on:
+  pull_request:
+    types: [opened, synchronize, closed]
+    branches:
+      - main
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   R-test-lint-build-release:
     runs-on: windows-latest
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - uses: actions/checkout@v3
 
@@ -24,7 +27,6 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: '4.4.0'
-          http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-r-dependencies@v2
@@ -35,29 +37,33 @@ jobs:
 
       - name: Run linter
         run: |
-            lintr::lint_package('./imotionsApi')
+          lintr::lint_package('./imotionsApi')
         shell: Rscript {0}
         env:
           LINTR_ERROR_ON_LINT: true
-          
+
       - name: Get current date
         id: date
         run: echo "datetime=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
         shell: bash
-        
+
       - name: Fix version number for snapshot
+        if: ${{ github.event_name != 'push' || !startsWith(github.ref, 'refs/tags/v') }}
         run: |
           sed -i 's/0000000000/${{ steps.date.outputs.datetime }}/' imotionsApi/DESCRIPTION
-
-      - name: Get the version
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_OUTPUT
         shell: bash
 
-      - name: Remove snapshot build and fix version number for release
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Get the version from tag
+        id: get_version
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Fix version number for release
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
         run: |
           sed -i "/^Version:/c\Version: ${{ steps.get_version.outputs.VERSION }}" imotionsApi/DESCRIPTION
+        shell: bash
 
       - uses: r-lib/actions/check-r-package@v2
         with:
@@ -68,7 +74,7 @@ jobs:
 
       - name: Publish snapshot
         uses: softprops/action-gh-release@v1
-        if: ${{ (github.event.pull_request.merged == true) && !(startsWith(github.ref, 'refs/tags/v')) }}
+        if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true) }}
         with:
           tag_name: "snapshot-${{ steps.date.outputs.datetime }}"
           prerelease: true
@@ -79,7 +85,7 @@ jobs:
 
       - name: Publish tagged release
         uses: softprops/action-gh-release@v1
-        if: ${{ (github.event.pull_request.merged == true) && (startsWith(github.ref, 'refs/tags/v')) }}
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
         with:
           files: |
             LICENSE
