@@ -1,7 +1,7 @@
 Package: imotionsApi
 Type: Package
 Title: iMotions R library
-Version: 2.9.0-0000000000
+Version: 2.9.1-0000000000
 Date: 2026-09-01
 Authors@R: c(
 	person("Amandine", "Grappe", role = "aut"),
