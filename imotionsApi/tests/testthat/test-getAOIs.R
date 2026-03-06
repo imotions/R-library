@@ -38,6 +38,7 @@ studyAOIsPath <- "../data/noAOIs.json"
 stimulusAOIsPath <- "../data/noAOIs.json"
 respondentAOIsPath <- "../data/noAOIs.json"
 studyAOIsCloudPath <- "../data/no_scenes_annotations_aoidetails.json"
+respondentAOIsCloudPath <- "../data/no_scenes_annotations_aoidetails.json"
 
 mockedPrivateAoiFormatting <- function(study, AOIsUrl, endpoint, expectedCallGetJSON = 1, remove_saved_AOIs = TRUE) {
     getJSON_Stub <- mock(jsonlite::fromJSON(AOIsUrl))
@@ -89,14 +90,14 @@ test_that("local return - AOIs data.table", {
 test_that("remote return - AOIs data.table", {
     studyAOIsPath <- "../data/studyAOIs_cloud.json"
 
-    # Should return all AOIs from this study if no stimulus is provided
+    # Should return all well formed AOIs from this study if no stimulus is provided (removing 2 malformed studies)
     AOIs <- mockedPrivateAoiFormatting(study_cloud, studyAOIsPath, "expected endpoint", remove_saved_AOIs = FALSE)
-    expect_equal(nrow(AOIs), 2, info = "study should contain 2 AOIs")
-    expect_named(AOIs, c("stimulusId", "stimulusName", "id", "name", "type", "group", "area", "fileId",
-                         "aoiStatsNeedCalculating", "updatedDate"), info = "AOIs infos not matching")
+    expect_equal(nrow(AOIs), 8, info = "study should contain 8 AOIs")
+    expect_named(AOIs, c("stimulusId", "stimulusName", "id", "name", "type", "group", "area", "displayColor", "fileId",
+                         "timelineType", "updatedDate", "aoiStatsNeedCalculating"), info = "AOIs infos not matching")
 
     # Dynamic AOIs should have NA instead of area values, Static AOIs should be computed correctly
-    expect_equal(AOIs$area, c(32897, NA_real_), tolerance = 0.001, infos = "area should be valid")
+    expect_equal(AOIs$area[7:8], c(NA_real_, 725886), tolerance = 0.001, infos = "area should be valid")
 
     # Group can be either missing or filled
     expect_identical(unique(AOIs$group), NA_character_, "group is wrong")
@@ -108,27 +109,17 @@ test_that("remote return - AOIs data.table", {
     AOIs <- mockedPrivateAoiFormatting(study_cloud, studyAOIsPath, "expected endpoint", expectedCallGetJSON = 0)
 })
 
-
-test_that("remote return - AOIs data.table with respondent defined timeline", {
-    studyAOIsPath <- "../data/studyAOIs_respondent_cloud.json"
-
-    # Should return all well formed AOIs from this study if no stimulus is provided (removing 2 malformed studies)
-    AOIs <- mockedPrivateAoiFormatting(study_cloud, studyAOIsPath, "expected endpoint")
-    expect_equal(nrow(AOIs), 8, info = "study should contain 8 AOIs")
-    expect_named(AOIs, c("stimulusId", "stimulusName", "id", "name", "type", "group", "area", "displayColor", "fileId",
-                         "timelineType", "updatedDate", "aoiStatsNeedCalculating"), info = "AOIs infos not matching")
-
-    # Group can be either missing or filled
-    expect_identical(unique(AOIs$group), NA_character_, "group is wrong")
-})
-
 # privateAoiFiltering =================================================================================================
 context("privateAoiFiltering()")
 
 # Replace url to load test data
 mockUrl <- function(study, url) {
     if (grepl("respondent", url)) {
-        return(respondentAOIsPath)
+        if (study$connection$localIM) {
+            return(respondentAOIsPath)
+        } else {
+            return(respondentAOIsCloudPath)
+        }
     } else if (grepl("stimuli", url)) {
         return(stimulusAOIsPath)
     } else {
@@ -159,10 +150,10 @@ mockedPrivateAoiFiltering <- function(study, stimulus = NULL, respondent = NULL,
     }
 
     privateGetAoiDetails_Stub <- mock(jsonlite::fromJSON("../data/AOIDetails_processed_cloud.json"),
-                                      jsonlite::fromJSON("../data/AOIDetails_processed_cloud2.json"))
+                                      jsonlite::fromJSON("../data/AOIDetails_processed_cloud2.json"), cycle = TRUE)
 
     if (fail) {
-        privateGetAoiDetails_Stub <- mock(jsonlite::fromJSON("../data/AOIDetails_failed.json"))
+        privateGetAoiDetails_Stub <- mock(jsonlite::fromJSON("../data/AOIDetails_failed.json"), cycle = TRUE)
     }
 
     privateAoiFormatting_Stub <- mock(mockedPrivateAoiFormatting(study, mockUrl(study, expectedUrl), expectedEndpoint))
@@ -231,6 +222,7 @@ studyAOIsPath <- "../data/studyAOIs.json"
 stimulusAOIsPath <- "../data/stimulusAOIs.json"
 respondentAOIsPath <- "../data/respondentAOIs.json"
 studyAOIsCloudPath <- "../data/studyAOIs_cloud.json"
+respondentAOIsCloudPath <- "../data/respondentAOIs_cloud.json"
 
 test_that("local warning - no AOIs for a specific respondent/stimulus pair", {
     # if no AOIs is present for a specific respondent/stimulus pair, should return the correct warning
@@ -283,21 +275,21 @@ test_that("remote return - filtered AOIs data.table", {
 
     # Should return all AOIs from this study if no stimulus is provided
     AOIs <- mockedPrivateAoiFiltering(study_cloud)
-    expect_equal(nrow(AOIs), 2, info = "study should contain 2 AOIs")
+    expect_equal(nrow(AOIs), 8, info = "study should contain 8 AOIs")
 
     # Should return all AOIs from this study for a specific stimulus
     AOIs <- mockedPrivateAoiFiltering(study_cloud, stimulus = stimuli[15, ])
-    expect_equal(nrow(AOIs), 1, info = "stimulus should contain 1 AOI")
+    expect_equal(nrow(AOIs), 3, info = "stimulus should contain 3 AOI")
 
     # Should return all AOIs from this study for a specific respondent
-    AOIs <- mockedPrivateAoiFiltering(study_cloud, respondent = respondents[1, ], expectedCallAoiDetails = 2)
-    expect_equal(nrow(AOIs), 2, info = "study for this respondent should contain 2 AOIs")
+    AOIs <- mockedPrivateAoiFiltering(study_cloud, respondent = respondents[1, ], expectedCallAoiDetails = 8)
+    expect_equal(nrow(AOIs), 8, info = "study for this respondent should contain 8 AOIs")
 
     # Should return all AOIs from this study for a specific respondent and stimulus
     AOIs <- mockedPrivateAoiFiltering(study_cloud, stimulus = stimuli[15, ], respondent = respondents[1, ],
-                                      expectedCallAoiDetails = 1)
+                                      expectedCallAoiDetails = 3)
 
-    expect_equal(nrow(AOIs), 1, info = "combination should contain 1 AOIs")
+    expect_equal(nrow(AOIs), 3, info = "combination should contain 2 AOIs")
 })
 
 test_that("remote warning - no in/out was generated", {
@@ -307,7 +299,7 @@ test_that("remote warning - no in/out was generated", {
     # Should fail without issue in case no in/out is present and just return no AOIs
     expect_warning(
         AOIs <- mockedPrivateAoiFiltering(study_cloud, stimulus = stimuli[15, ], respondent = respondents[1, ],
-                                          expectedCallAoiDetails = 1, fail = TRUE),
+                                          expectedCallAoiDetails = 3, fail = TRUE),
         "No AOI defined for respondent: bab55356-43fc-4c25-a39d-a1d513965614, stimulus: Pool-lounge-view-from-atop",
         info = "no AOI warning should have been thrown for this respondent"
     )
@@ -432,21 +424,21 @@ test_that("check - generateInOutFiles parameter", {
     stimuli <- getStimuli(study_cloud)
     respondents <- getRespondents(study_cloud)
     AOIs <- mockedGetAois(study_cloud, stimulus = stimuli[15, ], respondent = respondents[1, ],
-                          generateInOutFiles = TRUE, expectedCallFiltering = 1)
+                          generateInOutFiles = TRUE, expectedCallFiltering = 3)
 
-    expect_s3_class(AOIs, "imAOI")
-    expect_equal(nrow(AOIs), 1, info = "combination should contain 1 AOI")
-    expect_named(AOIs, c("stimulusId", "stimulusName", "id", "name", "type", "group", "area", "fileId",
-                         "aoiStatsNeedCalculating", "updatedDate", "startMediaOffset", "aoiInOuts"),
+    expect_s3_class(AOIs, "imAOIList")
+    expect_equal(nrow(AOIs), 3, info = "combination should contain 3 AOIs")
+    expect_named(AOIs, c("stimulusId", "stimulusName", "id", "name", "type", "group", "area", "displayColor", "fileId",
+                         "timelineType", "updatedDate", "aoiStatsNeedCalculating", "startMediaOffset", "aoiInOuts"),
                  info = "AOIs infos not matching")
 
     # For remote study, should not have the in/out data in case no respondent was provided
     expect_warning(AOIs <- mockedGetAois(study_cloud, stimulus = stimuli[15, ], generateInOutFiles = TRUE))
 
-    expect_s3_class(AOIs, "imAOI")
-    expect_equal(nrow(AOIs), 1, info = "combination should contain 1 AOI")
-    expect_named(AOIs, c("stimulusId", "stimulusName", "id", "name", "type", "group", "area", "fileId",
-                         "aoiStatsNeedCalculating", "updatedDate"), info = "AOIs infos not matching")
+    expect_s3_class(AOIs, "imAOIList")
+    expect_equal(nrow(AOIs), 3, info = "combination should contain 3 AOIs")
+    expect_named(AOIs, c("stimulusId", "stimulusName", "id", "name", "type", "group", "area", "displayColor", "fileId",
+                         "timelineType", "updatedDate", "aoiStatsNeedCalculating"), info = "AOIs infos not matching")
 })
 
 studyAOIsPath <- "../data/studyAOI.json"

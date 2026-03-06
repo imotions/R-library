@@ -152,7 +152,8 @@ test_that("remote - all getUrl function should work as expected", {
     AOIUrl <- paste0(studyUrl, "/aois/definitions")
     expect_identical(getAoisUrl(study_cloud), AOIUrl)
     expect_identical(getAoisUrl(study_cloud, stimulusId), AOIUrl)
-    expect_identical(getAoisUrl(study_cloud, respondentId = respondentId), AOIUrl)
+    expect_identical(getAoisUrl(study_cloud, respondentId = respondentId),
+                     paste0(AOIUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63"))
 
     expect_error(getAoisUrl(study_cloud, stimulusId, respondentId),
                  "Please provide either stimulusId or respondentId, not both.",
