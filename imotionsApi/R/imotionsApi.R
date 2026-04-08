@@ -1591,7 +1591,7 @@ getAoiRespondentData <- function(study, AOI, respondent) {
         mouseChange <- data[, c(IsMouseInAOI = unique(IsMouseInAOI), .SD[1]), by = rleid(IsMouseInAOI)][, -1]
         mouseChange <- rbind(mouseChange, data[IsMouseDown == TRUE, ])
 
-        inOutMouse <- mouseChange[order(Timestamp), c("Timestamp", "IsMouseInAOI", "IsMouseDown")]
+        inOutMouse <- unique(mouseChange[order(Timestamp), c("Timestamp", "IsMouseInAOI", "IsMouseDown")])
     }
 
     intervals <- intervals[, let(fragments.duration = intervals$fragments.end - intervals$fragments.start,
