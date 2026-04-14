@@ -994,10 +994,16 @@ getSensorsMetadata <- function(sensors) {
     assertClass(sensors, c("imSensor", "imSensorList"), "`sensors` argument is not an imSensor or imSensorList object")
 
     sensors_metadata <- bind_rows(lapply(sensors$sensorSpecific, function(sensor) {
-        # Add an empty row in case no sensor information was found
-        if (is.na(sensor) || is.null(sensor)) return(data.table(placeholderColumn = NA))
-
-        metadata <- fromJSON(sensor)
+        metadata <- tryCatch(
+            {
+                return(fromJSON(sensor))
+            },
+            error = function(e) {
+                # Add an empty row in case no sensor information was found
+                if (!is.na(sensor) && !is.null(sensor)) warning(sprintf("Malformed JSON detected: %s", sensor))
+                return(data.table(placeholderColumn = NA))
+            }
+        )
 
         # Clean the return json object to create a data.table that can be bind together
         metadata <- metadata[!lengths(metadata) == 0]
