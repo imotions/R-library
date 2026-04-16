@@ -370,8 +370,9 @@ getStimulus <- function(study, stimulusId) {
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param stimulus Optional - An imStimulus object as returned from \code{\link{getStimuli}}.
 #' @param respondent Optional - An imRespondent object as returned from \code{\link{getRespondents}}.
-#' @param generateInOutFiles A boolean indicating whether the corresponding InOut files should be generated and linked
-#'                           to each imAOI object.
+#' @param generateInOutFiles Optional - A boolean indicating whether the corresponding InOut files should be generated
+#'                           and linked to each imAOI object.
+#' @param verbose Optional - A boolean indicating whether warnings from privateAOIfiltering should be shown.
 #'
 #' @importFrom tidyr unnest
 #' @return An imAOIList object (data.table) with all AOIs of interest.
@@ -402,13 +403,17 @@ getStimulus <- function(study, stimulusId) {
 #'
 #' print(AOIs$fileId) # a field "fileId" should have been added with the path to the InOut file
 #' }
-getAois <- function(study, stimulus = NULL, respondent = NULL, generateInOutFiles = FALSE) {
+getAois <- function(study, stimulus = NULL, respondent = NULL, generateInOutFiles = FALSE, verbose = FALSE) {
     assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
     assertClass(study, "imStudy", "`study` argument is not an imStudy object")
     assertClass(stimulus, "imStimulus", "`stimulus` argument is not an imStimulus object")
     assertClass(respondent, "imRespondent", "`respondent` argument is not an imRespondent object")
 
-    AOIs <- privateAoiFiltering(study, stimulus, respondent)
+    AOIs <- if (verbose) {
+        privateAoiFiltering(study, stimulus, respondent)
+    } else {
+        suppressWarnings(privateAoiFiltering(study, stimulus, respondent))
+    }
 
     if (is.null(AOIs)) {
         return(NULL)
@@ -424,6 +429,11 @@ getAois <- function(study, stimulus = NULL, respondent = NULL, generateInOutFile
             return(NULL)
         } else {
             AOIs <- merge(AOIs, AOIDetails[, c("aoiId", "respId", "fileId", "resultId")], by.x = "id", by.y = "aoiId")
+
+            if (nrow(AOIs) == 0) {
+                warning("The InOut files found do not match any AOIs for this respondent/stimulus combination.")
+                return(NULL)
+            }
         }
     }
 
