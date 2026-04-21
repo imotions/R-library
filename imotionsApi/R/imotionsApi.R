@@ -1006,7 +1006,7 @@ getSensorsMetadata <- function(sensors) {
     sensors_metadata <- bind_rows(lapply(sensors$sensorSpecific, function(sensor) {
         metadata <- tryCatch(
             {
-                return(fromJSON(sensor))
+                fromJSON(sensor)
             },
             error = function(e) {
                 # Add an empty row in case no sensor information was found
