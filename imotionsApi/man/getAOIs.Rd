@@ -4,7 +4,13 @@
 \alias{getAois}
 \title{Get AOIs from a study.}
 \usage{
-getAois(study, stimulus = NULL, respondent = NULL, generateInOutFiles = FALSE)
+getAois(
+  study,
+  stimulus = NULL,
+  respondent = NULL,
+  generateInOutFiles = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
@@ -13,8 +19,10 @@ getAois(study, stimulus = NULL, respondent = NULL, generateInOutFiles = FALSE)
 
 \item{respondent}{Optional - An imRespondent object as returned from \code{\link{getRespondents}}.}
 
-\item{generateInOutFiles}{A boolean indicating whether the corresponding InOut files should be generated and linked
-to each imAOI object.}
+\item{generateInOutFiles}{Optional - A boolean indicating whether the corresponding InOut files should be generated
+and linked to each imAOI object.}
+
+\item{verbose}{Optional - A boolean indicating whether warnings from privateAOIfiltering should be shown.}
 }
 \value{
 An imAOIList object (data.table) with all AOIs of interest.

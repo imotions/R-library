@@ -12,6 +12,9 @@ on:
 
 permissions:
   contents: write
+  checks: write
+  pull-requests: write
+  issues: read
 
 jobs:
   R-test-lint-build-release:

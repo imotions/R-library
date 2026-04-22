@@ -311,18 +311,25 @@ test_that("remote warning - no in/out was generated", {
 context("getAois()")
 
 mockedGetAois <- function(study, stimulus = NULL, respondent = NULL, generateInOutFiles = FALSE,
-                          expectedCallAoiDetails = 0, expectedCallFiltering = 0, fail = FALSE) {
+                          expectedCallAoiDetails = 0, expectedCallFiltering = 0, fail = FALSE, verbose = TRUE,
+                          wrong_id = FALSE) {
 
     privateAoiFiltering_Stub <- mock(mockedPrivateAoiFiltering(study, stimulus, respondent, expectedCallFiltering))
-    privateGetAoiDetails_Stub <- mock(jsonlite::fromJSON("../data/AOIDetailsForStimulusRespondent.json"))
+
+    # Create the different failing usecases
+    aoi_details <- jsonlite::fromJSON("../data/AOIDetailsForStimulusRespondent.json")
 
     if (fail) {
-        privateGetAoiDetails_Stub <- mock(NULL)
+        aoi_details <- NULL
+    } else if (wrong_id) {
+        aoi_details$aoiId <- "wrong_id"
     }
+
+    privateGetAoiDetails_Stub <- mock(aoi_details)
 
     AOIs <- mockr::with_mock(privateAoiFiltering = privateAoiFiltering_Stub,
                              privateGetAoiDetails = privateGetAoiDetails_Stub, {
-                                 getAois(study, stimulus, respondent, generateInOutFiles)
+                                 getAois(study, stimulus, respondent, generateInOutFiles, verbose)
                              })
 
     expect_args(privateAoiFiltering_Stub, 1, study, stimulus, respondent)
@@ -362,6 +369,26 @@ test_that("error/warning - arguments are missing or not from the good class", {
     expect_warning(mockedGetAois(study, stimulus = NULL, respondents[1, ], generateInOutFiles = TRUE),
                    "InOut files can only be generated when both respondent and stimulus argument are provided.",
                    info = "stimulus argument must be provided")
+})
+
+test_that("check - verbose parameter", {
+    # Private filtering warnings should still be shown by default
+    expect_warning(AOIs <- mockedGetAois(study, respondent = respondents[1, ], stimulus = stimuli[1, ]),
+                   "No AOI defined for respondent: Wendy, stimulus: AntiSmoking40Sec",
+                   info = "private filtering warning should be shown when verbose = TRUE")
+
+    expect_null(AOIs, "AOIs should be null")
+
+    # The same private filtering warning should be silenced when verbose = FALSE
+    expect_no_warning(AOIs <- mockedGetAois(study, respondent = respondents[1, ], stimulus = stimuli[1, ],
+                                            verbose = FALSE))
+
+    expect_null(AOIs, "AOIs should be null")
+
+    # Warnings emitted by getAois() itself should still be shown
+    expect_warning(mockedGetAois(study, respondent = respondents[1, ], generateInOutFiles = TRUE, verbose = FALSE),
+                   "InOut files can only be generated when both respondent and stimulus argument are provided.",
+                   info = "getAois warning should still be shown when verbose = FALSE")
 })
 
 test_that("return - imAOIList object", {
@@ -419,6 +446,14 @@ test_that("check - generateInOutFiles parameter", {
                           expectedCallAoiDetails = 1, fail = TRUE)
 
     expect_null(AOIs, "No AOIs should be returned")
+
+    # If in/out details do not match any AOIs we should not return any AOIs
+    expect_warning(AOIs <- mockedGetAois(study, stimulus = stimuli[4, ], respondent = respondents[1, ],
+                                         generateInOutFiles = TRUE, expectedCallAoiDetails = 1, wrong_id = TRUE),
+                   "The InOut files found do not match any AOIs for this respondent/stimulus combination.",
+                   info = "A mismatch between AOIs and generated in/out files should send a warning")
+
+    expect_null(AOIs, "No AOIs should be returned when in/out details do not match any AOIs")
 
     # For remote study, should have the in/out data in case a respondent was provided
     stimuli <- getStimuli(study_cloud)
