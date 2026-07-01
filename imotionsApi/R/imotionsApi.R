@@ -1114,18 +1114,25 @@ privateGetIntervalsForStimuli <- function(study, respondent, stimuli) {
     slideEvents <- getSensorData(study, sensor)
 
     # Filtering for stimuli included in the analysis
-    slideEvents <- slideEvents[slideEvents$SourceStimuliName %in% stimuli$name, ]
+    slideEvents <- slideEvents[SourceStimuliName %in% stimuli$name & SlideEvent %in% c("StartMedia", "EndMedia"),
+        .(start = Timestamp[SlideEvent == "StartMedia"][1],
+          end = Timestamp[SlideEvent == "EndMedia"][1],
+          valid = .N == 2L && data.table::uniqueN(SlideEvent) == 2L), by = SourceStimuliName] |>
+        _[, valid := valid & end >= start]
+
+    if (any(slideEvents$valid == FALSE)) {
+        warning(paste0("Respondent: " , respondent$name, " - Skipping stimuli with malformed slideEvents: ",
+                       paste(slideEvents[valid == FALSE, ]$SourceStimuliName, collapse = ", ")))
+
+        slideEvents <- slideEvents[valid == TRUE, ]
+    }
 
     if (nrow(slideEvents) == 0) {
         return(NULL)
     }
 
-    start <- slideEvents[slideEvents$SlideEvent == "StartMedia", ]$Timestamp
-    end <- slideEvents[slideEvents$SlideEvent == "EndMedia", ]$Timestamp
-    duration <- end - start
-    name <- slideEvents[slideEvents$SlideEvent == "StartMedia", ]$SourceStimuliName
-
-    intervals <- data.table::data.table("fragments" = data.frame(start, end, duration), "name" = name,
+    intervals <- data.table::data.table("fragments" = slideEvents[, .(start, end, duration = end - start)],
+                                        "name" = slideEvents$SourceStimuliName,
                                         "type" = "Stimulus", "parentId" = NA_character_, "parentName" = "",
                                         "text" = "")
 
@@ -1998,7 +2005,7 @@ uploadAoiMetadata <- function(study, metadata) {
 #' Create events for a specific respondent in a study.
 #'
 #' Events data.table must be composed of a EventName, Timestamp and Description column. Description will be rendered
-#' as tooltip in the software.
+#' as tooltip in the software. Event upload is only supported for local connections. Remote connections are skipped.
 #'
 #' Params required field are "iMotionsVersion" and "flowName" (flow name will be used to link events to the original
 #' script)
@@ -2049,6 +2056,11 @@ uploadEvents <- function(params, study, events, target, eventsName, scriptName, 
     assertValid(exists("iMotionsVersion", params), "Required `iMotionsVersion` field in params")
     assertValid(exists("flowName", params), "Required `flowName` field in params")
 
+    if (!study$connection$localIM) {
+        message("Skipping events upload for remote connection.")
+        return()
+    }
+
     # Verify that data is a data.table of the good format
     events <- checkDataFormat(events)
     assertUploadFormat(events)
@@ -2066,7 +2078,8 @@ uploadEvents <- function(params, study, events, target, eventsName, scriptName, 
 #'
 #' Metrics data.table must be composed of a StimulusId column, a Timestamp column, and at least one additional column
 #' with metrics. The Timestamp column should be filled with recording timestamps falling during the stimulus of
-#' interest (i.e. the timestamp of the start of the stimulus it corresponds to).
+#' interest (i.e. the timestamp of the start of the stimulus it corresponds to). Metrics upload is only supported for
+#' local connections. Remote connections are skipped.
 #'
 #' Params required field are "iMotionsVersion" and "flowName" (flow name will be used to link metrics to the original
 #' script)
@@ -2116,6 +2129,11 @@ uploadMetrics <- function(params, study, metrics, target, metricsName, scriptNam
 
     assertValid(exists("iMotionsVersion", params), "Required `iMotionsVersion` field in params")
     assertValid(exists("flowName", params), "Required `flowName` field in params")
+
+    if (!study$connection$localIM) {
+        message("Skipping metrics upload for remote connection.")
+        return()
+    }
 
     # Verify that metrics is a data.table of the good format
     metrics <- checkDataFormat(metrics)
@@ -2324,17 +2342,15 @@ privateGetFileHeader <- function(data, params, sampleName, scriptName, metadata 
 privateCreateHeader <- function(params, data, sampleName, scriptName) {
     # No need to save the following into the signal file metadata
     ignoreParams <- c("token", "iMotionsVersion", "flowName", "scratchFolder", "studyId", "respondentId", "segmentId",
-                      "stimulusId")
+                      "stimulusId", "fileDependency")
 
     # Signals file metadata should contain script specific parameters, they will be used by the sensor data export
     class_type <- "iMotions.RAPIData"
 
-    metadata <- list("sampleName" = sampleName, "script" = scriptName,
+    metadata <- list("sampleName" = sampleName, "script" = scriptName, "fileDependency" = params[["fileDependency"]],
                      parameters = params[!(names(params) %in% ignoreParams)])
 
     if (inherits(data, "imSignals")) {
-        metadata <- append(metadata, list("fileDependency" = attr(data, "fileDependency")), after = 2)
-
         signal_type <- "ET_RExtAPI"
     } else if (inherits(data, "imEvents")) {
         signal_type <- "ET_REventAPI"

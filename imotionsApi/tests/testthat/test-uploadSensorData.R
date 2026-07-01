@@ -71,6 +71,19 @@ test_that("return - headers for signals", {
     expect_identical(dataHeader[7], expectedMetadataUrl, "wrong metadata")
 })
 
+test_that("return - file dependency from params", {
+    data <- checkDataFormat(data)
+    params$fileDependency <- "C:\\GSR.csv.pbin"
+    dataHeader <- privateCreateHeader(params, data, sampleName, scriptName)
+
+    # Check we have the file dependency
+    expectedMetadataUrl <- paste0("%7B%22sampleName%22%3A%22TestSensor%22%2C%22script%22%3A%22TestScript%22%2C%22",
+                                  "fileDependency%22%3A%22C%3A%5C%5CGSR.csv.pbin%22%2C%22parameters%22%3A%7B%22",
+                                  "extraParam%22%3A%22fixationFilter%22%7D%7D")
+
+    expect_identical(dataHeader[7], expectedMetadataUrl, "wrong metadata")
+})
+
 dataEvents <- data.table("Timestamp" = seq(1:100), "EventName" = rep("Event 1", 100), "Description" = rep("test", 100))
 
 test_that("return - headers for events", {
@@ -78,8 +91,9 @@ test_that("return - headers for events", {
     dataHeader <- privateCreateHeader(params, dataEvents, sampleName = NULL, scriptName = NULL)
 
     # Most of the params should have been removed from metadata
-    expectedMetadataUrl <- paste0("%7B%22sampleName%22%3A%7B%7D%2C%22script%22%3A%7B%7D%2C%22parameters%22%3A%7B%22",
-                                  "extraParam%22%3A%22fixationFilter%22%7D%7D")
+    expectedMetadataUrl <- paste0("%7B%22sampleName%22%3A%7B%7D%2C%22script%22%3A%7B%7D%2C%22",
+                                  "fileDependency%22%3A%7B%7D%2C%22parameters%22%3A%7B%22extraParam%22%3A%22",
+                                  "fixationFilter%22%7D%7D")
 
     expect_equal(length(dataHeader), 7, info = "should be composed of 7 lines")
     expect_identical(dataHeader[1], params$iMotionsVersion, "wrong imotions version")
@@ -99,8 +113,9 @@ test_that("return - headers for metrics", {
     dataHeader <- privateCreateHeader(params, dataMetrics, sampleName = NULL, scriptName = NULL)
 
     # Most of the params should have been removed from metadata
-    expectedMetadataUrl <- paste0("%7B%22sampleName%22%3A%7B%7D%2C%22script%22%3A%7B%7D%2C%22parameters%22%3A%7B%22",
-                                  "extraParam%22%3A%22fixationFilter%22%7D%7D")
+    expectedMetadataUrl <- paste0("%7B%22sampleName%22%3A%7B%7D%2C%22script%22%3A%7B%7D%2C%22",
+                                  "fileDependency%22%3A%7B%7D%2C%22parameters%22%3A%7B%22extraParam%22%3A%22",
+                                  "fixationFilter%22%7D%7D")
 
     expect_equal(length(dataHeader), 7, info = "should be composed of 7 lines")
     expect_identical(dataHeader[1], params$iMotionsVersion, "wrong imotions version")
@@ -660,7 +675,7 @@ test_that("error - arguments are missing or not from the good class", {
 })
 
 
-test_that("check - should call privateUpload with the good parameters", {
+test_that("local check - should call privateUpload with the good parameters", {
     dataEvents <- checkDataFormat(dataEvents)
     additionalMetadata <- data.table("Units" = c("ms", "", ""), "Show" = c("FALSE", "TRUE", "TRUE"))
     privateUpload_Stub <- mock()
@@ -675,7 +690,7 @@ test_that("check - should call privateUpload with the good parameters", {
 })
 
 
-test_that("check - should not call privateUpload if data is of wrong format", {
+test_that("local check - should not call privateUpload if data is of wrong format", {
     wrongData <- data.frame("NotTimestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
     privateUpload_Stub <- mock()
 
@@ -699,6 +714,17 @@ test_that("check - should not call privateUpload if data is of wrong format", {
     expect_called(privateUpload_Stub, 0)
 })
 
+
+test_that("remote check - should skip events upload", {
+    privateUpload_Stub <- mock()
+
+    expect_message(res <- mockr::with_mock(privateUpload = privateUpload_Stub, {
+        uploadEvents(params, study_cloud, dataEvents, respondent, eventsName, scriptName)
+    }), "Skipping events upload for remote connection.")
+
+    expect_null(res, info = "should return null")
+    expect_called(privateUpload_Stub, 0)
+})
 
 # uploadMetrics =======================================================================================================
 context("uploadMetrics()")
@@ -773,7 +799,7 @@ test_that("error - arguments are missing or not from the good class", {
 })
 
 
-test_that("check - should call privateUpload with the good parameters", {
+test_that("local check - should call privateUpload with the good parameters", {
     dataMetrics <- checkDataFormat(dataMetrics)
     additionalMetadata <- data.table("Units" = c("", "ms", "", ""), "Show" = c("FALSE", "FALSE", "TRUE", "TRUE"))
     privateUpload_Stub <- mock()
@@ -788,7 +814,7 @@ test_that("check - should call privateUpload with the good parameters", {
 })
 
 
-test_that("check - should not call privateUpload if data is of wrong format", {
+test_that("local check - should not call privateUpload if data is of wrong format", {
     wrongData <- data.frame("NotTimestamp" = seq(1:100), "Thresholded value" = rep(0, 100))
     privateUpload_Stub <- mock()
 
@@ -810,6 +836,18 @@ test_that("check - should not call privateUpload if data is of wrong format", {
           "column and at least one other column containing metrics"),
     info = "wrong data type detected")
 
+    expect_called(privateUpload_Stub, 0)
+})
+
+
+test_that("remote check - should skip metrics upload", {
+    privateUpload_Stub <- mock()
+
+    expect_message(res <- mockr::with_mock(privateUpload = privateUpload_Stub, {
+        uploadMetrics(params, study_cloud, dataMetrics, respondent, metricsName, scriptName)
+    }), "Skipping metrics upload for remote connection.")
+
+    expect_null(res, info = "should return null")
     expect_called(privateUpload_Stub, 0)
 })
 
