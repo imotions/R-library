@@ -565,6 +565,7 @@ privateAoiFiltering <- function(study, stimulus = NULL, respondent = NULL) {
 #'
 #' @return A data.table with all AOIs for the study.
 #' @keywords internal
+#' @exportS3Method privateAoiFiltering imStudy
 privateAoiFiltering.imStudy <- function(study, ...) {
     endpoint <- paste("study:", study$name)
 
@@ -585,6 +586,7 @@ privateAoiFiltering.imStudy <- function(study, ...) {
 #'
 #' @return A data.table with all AOIs defined for a specific stimulus.
 #' @keywords internal
+#' @exportS3Method privateAoiFiltering imStimulus
 privateAoiFiltering.imStimulus <- function(study, stimulus, ...) {
     stimulusId <- NULL # set local variable to remove warnings in `devtools::check()`
 
@@ -618,6 +620,7 @@ privateAoiFiltering.imStimulus <- function(study, stimulus, ...) {
 #'
 #' @return A data.table with all AOIs defined for a specific respondent.
 #' @keywords internal
+#' @exportS3Method privateAoiFiltering imRespondent
 privateAoiFiltering.imRespondent <- function(study, stimulus = NULL, respondent) {
     stimulusId <- respId <- NULL # set local variable to remove warnings in `devtools::check()`
 
@@ -796,6 +799,7 @@ privateRespondentFiltering <- function(study, obj = NULL) {
 #'
 #' @return A data.table with all respondents for the study.
 #' @keywords internal
+#' @exportS3Method privateRespondentFiltering imStudy
 privateRespondentFiltering.imStudy <- function(study, ...) {
     respondents <- study$respondents
     respVariables <- NULL
@@ -834,6 +838,7 @@ privateRespondentFiltering.imStudy <- function(study, ...) {
 #'
 #' @return A data.table with all respondents exposed to a specific stimulus.
 #' @keywords internal
+#' @exportS3Method privateRespondentFiltering imStimulus
 privateRespondentFiltering.imStimulus <- function(study, obj) {
     respondents <- privateRespondentFiltering.imStudy(study)
 
@@ -854,6 +859,7 @@ privateRespondentFiltering.imStimulus <- function(study, obj) {
 #'
 #' @return A data.table with all respondents for whom a specific AOI has been defined.
 #' @keywords internal
+#' @exportS3Method privateRespondentFiltering imAOI
 privateRespondentFiltering.imAOI <- function(study, obj) {
     respondents <- privateRespondentFiltering.imStudy(study)
 
@@ -1104,6 +1110,9 @@ getRespondentIntervals <- function(study, respondent, type = c("Stimulus", "Scen
 #' @return A data.table composed of the start, end, duration, id and name of each stimulus.
 #' @keywords internal
 privateGetIntervalsForStimuli <- function(study, respondent, stimuli) {
+    # set local variable to remove warnings in `devtools::check()`
+    name <- SourceStimuliName <- SlideEvent <- Timestamp <- valid <- end <- start <- NULL
+
     sensors <- getSensors(study, respondent)
     sensor <- sensors[name == "SlideEvents", ]
 
@@ -1115,9 +1124,9 @@ privateGetIntervalsForStimuli <- function(study, respondent, stimuli) {
 
     # Filtering for stimuli included in the analysis
     slideEvents <- slideEvents[SourceStimuliName %in% stimuli$name & SlideEvent %in% c("StartMedia", "EndMedia"),
-        .(start = Timestamp[SlideEvent == "StartMedia"][1],
-          end = Timestamp[SlideEvent == "EndMedia"][1],
-          valid = .N == 2L && data.table::uniqueN(SlideEvent) == 2L), by = SourceStimuliName] |>
+        list(start = Timestamp[SlideEvent == "StartMedia"][1],
+             end = Timestamp[SlideEvent == "EndMedia"][1],
+             valid = .N == 2L && data.table::uniqueN(SlideEvent) == 2L), by = SourceStimuliName] |>
         _[, valid := valid & end >= start]
 
     if (any(slideEvents$valid == FALSE)) {
@@ -1131,7 +1140,7 @@ privateGetIntervalsForStimuli <- function(study, respondent, stimuli) {
         return(NULL)
     }
 
-    intervals <- data.table::data.table("fragments" = slideEvents[, .(start, end, duration = end - start)],
+    intervals <- data.table::data.table("fragments" = slideEvents[, list(start, end, duration = end - start)],
                                         "name" = slideEvents$SourceStimuliName,
                                         "type" = "Stimulus", "parentId" = NA_character_, "parentName" = "",
                                         "text" = "")
@@ -1916,6 +1925,7 @@ privateUploadAoiMetrics <- function(study, obj, AOI, metrics) {
 #' @inheritParams privateUploadAoiMetrics
 #'
 #' @keywords internal
+#' @exportS3Method privateUploadAoiMetrics imRespondent
 privateUploadAoiMetrics.imRespondent <- function(study, obj, AOI, metrics) {
     AOIDetails <- privateGetAoiDetails(study, AOI, obj)
 
@@ -1950,6 +1960,7 @@ privateUploadAoiMetrics.imRespondent <- function(study, obj, AOI, metrics) {
 #' @inheritParams privateUploadAoiMetrics
 #'
 #' @keywords internal
+#' @exportS3Method privateUploadAoiMetrics imSegment
 privateUploadAoiMetrics.imSegment <- function(study, obj, AOI, metrics) {
     # Replace NaN by NA for online (segment upload)
     metrics[is.na(metrics)] <- NA_real_
@@ -2655,6 +2666,7 @@ getSensorsUrl <- function(study, imObject, stimulus = NULL) {
 #' @inheritParams getSensorsUrl
 #'
 #' @keywords internal
+#' @exportS3Method getSensorsUrl imRespondent
 getSensorsUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
     url <- file.path(getStudyUrl(study), "respondent", imObject$id)
 
@@ -2672,6 +2684,7 @@ getSensorsUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
 #' @inheritParams getSensorsUrl
 #'
 #' @keywords internal
+#' @exportS3Method getSensorsUrl imSegment
 getSensorsUrl.imSegment <- function(study, imObject, stimulus = NULL) {
     file.path(getStudyUrl(study), "segment", imObject$id, "stimuli", stimulus$id, "samples")
 }
@@ -2707,6 +2720,7 @@ getUploadSensorDataUrl <- function(study, imObject, stimulus = NULL) {
 #' @inheritParams getUploadSensorDataUrl
 #'
 #' @keywords internal
+#' @exportS3Method getUploadSensorDataUrl imRespondent
 getUploadSensorDataUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
     if (study$connection$localIM) {
         file.path(getSensorsUrl(study, imObject, stimulus), "data")
@@ -2721,6 +2735,7 @@ getUploadSensorDataUrl.imRespondent <- function(study, imObject, stimulus = NULL
 #' @inheritParams getUploadSensorDataUrl
 #'
 #' @keywords internal
+#' @exportS3Method getUploadSensorDataUrl imSegment
 getUploadSensorDataUrl.imSegment <- function(study, imObject, stimulus = NULL) {
     if (study$connection$localIM) {
         file.path(getSensorsUrl(study, imObject, stimulus), "data")
@@ -2747,6 +2762,7 @@ getUploadEventsUrl <- function(study, imObject) {
 #' @inheritParams getUploadEventsUrl
 #'
 #' @keywords internal
+#' @exportS3Method getUploadEventsUrl imRespondent
 getUploadEventsUrl.imRespondent <- function(study, imObject) {
     file.path(getStudyBaseUrl(study), "revents", study$id, "respondent", imObject$id, "data")
 }
@@ -2769,6 +2785,7 @@ getUploadMetricsUrl <- function(study, imObject) {
 #' @inheritParams getUploadMetricsUrl
 #'
 #' @keywords internal
+#' @exportS3Method getUploadMetricsUrl imRespondent
 getUploadMetricsUrl.imRespondent <- function(study, imObject) {
     file.path(getStudyBaseUrl(study), "rmetrics", study$id, "respondent", imObject$id, "data")
 }
@@ -2808,6 +2825,7 @@ getUploadAoiMetricsUrl <- function(study, imObject, AOI) {
 #' @inheritParams getUploadAoiMetricsUrl
 #'
 #' @keywords internal
+#' @exportS3Method getUploadAoiMetricsUrl imSegment
 getUploadAoiMetricsUrl.imSegment <- function(study, imObject, AOI) {
     if (!study$connection$localIM) {
         file.path(getAoisUrl(study), AOI$id, "segments", imObject$id, "stats")
@@ -2869,6 +2887,7 @@ getAoiDetailsUrl <- function(study, imObject, respondent = NULL) {
 #' @inheritParams getAoiDetailsUrl
 #'
 #' @keywords internal
+#' @exportS3Method getAoiDetailsUrl imAOI
 getAoiDetailsUrl.imAOI <- function(study, imObject, respondent = NULL) {
     url <- file.path(getAoisUrl(study, imObject$stimulusId))
 
@@ -2886,6 +2905,7 @@ getAoiDetailsUrl.imAOI <- function(study, imObject, respondent = NULL) {
 #' @inheritParams getAoiDetailsUrl
 #'
 #' @keywords internal
+#' @exportS3Method getAoiDetailsUrl imStimulus
 getAoiDetailsUrl.imStimulus <- function(study, imObject, respondent = NULL) {
     url <- file.path(getAoisUrl(study, imObject$id))
 

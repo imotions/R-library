@@ -34,7 +34,8 @@ and there must be a row corresponding to each data column.}
 \description{
 Metrics data.table must be composed of a StimulusId column, a Timestamp column, and at least one additional column
 with metrics. The Timestamp column should be filled with recording timestamps falling during the stimulus of
-interest (i.e. the timestamp of the start of the stimulus it corresponds to).
+interest (i.e. the timestamp of the start of the stimulus it corresponds to). Metrics upload is only supported for
+local connections. Remote connections are skipped.
 }
 \details{
 Params required field are "iMotionsVersion" and "flowName" (flow name will be used to link metrics to the original

@@ -33,7 +33,7 @@ and there must be a row corresponding to each data column.}
 }
 \description{
 Events data.table must be composed of a EventName, Timestamp and Description column. Description will be rendered
-as tooltip in the software.
+as tooltip in the software. Event upload is only supported for local connections. Remote connections are skipped.
 }
 \details{
 Params required field are "iMotionsVersion" and "flowName" (flow name will be used to link events to the original
