@@ -1124,13 +1124,14 @@ privateGetIntervalsForStimuli <- function(study, respondent, stimuli) {
 
     # Filtering for stimuli included in the analysis
     slideEvents <- slideEvents[SourceStimuliName %in% stimuli$name & SlideEvent %in% c("StartMedia", "EndMedia"),
-        list(start = Timestamp[SlideEvent == "StartMedia"][1],
-             end = Timestamp[SlideEvent == "EndMedia"][1],
-             valid = .N == 2L && data.table::uniqueN(SlideEvent) == 2L), by = SourceStimuliName] |>
+                               list(start = Timestamp[SlideEvent == "StartMedia"][1],
+                                    end = Timestamp[SlideEvent == "EndMedia"][1],
+                                    valid = .N == 2L && data.table::uniqueN(SlideEvent) == 2L)
+                               , by = SourceStimuliName] |>
         _[, valid := valid & end >= start]
 
     if (any(slideEvents$valid == FALSE)) {
-        warning(paste0("Respondent: " , respondent$name, " - Skipping stimuli with malformed slideEvents: ",
+        warning(paste0("Respondent: ", respondent$name, " - Skipping stimuli with malformed slideEvents: ",
                        paste(slideEvents[valid == FALSE, ]$SourceStimuliName, collapse = ", ")))
 
         slideEvents <- slideEvents[valid == TRUE, ]
