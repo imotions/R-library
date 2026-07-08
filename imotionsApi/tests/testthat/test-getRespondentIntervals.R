@@ -25,7 +25,7 @@ mockedPrivateGetIntervalsForStimuli <- function(study, respondent, stimuli, slid
                                                 expectedDataCall = 1) {
 
     getSensors_Stub <- mock(sensors)
-    getSensorData_Stub <- mock(slideEvents)
+    getSensorData_Stub <- mock(as.data.table(slideEvents))
 
     stimIntervals <- mockr::with_mock(getSensors = getSensors_Stub,
                                       getSensorData = getSensorData_Stub, {
@@ -123,6 +123,46 @@ test_that("remote return - NULL if no slideEvents sensors available", {
                                                          sensors_cloud, 0)
 
     expect_null(stimIntervals, "no intervals should have been found")
+})
+
+
+test_that("local warning - malformed slideEvents are skipped", {
+    # Case with only start/end media and end timestamp happening before start
+    events <- slideEvents[c(2, 3, 6, 11, 14, 15), ]
+    events[6, ]$Timestamp <- events[4, ]$Timestamp - 10
+
+    stimIntervals <- expect_warning(
+        mockedPrivateGetIntervalsForStimuli(study, respondent, stimuli, events, sensors),
+        paste("Respondent: Wendy - Skipping stimuli with malformed slideEvents: NiceElementTypes,",
+              "CHAMONIX_Living_on_the_edge, AntiSmoking40Sec")
+    )
+
+    expect_identical(stimIntervals$name, "IAAF", "only well-formed stimuli should be kept")
+    expect_equal(stimIntervals$fragments.start, 6073.691, tolerance = 0.001, info = "wrong fragments start")
+    expect_equal(stimIntervals$fragments.end, 29990.17, tolerance = 0.001, info = "wrong fragments end")
+    expect_equal(stimIntervals$fragments.duration, 23916.48, tolerance = 0.001, info = "wrong fragments duration")
+    expect_identical(stimIntervals$id, "1002", "wrong id")
+
+    # Case with duplicate events
+    events <- slideEvents[c(2, 3, 14, 15), ]
+    events <- rbind(events, events[4, ])
+
+    stimIntervals <- expect_warning(
+        mockedPrivateGetIntervalsForStimuli(study, respondent, stimuli, events, sensors),
+        "Respondent: Wendy - Skipping stimuli with malformed slideEvents: AntiSmoking40Sec"
+    )
+
+    expect_identical(stimIntervals$name, "IAAF", "stimuli with duplicated slideEvents should be skipped")
+
+    # Case with only malformed events
+    events <- slideEvents[c(2, 15), ]
+
+    stimIntervals <- expect_warning(
+        mockedPrivateGetIntervalsForStimuli(study, respondent, stimuli, events, sensors),
+        "Respondent: Wendy - Skipping stimuli with malformed slideEvents: IAAF, AntiSmoking40Sec"
+    )
+
+    expect_null(stimIntervals, "no well-formed intervals should have been found")
 })
 
 # privateGetIntervalsForScenes ========================================================================================

@@ -565,6 +565,7 @@ privateAoiFiltering <- function(study, stimulus = NULL, respondent = NULL) {
 #'
 #' @return A data.table with all AOIs for the study.
 #' @keywords internal
+#' @exportS3Method privateAoiFiltering imStudy
 privateAoiFiltering.imStudy <- function(study, ...) {
     endpoint <- paste("study:", study$name)
 
@@ -585,6 +586,7 @@ privateAoiFiltering.imStudy <- function(study, ...) {
 #'
 #' @return A data.table with all AOIs defined for a specific stimulus.
 #' @keywords internal
+#' @exportS3Method privateAoiFiltering imStimulus
 privateAoiFiltering.imStimulus <- function(study, stimulus, ...) {
     stimulusId <- NULL # set local variable to remove warnings in `devtools::check()`
 
@@ -618,6 +620,7 @@ privateAoiFiltering.imStimulus <- function(study, stimulus, ...) {
 #'
 #' @return A data.table with all AOIs defined for a specific respondent.
 #' @keywords internal
+#' @exportS3Method privateAoiFiltering imRespondent
 privateAoiFiltering.imRespondent <- function(study, stimulus = NULL, respondent) {
     stimulusId <- respId <- NULL # set local variable to remove warnings in `devtools::check()`
 
@@ -796,6 +799,7 @@ privateRespondentFiltering <- function(study, obj = NULL) {
 #'
 #' @return A data.table with all respondents for the study.
 #' @keywords internal
+#' @exportS3Method privateRespondentFiltering imStudy
 privateRespondentFiltering.imStudy <- function(study, ...) {
     respondents <- study$respondents
     respVariables <- NULL
@@ -834,6 +838,7 @@ privateRespondentFiltering.imStudy <- function(study, ...) {
 #'
 #' @return A data.table with all respondents exposed to a specific stimulus.
 #' @keywords internal
+#' @exportS3Method privateRespondentFiltering imStimulus
 privateRespondentFiltering.imStimulus <- function(study, obj) {
     respondents <- privateRespondentFiltering.imStudy(study)
 
@@ -854,6 +859,7 @@ privateRespondentFiltering.imStimulus <- function(study, obj) {
 #'
 #' @return A data.table with all respondents for whom a specific AOI has been defined.
 #' @keywords internal
+#' @exportS3Method privateRespondentFiltering imAOI
 privateRespondentFiltering.imAOI <- function(study, obj) {
     respondents <- privateRespondentFiltering.imStudy(study)
 
@@ -1104,6 +1110,9 @@ getRespondentIntervals <- function(study, respondent, type = c("Stimulus", "Scen
 #' @return A data.table composed of the start, end, duration, id and name of each stimulus.
 #' @keywords internal
 privateGetIntervalsForStimuli <- function(study, respondent, stimuli) {
+    # set local variable to remove warnings in `devtools::check()`
+    name <- SourceStimuliName <- SlideEvent <- Timestamp <- valid <- end <- start <- NULL
+
     sensors <- getSensors(study, respondent)
     sensor <- sensors[name == "SlideEvents", ]
 
@@ -1114,18 +1123,26 @@ privateGetIntervalsForStimuli <- function(study, respondent, stimuli) {
     slideEvents <- getSensorData(study, sensor)
 
     # Filtering for stimuli included in the analysis
-    slideEvents <- slideEvents[slideEvents$SourceStimuliName %in% stimuli$name, ]
+    slideEvents <- slideEvents[SourceStimuliName %in% stimuli$name & SlideEvent %in% c("StartMedia", "EndMedia"),
+                               list(start = Timestamp[SlideEvent == "StartMedia"][1],
+                                    end = Timestamp[SlideEvent == "EndMedia"][1],
+                                    valid = .N == 2L && data.table::uniqueN(SlideEvent) == 2L)
+                               , by = SourceStimuliName] |>
+        _[, valid := valid & end >= start]
+
+    if (any(slideEvents$valid == FALSE)) {
+        warning(paste0("Respondent: ", respondent$name, " - Skipping stimuli with malformed slideEvents: ",
+                       paste(slideEvents[valid == FALSE, ]$SourceStimuliName, collapse = ", ")))
+
+        slideEvents <- slideEvents[valid == TRUE, ]
+    }
 
     if (nrow(slideEvents) == 0) {
         return(NULL)
     }
 
-    start <- slideEvents[slideEvents$SlideEvent == "StartMedia", ]$Timestamp
-    end <- slideEvents[slideEvents$SlideEvent == "EndMedia", ]$Timestamp
-    duration <- end - start
-    name <- slideEvents[slideEvents$SlideEvent == "StartMedia", ]$SourceStimuliName
-
-    intervals <- data.table::data.table("fragments" = data.frame(start, end, duration), "name" = name,
+    intervals <- data.table::data.table("fragments" = slideEvents[, list(start, end, duration = end - start)],
+                                        "name" = slideEvents$SourceStimuliName,
                                         "type" = "Stimulus", "parentId" = NA_character_, "parentName" = "",
                                         "text" = "")
 
@@ -1909,6 +1926,7 @@ privateUploadAoiMetrics <- function(study, obj, AOI, metrics) {
 #' @inheritParams privateUploadAoiMetrics
 #'
 #' @keywords internal
+#' @exportS3Method privateUploadAoiMetrics imRespondent
 privateUploadAoiMetrics.imRespondent <- function(study, obj, AOI, metrics) {
     AOIDetails <- privateGetAoiDetails(study, AOI, obj)
 
@@ -1943,6 +1961,7 @@ privateUploadAoiMetrics.imRespondent <- function(study, obj, AOI, metrics) {
 #' @inheritParams privateUploadAoiMetrics
 #'
 #' @keywords internal
+#' @exportS3Method privateUploadAoiMetrics imSegment
 privateUploadAoiMetrics.imSegment <- function(study, obj, AOI, metrics) {
     # Replace NaN by NA for online (segment upload)
     metrics[is.na(metrics)] <- NA_real_
@@ -1998,7 +2017,7 @@ uploadAoiMetadata <- function(study, metadata) {
 #' Create events for a specific respondent in a study.
 #'
 #' Events data.table must be composed of a EventName, Timestamp and Description column. Description will be rendered
-#' as tooltip in the software.
+#' as tooltip in the software. Event upload is only supported for local connections. Remote connections are skipped.
 #'
 #' Params required field are "iMotionsVersion" and "flowName" (flow name will be used to link events to the original
 #' script)
@@ -2049,6 +2068,11 @@ uploadEvents <- function(params, study, events, target, eventsName, scriptName, 
     assertValid(exists("iMotionsVersion", params), "Required `iMotionsVersion` field in params")
     assertValid(exists("flowName", params), "Required `flowName` field in params")
 
+    if (!study$connection$localIM) {
+        message("Skipping events upload for remote connection.")
+        return()
+    }
+
     # Verify that data is a data.table of the good format
     events <- checkDataFormat(events)
     assertUploadFormat(events)
@@ -2066,7 +2090,8 @@ uploadEvents <- function(params, study, events, target, eventsName, scriptName, 
 #'
 #' Metrics data.table must be composed of a StimulusId column, a Timestamp column, and at least one additional column
 #' with metrics. The Timestamp column should be filled with recording timestamps falling during the stimulus of
-#' interest (i.e. the timestamp of the start of the stimulus it corresponds to).
+#' interest (i.e. the timestamp of the start of the stimulus it corresponds to). Metrics upload is only supported for
+#' local connections. Remote connections are skipped.
 #'
 #' Params required field are "iMotionsVersion" and "flowName" (flow name will be used to link metrics to the original
 #' script)
@@ -2116,6 +2141,11 @@ uploadMetrics <- function(params, study, metrics, target, metricsName, scriptNam
 
     assertValid(exists("iMotionsVersion", params), "Required `iMotionsVersion` field in params")
     assertValid(exists("flowName", params), "Required `flowName` field in params")
+
+    if (!study$connection$localIM) {
+        message("Skipping metrics upload for remote connection.")
+        return()
+    }
 
     # Verify that metrics is a data.table of the good format
     metrics <- checkDataFormat(metrics)
@@ -2324,17 +2354,15 @@ privateGetFileHeader <- function(data, params, sampleName, scriptName, metadata 
 privateCreateHeader <- function(params, data, sampleName, scriptName) {
     # No need to save the following into the signal file metadata
     ignoreParams <- c("token", "iMotionsVersion", "flowName", "scratchFolder", "studyId", "respondentId", "segmentId",
-                      "stimulusId")
+                      "stimulusId", "fileDependency")
 
     # Signals file metadata should contain script specific parameters, they will be used by the sensor data export
     class_type <- "iMotions.RAPIData"
 
-    metadata <- list("sampleName" = sampleName, "script" = scriptName,
+    metadata <- list("sampleName" = sampleName, "script" = scriptName, "fileDependency" = params[["fileDependency"]],
                      parameters = params[!(names(params) %in% ignoreParams)])
 
     if (inherits(data, "imSignals")) {
-        metadata <- append(metadata, list("fileDependency" = attr(data, "fileDependency")), after = 2)
-
         signal_type <- "ET_RExtAPI"
     } else if (inherits(data, "imEvents")) {
         signal_type <- "ET_REventAPI"
@@ -2639,6 +2667,7 @@ getSensorsUrl <- function(study, imObject, stimulus = NULL) {
 #' @inheritParams getSensorsUrl
 #'
 #' @keywords internal
+#' @exportS3Method getSensorsUrl imRespondent
 getSensorsUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
     url <- file.path(getStudyUrl(study), "respondent", imObject$id)
 
@@ -2656,6 +2685,7 @@ getSensorsUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
 #' @inheritParams getSensorsUrl
 #'
 #' @keywords internal
+#' @exportS3Method getSensorsUrl imSegment
 getSensorsUrl.imSegment <- function(study, imObject, stimulus = NULL) {
     file.path(getStudyUrl(study), "segment", imObject$id, "stimuli", stimulus$id, "samples")
 }
@@ -2691,6 +2721,7 @@ getUploadSensorDataUrl <- function(study, imObject, stimulus = NULL) {
 #' @inheritParams getUploadSensorDataUrl
 #'
 #' @keywords internal
+#' @exportS3Method getUploadSensorDataUrl imRespondent
 getUploadSensorDataUrl.imRespondent <- function(study, imObject, stimulus = NULL) {
     if (study$connection$localIM) {
         file.path(getSensorsUrl(study, imObject, stimulus), "data")
@@ -2705,6 +2736,7 @@ getUploadSensorDataUrl.imRespondent <- function(study, imObject, stimulus = NULL
 #' @inheritParams getUploadSensorDataUrl
 #'
 #' @keywords internal
+#' @exportS3Method getUploadSensorDataUrl imSegment
 getUploadSensorDataUrl.imSegment <- function(study, imObject, stimulus = NULL) {
     if (study$connection$localIM) {
         file.path(getSensorsUrl(study, imObject, stimulus), "data")
@@ -2731,6 +2763,7 @@ getUploadEventsUrl <- function(study, imObject) {
 #' @inheritParams getUploadEventsUrl
 #'
 #' @keywords internal
+#' @exportS3Method getUploadEventsUrl imRespondent
 getUploadEventsUrl.imRespondent <- function(study, imObject) {
     file.path(getStudyBaseUrl(study), "revents", study$id, "respondent", imObject$id, "data")
 }
@@ -2753,6 +2786,7 @@ getUploadMetricsUrl <- function(study, imObject) {
 #' @inheritParams getUploadMetricsUrl
 #'
 #' @keywords internal
+#' @exportS3Method getUploadMetricsUrl imRespondent
 getUploadMetricsUrl.imRespondent <- function(study, imObject) {
     file.path(getStudyBaseUrl(study), "rmetrics", study$id, "respondent", imObject$id, "data")
 }
@@ -2792,6 +2826,7 @@ getUploadAoiMetricsUrl <- function(study, imObject, AOI) {
 #' @inheritParams getUploadAoiMetricsUrl
 #'
 #' @keywords internal
+#' @exportS3Method getUploadAoiMetricsUrl imSegment
 getUploadAoiMetricsUrl.imSegment <- function(study, imObject, AOI) {
     if (!study$connection$localIM) {
         file.path(getAoisUrl(study), AOI$id, "segments", imObject$id, "stats")
@@ -2853,6 +2888,7 @@ getAoiDetailsUrl <- function(study, imObject, respondent = NULL) {
 #' @inheritParams getAoiDetailsUrl
 #'
 #' @keywords internal
+#' @exportS3Method getAoiDetailsUrl imAOI
 getAoiDetailsUrl.imAOI <- function(study, imObject, respondent = NULL) {
     url <- file.path(getAoisUrl(study, imObject$stimulusId))
 
@@ -2870,6 +2906,7 @@ getAoiDetailsUrl.imAOI <- function(study, imObject, respondent = NULL) {
 #' @inheritParams getAoiDetailsUrl
 #'
 #' @keywords internal
+#' @exportS3Method getAoiDetailsUrl imStimulus
 getAoiDetailsUrl.imStimulus <- function(study, imObject, respondent = NULL) {
     url <- file.path(getAoisUrl(study, imObject$id))
 

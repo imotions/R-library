@@ -1,8 +1,8 @@
 Package: imotionsApi
 Type: Package
 Title: iMotions R library
-Version: 2.9.2-0000000000
-Date: 2026-04-22
+Version: 2.9.3-0000000000
+Date: 2026-07-08
 Authors@R: c(
 	person("Amandine", "Grappe", role = "aut"),
 	person("Paolo", "Masulli", role = "ctb"),
@@ -34,5 +34,5 @@ Suggests:
 URL:
     https://imotions.com,
     https://my.imotions.com/#studies
-RoxygenNote: 7.3.2
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0
