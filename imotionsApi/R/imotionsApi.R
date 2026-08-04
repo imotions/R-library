@@ -1510,8 +1510,12 @@ privateDownloadData <- function(study, sensor, signalsName = NULL) {
         fileInfos <- getFile(study$connection, dataUrl, message = paste("Retrieving data for sensor:", sensor$name),
                              sensor$fileName)
 
-        # Downloading data of interest
+        # Add extra filtering because online signals are ordered alphabetically instead of by file order
         index <- str_which(readLines(fileInfos$file_path, warn = FALSE), "#DATA")
+        file_columns <- names(fread(fileInfos$file_path, skip = index, nrows = 0))
+        signalsName <- if (is.null(signalsName)) NULL else file_columns[file_columns %in% signalsName]
+
+        # Downloading data of interest
         data <- fread(fileInfos$file_path, header = TRUE, skip = index, select = signalsName)
 
         if (is.null(study$connection$localPath)) {
@@ -2994,7 +2998,7 @@ getFile <- function(connection, url, message = NULL, fileName = NULL) {
         message("Retrieving local data for ", file_path)
     }
 
-    if (grepl(".zip$", file_path)) {
+    if (grepl("zip", response$headers$`content-type`)) {
         files_in_zip <- unzip(file_path, exdir = tmp_dir)
         assertValid(!is.null(fileName), "You need to provide a fileName for zip file extraction.")
         file_path <- str_subset(files_in_zip, fileName)
