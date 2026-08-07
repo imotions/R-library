@@ -1398,11 +1398,11 @@ convertRecordingTsToIntervals <- function(recordingTs, intervals, keepTs = FALSE
     }
 
     # Converting timestamps to intervals fragments ranges
-    invisible(lapply(seq_len(nrow(intervals)), function(x) {
+    for (x in seq_len(nrow(intervals))) {
         isIn <- timestamps %inrange% intervals[x, c("fragments.start", "fragments.end")]
-        timestamps[isIn] <<- timestamps[isIn] - intervals[x, ]$fragments.start +
+        timestamps[isIn] <- timestamps[isIn] - intervals[x, ]$fragments.start +
             sum(intervals[0:(x - 1), ]$fragments.duration)
-    }))
+    }
 
     if (inherits(recordingTs, "data.frame")) {
         recordingTs$Timestamp <- timestamps
@@ -1915,7 +1915,7 @@ getTouchActorAois <- function(study, stimulus, respondent, touchActor = NULL) {
 
     if (is.null(aois)) {
         touchAois[, c("name", "type", "group", "area") := list(NA_character_, NA_character_, NA_character_,
-                                                                NA_real_)]
+                                                               NA_real_)]
     } else {
         # getAois() has already wrapped its result with createImObject, and merge.data.table joins by evaluating
         # `y[x, on = by]` - so an imObject on the right hand side dispatches to `[.imObject`, which forwards `on`
