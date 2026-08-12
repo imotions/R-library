@@ -2,7 +2,7 @@
 % Please edit documentation in R/imotionsApi.R
 \name{privateUploadAoiMetrics.imRespondent}
 \alias{privateUploadAoiMetrics.imRespondent}
-\title{Writes back metrics locally for a respondent of interest.}
+\title{Write back or upload metrics for a respondent of interest.}
 \usage{
 \method{privateUploadAoiMetrics}{imRespondent}(study, obj, AOI, metrics)
 }
@@ -16,6 +16,6 @@
 \item{metrics}{A data.table containing the metrics to upload.}
 }
 \description{
-S3 method to write back metrics locally for a specific respondent.
+S3 method to write back metrics locally or upload them for a specific respondent.
 }
 \keyword{internal}

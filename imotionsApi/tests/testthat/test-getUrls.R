@@ -57,6 +57,16 @@ test_that("local - all getUrl function should work as expected", {
     expect_identical(getUploadSensorDataUrl(study, respondent, stimulus), paste0(sensorStimulusUrl, "/data"))
     expect_identical(getUploadSensorDataUrl(study, segment, stimulus), paste0(sensorsSegmentUrl, "/data"))
 
+    #getUploadEventsUrl
+    eventUrl <- paste0(baseUrl, "/revents/af8c2165-4389-4cc3-8b1e-b2d3a4bd8be1")
+    expect_identical(getUploadEventsUrl(study, respondent),
+                     paste0(eventUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63/data"))
+
+    #getUploadMetricsUrl
+    metricsUrl <- paste0(baseUrl, "/rmetrics/af8c2165-4389-4cc3-8b1e-b2d3a4bd8be1")
+    expect_identical(getUploadMetricsUrl(study, respondent),
+                     paste0(metricsUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63/data"))
+
     #getAoisUrl
     AOIUrl <- paste0(baseUrl, "/aois/af8c2165-4389-4cc3-8b1e-b2d3a4bd8be1")
     expect_identical(getAoisUrl(study), AOIUrl)
@@ -68,25 +78,15 @@ test_that("local - all getUrl function should work as expected", {
                  "Please provide either stimulusId or respondentId, not both.",
                  info = "too many params not handled properly")
 
-    #getUploadEventsUrl
-    eventUrl <- paste0(baseUrl, "/revents/af8c2165-4389-4cc3-8b1e-b2d3a4bd8be1")
-    expect_identical(getUploadEventsUrl(study, respondent),
-                     paste0(eventUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63/data"))
-
-    #getUploadMetricsUrl
-    metricsUrl <- paste0(baseUrl, "/rmetrics/af8c2165-4389-4cc3-8b1e-b2d3a4bd8be1")
-    expect_identical(getUploadMetricsUrl(study, respondent),
-                     paste0(metricsUrl, "/respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63/data"))
-
-    #getAoiDetailsForStimulusUrl
-    expect_identical(getAoiDetailsUrl(study, stimulus), paste0(AOIUrl, "/stimuli/", stimulusId, "/*"))
-    expect_identical(getAoiDetailsUrl(study, stimulus, respondent),
-                     paste0(AOIUrl, "/stimuli/", stimulusId, "/respondent/", respondentId, "/*"))
-
-    #getAoiDetailsUrl
+    #getAoiDetailsUrl (AOI)
     expect_identical(getAoiDetailsUrl(study, AOI), paste0(AOIUrl, "/stimuli/", AOI$stimulusId, "/", AOI$id))
     expect_identical(getAoiDetailsUrl(study, AOI, respondent),
                      paste0(AOIUrl, "/stimuli/", AOI$stimulusId, "/respondent/", respondentId, "/", AOI$id))
+
+    #getAoiDetailsUrl (Stimulus)
+    expect_identical(getAoiDetailsUrl(study, stimulus), paste0(AOIUrl, "/stimuli/", stimulusId, "/*"))
+    expect_identical(getAoiDetailsUrl(study, stimulus, respondent),
+                     paste0(AOIUrl, "/stimuli/", stimulusId, "/respondent/", respondentId, "/*"))
 
     #getRespondentScenesUrl
     sceneUrl <- paste0(baseUrl, "/scenes/af8c2165-4389-4cc3-8b1e-b2d3a4bd8be1/",
@@ -99,6 +99,11 @@ test_that("local - all getUrl function should work as expected", {
                              "respondent/09bd22e6-29b6-4a8a-8cc1-4780a5163e63")
 
     expect_identical(getRespondentAnnotationsUrl(study, respondent), annotationsUrl)
+
+    # List of functions that have no support locally
+    #getAoiMetricsUrl
+    #getUploadAoiMetadataUrl
+    #getUploadAoiMetricsUrl
 })
 
 # Also checking remote study path
@@ -159,14 +164,27 @@ test_that("remote - all getUrl function should work as expected", {
                  "Please provide either stimulusId or respondentId, not both.",
                  info = "too many params not handled properly")
 
-    #getUploadAoiMetricsUrl
-    uploadAOIUrl <- paste0(AOIUrl, "/09a234fc-00ad-4257-b7e1-da5754986c9d/segments/1010/stats")
-    expect_identical(getUploadAoiMetricsUrl(study_cloud, segment, AOI), uploadAOIUrl)
+    #getAoiMetricsUrl
+    aoiMetricsUrl <- paste0(baseUrl, "/aoi/definitions/09a234fc-00ad-4257-b7e1-da5754986c9d/respondents/",
+                            "09bd22e6-29b6-4a8a-8cc1-4780a5163e63/stats")
+
+    expect_identical(getAoiMetricsUrl(study_cloud, respondent, AOI), aoiMetricsUrl)
 
     #getUploadAoiMetadataUrl
     uploadMetadataUrl <- paste0(baseUrl, "/aoi/sets/fd7891cf-3f51-4fdd-bf48-0ee2f75d53b9/metadata")
     expect_identical(getUploadAoiMetadataUrl(study_cloud), uploadMetadataUrl)
 
+    #getUploadAoiMetricsUrl
+    respondentMetricAoiUrl <- paste0(baseUrl, "/aoi/definitions/09a234fc-00ad-4257-b7e1-da5754986c9d/respondents/",
+                                     "09bd22e6-29b6-4a8a-8cc1-4780a5163e63/upload")
+
+    expect_identical(getUploadAoiMetricsUrl(study_cloud, respondent, AOI), respondentMetricAoiUrl)
+
+    segmentMetricAoiUrl <- paste0(AOIUrl, "/09a234fc-00ad-4257-b7e1-da5754986c9d/segments/1010/stats")
+    expect_identical(getUploadAoiMetricsUrl(study_cloud, segment, AOI), segmentMetricAoiUrl)
+
+    # List of functions that have no support in online
+    #getAoiDetailsUrl
     #getUploadEventsUrl
     #getUploadMetricsUrl
     #getRespondentScenesUrl

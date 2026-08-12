@@ -1,5 +1,5 @@
-# getAoiRespondentMetrics =============================================================================================
-context("getAoiRespondentMetrics()")
+# privateGetAoiRespondentMetricsPath ==================================================================================
+context("privateGetAoiRespondentMetricsPath()")
 
 library(mockery)
 
@@ -12,31 +12,70 @@ study_cloud_local <- jsonlite::unserializeJSON(readLines("../data/imStudy_cloud_
 AOI <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imAOI.json")))
 AOI_cloud <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imAOI_cloud.json")))
 AOIDetailsRespondentPath <- "../data/AOIDetailsRespondent.json"
-AOIDetailsFile <- jsonlite::fromJSON(AOIDetailsRespondentPath)
+AOIDetails <- jsonlite::fromJSON(AOIDetailsRespondentPath)
 metrics_output <- fread("../data/AOImetrics.csv")
 
 # Load respondent
 respondent <- getRespondents(study)[1, ]
 
-mockedGetAoiRespondentMetrics <- function(study, AOI, respondent, AOIDetailsFile = NULL, expectedFilePath = NULL,
-                                          expectCallsDetails = 0, expectCallsFread = 0, fail = FALSE) {
+expectedTmpPath <- paste0("myLocalPath/93fbaae0-8b6f-45b6-b5dd-9a5d4216d7fd/dd8a9342-f5c0-4a02-bf27-de68fc13f2bc/",
+                          respondent$id, "metrics.csv")
+
+test_that("remote check - should return the local AOI respondent metrics path", {
+    expect_identical(privateGetAoiRespondentMetricsPath(study_cloud_local, AOI_cloud, respondent), expectedTmpPath)
+})
+
+# getAoiRespondentMetrics =============================================================================================
+context("getAoiRespondentMetrics()")
+
+mockGetAoiRespondentMetrics <- function(study, AOI, respondent, AOIDetailsFile = NULL, stats = NULL,
+                                        expectedFilePath = NULL, fileExists = FALSE, expectCallsDetails = 0,
+                                        expectCallsFileExists = 0, expectCallsFread = 0, expectCallsGetJSON = 0,
+                                        expectCallsGetFile = 0) {
+
     privateGetAoiDetails_Stub <- mock(AOIDetailsFile)
-    file.exists_Stub <- mock(!fail)
+    file.exists_Stub <- mock(fileExists)
     fread_Stub <- mock(metrics_output)
+    getJSON_Stub <- mock(stats)
+    getFile_Stub <- mock(list(file_path = expectedFilePath))
 
     metrics <- mockr::with_mock(privateGetAoiDetails = privateGetAoiDetails_Stub,
                                 file.exists = file.exists_Stub,
+                                getJSON = getJSON_Stub,
+                                getFile = getFile_Stub,
                                 fread = fread_Stub, {
                                     getAoiRespondentMetrics(study, AOI, respondent)
                                 })
 
     expect_called(privateGetAoiDetails_Stub, expectCallsDetails)
+    expect_called(file.exists_Stub, expectCallsFileExists)
+    expect_called(getJSON_Stub, expectCallsGetJSON)
+    expect_called(getFile_Stub, expectCallsGetFile)
+    expect_called(fread_Stub, expectCallsFread)
 
     if (expectCallsDetails > 0) {
         expect_args(privateGetAoiDetails_Stub, 1, study = study, imObject = AOI, respondent = respondent)
     }
 
-    expect_called(fread_Stub, expectCallsFread)
+    if (!study$connection$localIM) {
+        endpoint <- paste0("AOI: ", AOI$name, ", Respondent: ", respondent$name)
+
+        if (expectCallsFileExists > 0) {
+            expect_args(file.exists_Stub, 1, expectedFilePath)
+        }
+
+        if (expectCallsGetJSON > 0) {
+            expect_args(getJSON_Stub, 1, study$connection, getAoiMetricsUrl(study, respondent, AOI),
+                        message = paste("Retrieving AOI respondent metrics for", endpoint))
+        }
+
+        if (expectCallsGetFile > 0) {
+            localFilePath <- if (!is.null(study$connection$localPath)) expectedFilePath else NULL
+            expect_args(getFile_Stub, 1, study$connection, stats$aoiRespondentStatsUrl,
+                        message = paste("Downloading AOI respondent metrics for", endpoint),
+                        localFilePath = localFilePath)
+        }
+    }
 
     if (expectCallsFread > 0) {
         expect_args(fread_Stub, 1, expectedFilePath)
@@ -73,31 +112,30 @@ test_that("error - arguments are missing or not from the good class", {
                  info = "respondent not being an imRespondent object should throw an error")
 })
 
-test_that("warning - AOI has not been defined for this respondent", {
-    AOIDetailsFile <- jsonlite::fromJSON("../data/no_scenes_annotations_aoidetails.json")
-    expect_warning(metrics <- mockedGetAoiRespondentMetrics(study, AOI, respondent, AOIDetailsFile,
-                                                            expectCallsDetails = 1),
+test_that("local warning - AOI has not been defined for this respondent", {
+    AOIDetails <- jsonlite::fromJSON("../data/no_scenes_annotations_aoidetails.json")
+    expect_warning(metrics <- mockGetAoiRespondentMetrics(study, AOI, respondent, AOIDetails, expectCallsDetails = 1),
                    "AOI New Aoi was not found for respondent Wendy",
                    info = "no AOI defined for this respondent should throw a warning")
 
     expect_null(metrics, info = "result should be null")
 })
 
-test_that("warning - no metrics have been found for this respondent", {
-    expect_warning(metrics <- mockedGetAoiRespondentMetrics(study, AOI, respondent, AOIDetailsFile,
-                                                            expectCallsDetails = 1),
+test_that("local warning - no metrics have been found for this respondent", {
+    expect_warning(metrics <- mockGetAoiRespondentMetrics(study, AOI, respondent, AOIDetails, expectCallsDetails = 1),
                    "No metrics found for AOI: New Aoi, Respondent: Wendy",
                    info = "no metrics found should throw an warning")
 
     expect_null(metrics, "result should be null")
 })
 
-# Modify AOIDetailsFile so it fit test data
-AOIDetailsFile$resultId <- "../data/AOImetrics.csv"
+# Modify AOIDetails so it fit test data
+AOIDetails$resultId <- "../data/AOImetrics.csv"
 
-test_that("local return - metrics for this AOI/respondent pair", {
-    metrics <- mockedGetAoiRespondentMetrics(study, AOI, respondent, AOIDetailsFile, expectCallsDetails = 1,
-                                             expectCallsFread = 1, expectedFilePath = "../data/AOImetrics.csv")
+test_that("local check - should call privateGetAoiDetails and fread for a specific respondent", {
+    metrics <- mockGetAoiRespondentMetrics(study, AOI, respondent, AOIDetails,
+                                           expectedFilePath = "../data/AOImetrics.csv", expectCallsDetails = 1,
+                                           expectCallsFread = 1)
 
     # Check dimensions and class of metrics
     expect_equal(nrow(metrics), 1, infos = "metrics should always only have one row")
@@ -105,31 +143,69 @@ test_that("local return - metrics for this AOI/respondent pair", {
     expect_s3_class(metrics, "imAOIMetrics")
 })
 
-test_that("remote warning - in case no local path is set, should send a warning and return NULL", {
-    expect_warning(metrics <- mockedGetAoiRespondentMetrics(study_cloud, AOI_cloud, respondent),
-                   "No localPath set when calling imConnection(), not possible to read metrics locally.",
-                   fixed = TRUE, info = "no local path, should throw an warning")
-
-    expect_null(metrics, "result should be null")
-})
-
-test_that("remote warning - in case no metrics path found", {
-    expect_warning(metrics <- mockedGetAoiRespondentMetrics(study_cloud_local, AOI_cloud, respondent, fail = TRUE),
+test_that("remote warning - no AOI respondent stats have been returned", {
+    expect_warning(metrics <- mockGetAoiRespondentMetrics(study_cloud_local, AOI_cloud, respondent, fileExists = FALSE,
+                                                          expectedFilePath = expectedTmpPath, expectCallsFileExists = 1,
+                                                          expectCallsGetJSON = 1),
                    "No metrics found for AOI: El Manuel Area, Respondent: Wendy",
                    info = "no metrics found should throw an warning")
 
     expect_null(metrics, "result should be null")
 })
 
-test_that("remote return - metrics for this AOI/respondent pair", {
-    expectedDirectory <- "myLocalPath/93fbaae0-8b6f-45b6-b5dd-9a5d4216d7fd/dd8a9342-f5c0-4a02-bf27-de68fc13f2bc"
-    expectedFilepath <- paste0(expectedDirectory, "/", respondent$id, "metrics.csv")
+test_that("remote warning - no metrics have been uploaded for this respondent", {
+    expect_warning(metrics <- mockGetAoiRespondentMetrics(study_cloud_local, AOI_cloud, respondent,
+                                                          stats = stop("Resource not found"),
+                                                          expectedFilePath = expectedTmpPath,
+                                                          expectCallsFileExists = 1, expectCallsGetJSON = 1),
+                   "No metrics found for AOI: El Manuel Area, Respondent: Wendy",
+                   fixed = TRUE
+    )
 
-    metrics <- mockedGetAoiRespondentMetrics(study_cloud_local, AOI_cloud, respondent, expectCallsFread = 1,
-                                             expectedFilePath = expectedFilepath)
+    expect_null(metrics)
+})
+
+test_that("remote error - getJSON errors other than resource not found should be rethrown", {
+    expect_error(mockGetAoiRespondentMetrics(study_cloud_local, AOI_cloud, respondent, stats = stop("Server error"),
+                                             expectedFilePath = expectedTmpPath, expectCallsFileExists = 1,
+                                             expectCallsGetJSON = 1),
+                 "Server error", fixed = TRUE)
+})
+
+test_that("remote check - should call getJSON, getFile and fread when no local path is set", {
+    stats <- list(aoiRespondentStatsUrl = "https://s3.test/respondent-aoi-metrics.csv")
+
+    metrics <- mockGetAoiRespondentMetrics(study_cloud, AOI_cloud, respondent, stats = stats,
+                                           expectedFilePath = "../data/AOImetrics.csv", expectCallsFread = 1,
+                                           expectCallsGetJSON = 1, expectCallsGetFile = 1)
 
     # Check dimensions and class of metrics
     expect_equal(nrow(metrics), 1, infos = "metrics should always only have one row")
     expect_equal(ncol(metrics), 37, infos = "no column should be lost")
     expect_s3_class(metrics, "imAOIMetrics")
 })
+
+
+
+test_that("remote check - should only call fread when metrics are cached locally", {
+    metrics <- mockGetAoiRespondentMetrics(study_cloud_local, AOI_cloud, respondent, expectedFilePath = expectedTmpPath,
+                                           fileExists = TRUE, expectCallsFileExists = 1, expectCallsFread = 1)
+
+    expect_equal(nrow(metrics), 1, infos = "metrics should always only have one row")
+    expect_equal(ncol(metrics), 37, infos = "no column should be lost")
+    expect_s3_class(metrics, "imAOIMetrics")
+})
+
+test_that("remote check - should call getJSON, getFile and fread when metrics are not cached locally", {
+    stats <- list(aoiRespondentStatsUrl = "https://s3.test/respondent-aoi-metrics.csv")
+
+    metrics <- mockGetAoiRespondentMetrics(study_cloud_local, AOI_cloud, respondent, stats = stats,
+                                           expectedFilePath = expectedTmpPath, expectCallsFileExists = 1,
+                                           expectCallsFread = 1, expectCallsGetJSON = 1, expectCallsGetFile = 1)
+
+    expect_equal(nrow(metrics), 1, infos = "metrics should always only have one row")
+    expect_equal(ncol(metrics), 37, infos = "no column should be lost")
+    expect_s3_class(metrics, "imAOIMetrics")
+})
+
+
