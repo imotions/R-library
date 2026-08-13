@@ -969,7 +969,7 @@ getSensors <- function(study, target, stimulus = NULL) {
         }
     } else {
         for (i in seq_along(sensors)) {
-            signals[[i]] <- sensors[[i]]$sampleDescription$signals
+            signals[i] <- list(sensors[[i]]$sampleDescription$signals)
             sensors[[i]][c("id", "respondent", "sampleDescription")] <- NULL
             sensors[[i]]$sensorSpecific <- list()
         }
