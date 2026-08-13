@@ -2247,7 +2247,7 @@ privateUpload <- function(params, study, data, target, sampleName, scriptName, m
     # Prepare the http request
     if (inherits(data, "imSignals")) {
         uploadUrl <- getUploadSensorDataUrl(study, target, stimulus)
-        postData <- privateCreatePostRequest(params, study, sampleName, tempFileName, overwrite)
+        postData <- privateCreatePostRequest(params, study, sampleName, tempFileName, overwrite, names(data))
         endpoint_data <- "sensor data"
     } else if (inherits(data, "imEvents")) {
         uploadUrl <- getUploadEventsUrl(study, target)
@@ -2356,9 +2356,10 @@ privateSaveToFile <- function(params, study, data, sampleName, scriptName, metad
 #' Create headers specific to the data format (signals, events, exports).
 #'
 #' @inheritParams privateUpload
+#' @param data_names Optional names of the data columns included in an online sensor upload.
 #'
 #' @keywords internal
-privateCreatePostRequest <- function(params, study, sampleName, fileName, overwrite = TRUE) {
+privateCreatePostRequest <- function(params, study, sampleName, fileName, overwrite = TRUE, data_names = NULL) {
     postRequest <- list(params$flowName, sampleName, fileName)
 
     if (study$connection$localIM) {
@@ -2366,6 +2367,7 @@ privateCreatePostRequest <- function(params, study, sampleName, fileName, overwr
         names(postRequest) <- c("flowName", "sampleName", "fileName", "overwrite")
     } else {
         names(postRequest) <- c("instance", "name", "fileName")
+        if (!is.null(data_names)) postRequest$sampleDescription <- data_names
     }
 
     postRequest <- toJSON(postRequest, null = "null")
