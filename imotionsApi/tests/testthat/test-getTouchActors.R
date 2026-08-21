@@ -22,7 +22,8 @@ touchActorDetailsPath <- "../data/touchActorDetails.json"
 touchActorDetailsMissingPath <- "../data/touchActorDetails_missingfileId.json"
 touchActorDetailsNoMatchPath <- "../data/touchActorDetails_noMatchingPair.json"
 
-# The AOI definitions getTouchActorAois() joins against - what getAois() would return for this stimulus.
+# The AOI definitions getTouchActorAois() joins against - what privateGetTouchActorAoiDefinitions() would return for
+# this stimulus.
 aoiDefinitions <- function() {
     aois <- data.table(stimulusId = "1002", stimulusName = "IAAF", id = c(AOI1, AOI2),
                        name = c("New Aoi", "Second Aoi"), type = "Static", group = NA_character_,
@@ -172,7 +173,7 @@ mockedGetTouchActorAois <- function(study, imObject, respondent, detailsPath = t
 
     touchAois <- mockr::with_mock(
         getTouchActors = function(...) touchActors,
-        privateAoiFiltering = function(...) aoiDefinitions(),
+        privateGetTouchActorAoiDefinitions = function(...) aoiDefinitions(),
         privateGetTouchActorDetails = function(...) jsonlite::fromJSON(detailsPath), {
             getTouchActorAois(study, imObject, respondent)
         }
@@ -253,15 +254,23 @@ test_that("local return - filtering on a single touch actor", {
     expect_identical(touchAois$touchActorId, TA2, "wrong touch actor kept")
 })
 
-test_that("local return - a touch actor on a media source getAois() cannot see keeps its row, AOI columns NA", {
+test_that("local return - a touch actor on a non-Scene media source resolves its AOI name too", {
     TA_ENV <- "4f2d6b30-7c44-4d1b-9c19-9c6b9e2a5b60"
     AOI_ENV <- "1c9c8b18-3e1d-4b53-9c62-2a6b1a0d7e11"
 
     touchActorsMulti <- mockedGetTouchActors(study, stimulus, "../data/touchActorsMultiSource.json")
 
+    # privateGetTouchActorAoiDefinitions() reaches every touch-capable camera (unlike privateAoiFiltering(), which is
+    # Scene-only), so the mock here carries the Environment AOI's own definition alongside the Scene ones.
+    aoiDefinitionsMultiSource <- function() {
+        return(rbind(aoiDefinitions(), data.table(stimulusId = "1002", stimulusName = "IAAF", id = AOI_ENV,
+                                                  name = "Env Aoi", type = "Static", group = NA_character_,
+                                                  area = 4000)))
+    }
+
     touchAois <- mockr::with_mock(
         getTouchActors = function(...) touchActorsMulti,
-        privateAoiFiltering = function(...) aoiDefinitions(),
+        privateGetTouchActorAoiDefinitions = function(...) aoiDefinitionsMultiSource(),
         privateGetTouchActorDetails = function(...) jsonlite::fromJSON("../data/touchActorDetailsMultiSource.json"), {
             getTouchActorAois(study, stimulus, respondent)
         }
@@ -274,16 +283,33 @@ test_that("local return - a touch actor on a media source getAois() cannot see k
     envRow <- touchAois[touchAois$touchActorId == TA_ENV, ]
 
     expect_identical(sceneRow$id, AOI1, "wrong AOI kept for the Scene touch actor")
-    expect_identical(sceneRow$name, "New Aoi", info = "the Scene AOI is still enriched from getAois() as before")
+    expect_identical(sceneRow$name, "New Aoi", info = "the Scene AOI is still resolved as before")
 
-    expect_identical(envRow$id, AOI_ENV, info = "the AOI id itself comes from the touch actor side, never dropped")
-    expect_true(is.na(envRow$name), info = "an AOI on a camera getAois() can't see gets NA, not a dropped row")
-    expect_true(is.na(envRow$type), info = "type should be NA for the same reason")
-    expect_true(is.na(envRow$area), info = "area should be NA for the same reason")
+    expect_identical(envRow$id, AOI_ENV, info = "the AOI id itself comes from the touch actor side")
+    expect_identical(envRow$name, "Env Aoi", info = "an AOI on a non-Scene camera now resolves its real name too")
+    expect_identical(envRow$type, "Static", info = "type should resolve the same way")
+    expect_equal(envRow$area, 4000, info = "area should resolve the same way")
     expect_false(is.na(envRow$fileId), info = "the contact in/out file should still be resolved for this row")
     expect_identical(envRow$stimulusId, "1002",
-                     info = "stimulusId should come from the touch actor, not the (Scene-only) AOI join")
+                     info = "stimulusId should come from the touch actor, not the AOI join")
     expect_identical(envRow$mediaSourceType, "Environment", "wrong media source kept for the environment actor")
+})
+
+test_that("local return - an AOI genuinely absent from every camera's definitions keeps its row, columns NA", {
+    touchActors <- suppressWarnings(mockedGetTouchActors(study, stimulus))
+
+    touchAois <- mockr::with_mock(
+        getTouchActors = function(...) touchActors,
+        privateGetTouchActorAoiDefinitions = function(...) NULL,
+        privateGetTouchActorDetails = function(...) jsonlite::fromJSON(touchActorDetailsPath), {
+            getTouchActorAois(study, stimulus, respondent)
+        }
+    )
+
+    expect_true(all(is.na(touchAois$name)), info = "no AOI definitions available should leave every name NA")
+    expect_true(all(is.na(touchAois$type)), info = "no AOI definitions available should leave every type NA")
+    expect_true(all(is.na(touchAois$area)), info = "no AOI definitions available should leave every area NA")
+    expect_false(any(is.na(touchAois$fileId)), info = "contact in/out resolution is unaffected")
 })
 
 test_that("warning - contact in/out signals found do not match any touch actor pair", {

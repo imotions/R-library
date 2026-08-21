@@ -1865,14 +1865,49 @@ getTouchActors <- function(study, stimulus) {
 }
 
 
+#' Get the AOI definitions of every camera that supports contact, for a stimulus.
+#'
+#' Sibling of \code{\link{privateAoiFiltering}} for touch actors: that one only ever reaches the Stimulus/Scene
+#' camera, while a touch actor's interactive AOIs can live on any camera contact detection supports (e.g.
+#' Environment). Used by \code{\link{getTouchActorAois}} to resolve a name/type/group/area for every touch actor AOI,
+#' not just the ones on Scene.
+#'
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#' @param stimulus An imStimulus object as returned from \code{\link{getStimuli}}.
+#'
+#' @return A data.table with one row per AOI (id, name, type, group, area, mediaSourceType) across every touch-capable
+#'         camera, or NULL if none are defined.
+#' @keywords internal
+privateGetTouchActorAoiDefinitions <- function(study, stimulus) {
+    endpoint <- paste0("Stimulus: ", stimulus$name)
+
+    if (!study$connection$localIM) {
+        warning(paste("Contact AOI definitions are only available for local studies, none retrieved for", endpoint))
+        return(NULL)
+    }
+
+    aois <- getJSON(study$connection, getTouchActorAoisUrl(study, stimulus$id),
+                    message = paste("Retrieving contact AOI definitions for", endpoint))
+
+    if (length(aois) == 0 || nrow(aois) == 0) {
+        return(NULL)
+    }
+
+    setDT(aois)
+    # Renamed by name rather than position: unlike privateAoiFormatting's positional AOIs$aois unnest, this endpoint
+    # returns a flat, already-scoped-to-one-stimulus list with no nested column to unnest.
+    setnames(aois, "aoiType", "type")
+    return(aois)
+}
+
+
 #' Get the interactive AOIs of a stimulus's touch actors, paired with their contact in/out data.
 #'
 #' Each touch actor marks one or more AOIs as interactive, and contact is recorded per (touch actor, AOI) pair. This
 #' returns one row per pair, plus the touch actor that produced it and the path to the contact in/out signal, so it
-#' can be used anywhere an imAOI is expected. It also carries the AOI's own definition (name, type, group, area) when
-#' one is available - which today is only for a touch actor on the Stimulus/Scene camera, since that is the only
-#' camera \code{\link{getAois}} can see. A touch actor on any other media source (e.g. Environment) still gets its
-#' row, with those four columns NA - contact and metrics are unaffected, only their display labelling is.
+#' can be used anywhere an imAOI is expected. It also carries the AOI's own definition (name, type, group, area),
+#' resolved from whichever camera the AOI is actually defined on (see \code{\link{privateGetTouchActorAoiDefinitions}}
+#' ), so a touch actor on a non-Scene camera (e.g. Environment) is labelled the same as one on Scene.
 #'
 #' Requesting this triggers generation of any in/out signals that are missing or older than the contact detection
 #' result they derive from, which is why a respondent is required.
@@ -1959,11 +1994,10 @@ getTouchActorAois <- function(study, imObject, respondent) {
         return(NULL)
     }
 
-    # AOI definitions only reach the Stimulus/Scene camera, so a non-Scene touch actor gets NA name/type/group/area
-    # instead of being dropped (metrics/upload only need id/fileId/resultId, set above). suppressWarnings() is kept
-    # here because privateAoiFiltering() warns unconditionally when a stimulus has no gaze AOI at all - the normal
-    # case for a touch-actor-only stimulus.
-    aois <- suppressWarnings(privateAoiFiltering(study, stimulus))
+    # Fetched across every touch-capable camera (not just Stimulus/Scene, unlike privateAoiFiltering), so a
+    # non-Scene touch actor's AOI resolves to its real name/type/group/area instead of NA. AOI ids are unique per
+    # camera's own model, so joining on id alone (without also matching mediaSourceType) is safe.
+    aois <- privateGetTouchActorAoiDefinitions(study, stimulus)
 
     if (is.null(aois)) {
         touchAois[, c("name", "type", "group", "area") := list(NA_character_, NA_character_, NA_character_,
@@ -3343,6 +3377,20 @@ getAoiDetailsUrl.imStimulus <- function(study, imObject, respondent = NULL) {
 #' @keywords internal
 getTouchActorsUrl <- function(study, stimulusId) {
     file.path(getStudyBaseUrl(study), "touchactors", study$id, "stimuli", stimulusId)
+}
+
+
+#' Return the path/url to the AOI definitions of every camera that supports contact, for a specific stimulus.
+#'
+#' Unlike \code{\link{getAoisUrl}}, which only ever reaches the Stimulus/Scene camera, this reports one row per AOI
+#' across every touch-capable camera (e.g. Environment), tagged with mediaSourceType.
+#'
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#' @param stimulusId The id of the stimulus of interest.
+#'
+#' @keywords internal
+getTouchActorAoisUrl <- function(study, stimulusId) {
+    file.path(getTouchActorsUrl(study, stimulusId), "aois")
 }
 
 
