@@ -20,6 +20,7 @@ touchActorsPath <- "../data/touchActors.json"
 noTouchActorsPath <- "../data/noTouchActors.json"
 touchActorDetailsPath <- "../data/touchActorDetails.json"
 touchActorDetailsMissingPath <- "../data/touchActorDetails_missingfileId.json"
+touchActorDetailsNoMatchPath <- "../data/touchActorDetails_noMatchingPair.json"
 
 # The AOI definitions getTouchActorAois() joins against - what getAois() would return for this stimulus.
 aoiDefinitions <- function() {
@@ -428,7 +429,7 @@ test_that("local return - getRespondents() dispatches on imTouchAOI to use conta
 test_that("local return - a respondent with contact data for another (touch actor, AOI) pair is not kept", {
     respondents <- mockr::with_mock(
         # This respondent has contact data, but not for the TA1/AOI1 pair being asked about.
-        privateGetTouchActorDetails = function(...) jsonlite::fromJSON("../data/touchActorDetails_noMatchingPair.json"), {
+        privateGetTouchActorDetails = function(...) jsonlite::fromJSON(touchActorDetailsNoMatchPath), {
             getRespondents(study, AOI = touchAoiForRespondents())
         }
     )
