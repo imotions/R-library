@@ -2,8 +2,8 @@
 % Please edit documentation in R/imotionsApi.R
 \name{getTouchActorDetailsUrl}
 \alias{getTouchActorDetailsUrl}
-\title{Generic getTouchActorDetailsUrl function that takes as parameter a study object, an imAOI/imStimulus object and a
-respondent object.}
+\title{Generic getTouchActorDetailsUrl function that takes as parameter a study object, an imTouchAOI/imStimulus object
+and a respondent object.}
 \usage{
 getTouchActorDetailsUrl(study, imObject, respondent)
 }

@@ -139,6 +139,7 @@ test_that("local return - a fileId already present short-circuits the request", 
     touchAoi <- aoiDefinitions()[1, ]
     touchAoi$fileId <- "../data/touchActorRespondentData.pbin"
     touchAoi$touchActorId <- TA1
+    class(touchAoi) <- c("imTouchAOI", class(touchAoi))
 
     details <- mockedGetTouchActorDetails(study, touchAoi, respondent, expectedCall = 0)
 
@@ -165,15 +166,14 @@ test_that("warning - contact data is not available for a remote study", {
 # getTouchActorAois ===================================================================================================
 context("getTouchActorAois()")
 
-mockedGetTouchActorAois <- function(study, stimulus, respondent, touchActor = NULL,
-                                    detailsPath = touchActorDetailsPath) {
+mockedGetTouchActorAois <- function(study, imObject, respondent, detailsPath = touchActorDetailsPath) {
     touchActors <- suppressWarnings(mockedGetTouchActors(study, stimulus))
 
     touchAois <- mockr::with_mock(
         getTouchActors = function(...) touchActors,
-        getAois = function(...) aoiDefinitions(),
+        privateAoiFiltering = function(...) aoiDefinitions(),
         privateGetTouchActorDetails = function(...) jsonlite::fromJSON(detailsPath), {
-            getTouchActorAois(study, stimulus, respondent, touchActor)
+            getTouchActorAois(study, imObject, respondent)
         }
     )
 
@@ -181,6 +181,10 @@ mockedGetTouchActorAois <- function(study, stimulus, respondent, touchActor = NU
 }
 
 test_that("error - arguments are missing or not from the good class", {
+    expect_error(getTouchActorAois(study, respondent = respondent),
+                 "Please specify a stimulus loaded with `getStimuli()` or a touch actor loaded with `getTouchActors()`",
+                 fixed = TRUE, info = "missing `imObject` param not handled properly")
+
     expect_error(getTouchActorAois(study, stimulus), "Please specify a respondent loaded with `getRespondents()`",
                  fixed = TRUE, info = "missing `respondent` param not handled properly")
 
@@ -188,9 +192,9 @@ test_that("error - arguments are missing or not from the good class", {
                  "`respondent` argument is not an imRespondent object",
                  info = "respondent not being an imRespondent object should throw an error")
 
-    expect_error(getTouchActorAois(study, stimulus, respondent, touchActor = "whatever"),
-                 "`touchActor` argument is not an imTouchActor object",
-                 info = "touchActor not being an imTouchActor object should throw an error")
+    expect_error(getTouchActorAois(study, "whatever", respondent),
+                 "`imObject` argument is not an imStimulus or imTouchActor object",
+                 info = "imObject not being an imStimulus or an imTouchActor object should throw an error")
 })
 
 test_that("local return - one row per (touch actor, AOI) combination", {
@@ -209,6 +213,17 @@ test_that("local return - the AOI definition wins the id/name columns so it can 
     expect_identical(unique(touchAois$type), "Static", "AOI type should be carried over")
     expect_equal(unique(touchAois[touchAois$id == AOI1, ]$area), 5000, info = "AOI area should be carried over")
     expect_identical(unique(touchAois$stimulusName), "IAAF", "stimulus name should be carried over")
+})
+
+test_that("local return - result is an imTouchAOI(List), a subclass of imAOI(List) rather than a plain one", {
+    touchAois <- mockedGetTouchActorAois(study, stimulus, respondent)
+
+    expect_identical(class(touchAois), c("imTouchAOIList", "imAOIList", "imObjectList", "data.table", "data.frame"),
+                     "wrong class for a multi-row result")
+
+    singleTouchAoi <- touchAois[1, ]
+    expect_identical(class(singleTouchAoi), c("imTouchAOI", "imAOI", "imObject", "data.table", "data.frame"),
+                     "wrong class for a single-row result")
 })
 
 test_that("local return - the touch actor is kept alongside under its own columns", {
@@ -231,7 +246,7 @@ test_that("local return - the fileId of each combination is carried over", {
 
 test_that("local return - filtering on a single touch actor", {
     touchActor <- suppressWarnings(mockedGetTouchActors(study, stimulus))[2, ]
-    touchAois <- mockedGetTouchActorAois(study, stimulus, respondent, touchActor)
+    touchAois <- mockedGetTouchActorAois(study, touchActor, respondent)
 
     expect_equal(nrow(touchAois), 1, info = "only the second actor's single AOI should be returned")
     expect_identical(touchAois$touchActorId, TA2, "wrong touch actor kept")
@@ -245,7 +260,7 @@ test_that("local return - a touch actor on a media source getAois() cannot see k
 
     touchAois <- mockr::with_mock(
         getTouchActors = function(...) touchActorsMulti,
-        getAois = function(...) aoiDefinitions(),
+        privateAoiFiltering = function(...) aoiDefinitions(),
         privateGetTouchActorDetails = function(...) jsonlite::fromJSON("../data/touchActorDetailsMultiSource.json"), {
             getTouchActorAois(study, stimulus, respondent)
         }
@@ -290,6 +305,7 @@ touchAoiInOut <- function(fileId = "../data/touchActorRespondentData.pbin", resu
     touchAoi$touchActorId <- TA1
     touchAoi$fileId <- fileId
     touchAoi$resultId <- resultId
+    class(touchAoi) <- c("imTouchAOI", class(touchAoi))
     return(touchAoi)
 }
 
@@ -306,8 +322,8 @@ test_that("error - arguments are missing or not from the good class", {
                  info = "missing `respondent` param not handled properly")
 
     expect_error(getAoiRespondentTouchData(study, touchAoi = "whatever", respondent),
-                 "`touchAoi` argument is not an imAOI object",
-                 info = "touchAoi not being an imAOI object should throw an error")
+                 "`touchAoi` argument is not an imTouchAOI object",
+                 info = "touchAoi not being an imTouchAOI object should throw an error")
 })
 
 test_that("local return - intervals for a specific (touch actor, AOI)/respondent pair", {
@@ -362,8 +378,8 @@ context("getAoiRespondentTouchMetrics()")
 
 test_that("error - arguments are missing or not from the good class", {
     expect_error(getAoiRespondentTouchMetrics(study, touchAoi = "whatever", respondent),
-                 "`touchAoi` argument is not an imAOI object",
-                 info = "touchAoi not being an imAOI object should throw an error")
+                 "`touchAoi` argument is not an imTouchAOI object",
+                 info = "touchAoi not being an imTouchAOI object should throw an error")
 })
 
 test_that("local return - metrics are read from the resultId", {
@@ -383,41 +399,47 @@ test_that("warning - no metrics computed yet for this combination", {
 })
 
 
-# getTouchActorRespondents ============================================================================================
-context("getTouchActorRespondents()")
+# privateRespondentFiltering.imTouchAOI ===============================================================================
+context("privateRespondentFiltering.imTouchAOI()")
 
-test_that("error - arguments are missing or not from the good class", {
-    expect_error(getTouchActorRespondents(), "Please specify a study loaded with `imStudy()`", fixed = TRUE,
-                 info = "missing `study` param not handled properly")
+touchAoiForRespondents <- function() {
+    touchAoi <- aoiDefinitions()[1, ]
+    touchAoi$touchActorId <- TA1
+    class(touchAoi) <- c("imTouchAOI", class(touchAoi))
+    return(touchAoi)
+}
 
-    expect_error(getTouchActorRespondents(study), "Please specify a stimulus loaded with `getStimuli()`", fixed = TRUE,
-                 info = "missing `stimulus` param not handled properly")
-
-    expect_error(getTouchActorRespondents(study, stimulus = "whatever"),
-                 "`stimulus` argument is not an imStimulus object",
-                 info = "stimulus not being an imStimulus object should throw an error")
-})
-
-test_that("local return - only respondents that have contact data are kept", {
+test_that("local return - getRespondents() dispatches on imTouchAOI to use contact data, not gaze data", {
     allRespondents <- getRespondents(study, stimulus = stimulus)
 
-    # Only the first respondent of the stimulus has contact signals.
+    # Only the first respondent of the stimulus has a matching (touchActorId, aoiId) contact pair.
     respondents <- mockr::with_mock(
         privateGetTouchActorDetails = function(study, imObject, respondent) {
             if (respondent$id == allRespondents$id[1]) jsonlite::fromJSON(touchActorDetailsPath) else NULL
         }, {
-            getTouchActorRespondents(study, stimulus)
+            getRespondents(study, AOI = touchAoiForRespondents())
         }
     )
 
-    expect_equal(nrow(respondents), 1, info = "only the respondent with contact data should be kept")
+    expect_equal(nrow(respondents), 1, info = "only the respondent with a matching contact pair should be kept")
     expect_identical(respondents$id, allRespondents$id[1], "wrong respondent kept")
+})
+
+test_that("local return - a respondent with contact data for another (touch actor, AOI) pair is not kept", {
+    respondents <- mockr::with_mock(
+        # This respondent has contact data, but not for the TA1/AOI1 pair being asked about.
+        privateGetTouchActorDetails = function(...) jsonlite::fromJSON("../data/touchActorDetails_noMatchingPair.json"), {
+            getRespondents(study, AOI = touchAoiForRespondents())
+        }
+    )
+
+    expect_equal(nrow(respondents), 0, info = "no respondent should be kept")
 })
 
 test_that("local return - no respondent has contact data", {
     respondents <- mockr::with_mock(
         privateGetTouchActorDetails = function(...) NULL, {
-            getTouchActorRespondents(study, stimulus)
+            getRespondents(study, AOI = touchAoiForRespondents())
         }
     )
 
@@ -453,6 +475,7 @@ test_that("url for every touch actor on a stimulus uses the wildcard form", {
 test_that("url for a single touch actor uses its id - the wildcard sits on the actor, not the AOI", {
     touchAoi <- aoiDefinitions()[1, ]
     touchAoi$touchActorId <- TA1
+    class(touchAoi) <- c("imTouchAOI", class(touchAoi))
 
     url <- imotionsApi:::getTouchActorDetailsUrl(study, touchAoi, respondent)
 

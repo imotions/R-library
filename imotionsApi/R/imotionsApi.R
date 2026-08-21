@@ -707,7 +707,9 @@ getAoi <- function(study, AOIId) {
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param stimulus Optional - An imStimulus object as returned from \code{\link{getStimuli}}.
-#' @param AOI Optional - An imAOI object as returned from \code{\link{getAois}}.
+#' @param AOI Optional - An imAOI object as returned from \code{\link{getAois}}, or an imTouchAOI object as returned
+#'            from \code{\link{getTouchActorAois}} to get the respondents that have contact data for that specific
+#'            touch actor AOI instead of gaze data.
 #' @param segment Optional - An imSegment object as returned from \code{\link{getSegments}}.
 #' @param keepRespondentVariables Optional - A boolean indicating whether respondent variables should be kept (if they
 #'                                are available). If this has the default value of FALSE, only the "group" variable is
@@ -735,6 +737,11 @@ getAoi <- function(study, AOIId) {
 #'
 #' ## Get all respondents for whom a specific AOI has been defined
 #' respondents <- imotionsApi::getRespondents(study, AOI = AOIs[1, ])
+#'
+#' ## Get all respondents that have contact data for a specific touch actor AOI
+#' respondent <- imotionsApi::getRespondents(study)[1, ]
+#' touchAoi <- imotionsApi::getTouchActorAois(study, stimuli[1, ], respondent)[1, ]
+#' respondents <- imotionsApi::getRespondents(study, AOI = touchAoi)
 #'
 #' ## Get all respondents in a specific segment exposed to a specific stimulus
 #' respondents <- imotionsApi::getRespondents(study, stimulus = stimuli[1, ], segment = segments[1, ])
@@ -867,6 +874,42 @@ privateRespondentFiltering.imAOI <- function(study, obj) {
     AOIRespondents <- privateGetAoiDetails(study, obj)
     AOIRespondents <- respondents[respondents$id %in% AOIRespondents$respId, ]
     return(AOIRespondents)
+}
+
+
+#' Get respondents that have contact data for a specific touch actor AOI.
+#'
+#' S3 method to get all respondents with contact in/out data for a specific (touch actor, AOI) pair. This exists
+#' because \code{\link{privateRespondentFiltering.imAOI}} resolves respondents through the gaze in/out endpoint, which
+#' returns nothing on a study without eyetracking data - exactly the case contact metrics exist to support.
+#'
+#' Unlike the gaze equivalent, the contact endpoint has no "all respondents" wildcard for a single touch actor AOI
+#' (see \code{\link{getTouchActorDetailsUrl.imTouchAOI}}), so this is resolved one respondent at a time: every
+#' respondent exposed to the AOI's stimulus is queried (via the stimulus-wide wildcard, one call each) and kept only
+#' if its own contact details contain a matching (touchActorId, aoiId) pair.
+#'
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#' @param obj An imTouchAOI object as returned from \code{\link{getTouchActorAois}} for which you would like to get
+#'            the respondents.
+#'
+#' @return A data.table with all respondents that have contact data for this specific touch actor AOI.
+#' @keywords internal
+#' @exportS3Method privateRespondentFiltering imTouchAOI
+privateRespondentFiltering.imTouchAOI <- function(study, obj) {
+    stimulus <- getStimulus(study, obj$stimulusId)
+    respondents <- privateRespondentFiltering.imStimulus(study, stimulus)
+
+    hasContactData <- vapply(seq_len(nrow(respondents)), function(idx) {
+        details <- suppressWarnings(privateGetTouchActorDetails(study, stimulus, respondents[idx, ]))
+
+        if (is.null(details) || nrow(details) == 0) {
+            return(FALSE)
+        }
+
+        return(any(details$touchActorId == obj$touchActorId & details$aoiId == obj$id))
+    }, logical(1))
+
+    return(respondents[hasContactData, ])
 }
 
 
@@ -1835,12 +1878,14 @@ getTouchActors <- function(study, stimulus) {
 #' result they derive from, which is why a respondent is required.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#' @param stimulus An imStimulus object as returned from \code{\link{getStimuli}}.
+#' @param imObject An imStimulus object as returned from \code{\link{getStimuli}} to return every touch actor's AOIs
+#'                 on it, or an imTouchActor object as returned from \code{\link{getTouchActors}} to return only that
+#'                 actor's AOIs.
 #' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
-#' @param touchActor Optional - an imTouchActor object as returned from \code{\link{getTouchActors}} to only return
-#'                   that actor's AOIs. Defaults to NULL, meaning every touch actor on the stimulus.
 #'
-#' @return An imAOIList object (data.table) with one row per (touch actor, AOI) combination, or NULL if none exist.
+#' @return An imTouchAOIList object (data.table, a subclass of imAOIList so shared AOI functions still accept it)
+#'         with one row per (touch actor, AOI) combination, or NULL if none exist. A single-row result is an
+#'         imTouchAOI, subclassing imAOI the same way.
 #' @export
 #' @examples
 #' \dontrun{
@@ -1851,16 +1896,27 @@ getTouchActors <- function(study, stimulus) {
 #' respondent <- imotionsApi::getRespondents(study, stimulus = stimulus)[1, ]
 #' touchAois <- imotionsApi::getTouchActorAois(study, stimulus, respondent)
 #'
+#' touchActor <- imotionsApi::getTouchActors(study, stimulus)[1, ]
+#' touchAois <- imotionsApi::getTouchActorAois(study, touchActor, respondent) # only that actor's AOIs
+#'
 #' print(touchAois$fileId) # path to the contact in/out file for each (touch actor, AOI) pair
 #' }
-getTouchActorAois <- function(study, stimulus, respondent, touchActor = NULL) {
-    # set local variable to remove warnings in `devtools::check()`
-    aoiId <- touchActorId <- touchActorName <- hand <- detectionMethod <- mediaSourceType <- stimulusId <-
-        stimulusName <- NULL
-
+getTouchActorAois <- function(study, imObject, respondent) {
+    assertValid(hasArg(imObject),
+                "Please specify a stimulus loaded with `getStimuli()` or a touch actor loaded with `getTouchActors()`")
     assertValid(hasArg(respondent), "Please specify a respondent loaded with `getRespondents()`")
     assertClass(respondent, "imRespondent", "`respondent` argument is not an imRespondent object")
-    assertClass(touchActor, "imTouchActor", "`touchActor` argument is not an imTouchActor object")
+
+    if (inherits(imObject, "imTouchActor")) {
+        # The touch actor already carries its parent stimulus id, so that alone can drive the AOI lookup below -
+        # `touchActor` is kept aside only to filter the pairs down to this one actor further down.
+        touchActor <- imObject
+        stimulus <- getStimulus(study, imObject$stimulusId)
+    } else {
+        assertClass(imObject, "imStimulus", "`imObject` argument is not an imStimulus or imTouchActor object")
+        touchActor <- NULL
+        stimulus <- imObject
+    }
 
     touchActors <- getTouchActors(study, stimulus)
 
@@ -1880,9 +1936,8 @@ getTouchActorAois <- function(study, stimulus, respondent, touchActor = NULL) {
                         mediaSourceType = touchActors$mediaSourceType, stimulusId = touchActors$stimulusId,
                         stimulusName = touchActors$stimulusName, aoiId = touchActors$interactiveAoiIds)
 
-    pairs <- pairs[, .(aoiId = unlist(aoiId)),
-                   by = .(touchActorId, touchActorName, hand, detectionMethod, mediaSourceType, stimulusId,
-                          stimulusName)]
+    pairs <- unnest(pairs, cols = c("aoiId"))
+    setDT(pairs)
 
     if (nrow(pairs) == 0) {
         warning(paste("No interactive AOI defined for any touch actor on stimulus:", stimulus$name))
@@ -1904,24 +1959,16 @@ getTouchActorAois <- function(study, stimulus, respondent, touchActor = NULL) {
         return(NULL)
     }
 
-    # The AOI definition carries name/type/group/area, which the touch actor endpoint does not report and which
-    # nicely labels the metrics grid - but getAois() only ever reaches the Stimulus/Scene camera's AOI set (it
-    # predates per-camera AOI models, see AOIHandler.cs/AOICollectionBase on the EmotionTool side). A left join keeps
-    # every touch actor AOI regardless of camera: a Scene AOI gets the full definition, anything else gets NA there
-    # instead of being dropped. Metrics computation and upload only need id/fileId/resultId/stimulusId, all already
-    # set above from the touch actor side, so a missing definition costs display polish, not correctness - the
-    # in/out signal and its metrics file are written and discovered by fileId alone, camera-agnostic on that side.
-    aois <- suppressWarnings(getAois(study, stimulus))
+    # AOI definitions only reach the Stimulus/Scene camera, so a non-Scene touch actor gets NA name/type/group/area
+    # instead of being dropped (metrics/upload only need id/fileId/resultId, set above). suppressWarnings() is kept
+    # here because privateAoiFiltering() warns unconditionally when a stimulus has no gaze AOI at all - the normal
+    # case for a touch-actor-only stimulus.
+    aois <- suppressWarnings(privateAoiFiltering(study, stimulus))
 
     if (is.null(aois)) {
         touchAois[, c("name", "type", "group", "area") := list(NA_character_, NA_character_, NA_character_,
                                                                NA_real_)]
     } else {
-        # getAois() has already wrapped its result with createImObject, and merge.data.table joins by evaluating
-        # `y[x, on = by]` - so an imObject on the right hand side dispatches to `[.imObject`, which forwards `on`
-        # through `...` where `[.data.table`'s substitute(on) can no longer resolve it. Join on a plain data.table.
-        class(aois) <- c("data.table", "data.frame")
-
         touchAois <- merge(touchAois, aois[, c("id", "name", "type", "group", "area")], by.x = "aoiId", by.y = "id",
                            all.x = TRUE)
     }
@@ -1931,50 +1978,17 @@ getTouchActorAois <- function(study, stimulus, respondent, touchActor = NULL) {
     setnames(touchAois, "aoiId", "id")
     setcolorder(touchAois, c("stimulusId", "stimulusName", "id", "name", "type", "group", "area"))
     touchAois <- createImObject(touchAois, "AOI")
-    return(touchAois)
-}
 
-
-#' Get the respondents that have contact data for a specific stimulus.
-#'
-#' \code{\link{getRespondents}} cannot be used with an AOI here: its imAOI method resolves respondents through the gaze
-#' in/out endpoint, which returns nothing on a study without eyetracking data - exactly the case contact metrics exist
-#' to support. This filters the stimulus's respondents by whether contact in/out signals exist for them instead.
-#'
-#' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#' @param stimulus An imStimulus object as returned from \code{\link{getStimuli}}.
-#' @param segment Optional - an imSegment object as returned from \code{\link{getSegments}} to filter respondents.
-#'
-#' @return An imRespondentList object (data.table) with the respondents that have contact data.
-#' @export
-#' @examples
-#' \dontrun{
-#' connection <- imotionsApi::imConnection("xxxxxxxx")
-#' studies <- imotionsApi::listStudies(connection)
-#' study <- imotionsApi::imStudy(connection, studies$id[1])
-#' stimulus <- imotionsApi::getStimuli(study)[1, ]
-#' respondents <- imotionsApi::getTouchActorRespondents(study, stimulus)
-#' }
-getTouchActorRespondents <- function(study, stimulus, segment = NULL) {
-    assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
-    assertValid(hasArg(stimulus), "Please specify a stimulus loaded with `getStimuli()`")
-
-    assertClass(study, "imStudy", "`study` argument is not an imStudy object")
-    assertClass(stimulus, "imStimulus", "`stimulus` argument is not an imStimulus object")
-    assertClass(segment, "imSegment", "`segment` argument is not an imSegment object")
-
-    respondents <- getRespondents(study, stimulus = stimulus, segment = segment)
-
-    if (nrow(respondents) == 0) {
-        return(respondents)
+    # Subclassing rather than leaving this as a plain imAOI keeps a regular gaze AOI from being accepted where a
+    # touch AOI is required (touchActorId is not something a gaze imAOI carries). Prepending onto the class
+    # createImObject() just set keeps every shared AOI function working unchanged through inheritance.
+    if (inherits(touchAois, "imAOIList")) {
+        class(touchAois) <- c("imTouchAOIList", class(touchAois))
+    } else {
+        class(touchAois) <- c("imTouchAOI", class(touchAois))
     }
 
-    hasContactData <- vapply(seq_len(nrow(respondents)), function(idx) {
-        details <- suppressWarnings(privateGetTouchActorDetails(study, stimulus, respondents[idx, ]))
-        return(!is.null(details) && nrow(details) > 0)
-    }, logical(1))
-
-    return(respondents[hasContactData, ])
+    return(touchAois)
 }
 
 
@@ -2010,7 +2024,7 @@ getAoiRespondentTouchData <- function(study, touchAoi, respondent) {
     assertValid(hasArg(respondent), "Please specify a respondent loaded with `getRespondents()`")
 
     assertClass(study, "imStudy", "`study` argument is not an imStudy object")
-    assertClass(touchAoi, "imAOI", "`touchAoi` argument is not an imAOI object")
+    assertClass(touchAoi, "imTouchAOI", "`touchAoi` argument is not an imTouchAOI object")
     assertClass(respondent, "imRespondent", "`respondent` argument is not an imRespondent object")
 
     details <- privateGetTouchActorDetails(study, touchAoi, respondent)
@@ -2084,7 +2098,7 @@ getAoiRespondentTouchMetrics <- function(study, touchAoi, respondent) {
     assertValid(hasArg(respondent), "Please specify a respondent loaded with `getRespondents()`")
 
     assertClass(study, "imStudy", "`study` argument is not an imStudy object")
-    assertClass(touchAoi, "imAOI", "`touchAoi` argument is not an imAOI object")
+    assertClass(touchAoi, "imTouchAOI", "`touchAoi` argument is not an imTouchAOI object")
     assertClass(respondent, "imRespondent", "`respondent` argument is not an imRespondent object")
 
     endpoint <- paste0("AOI: ", touchAoi$name, ", Respondent: ", respondent$name)
@@ -3332,8 +3346,8 @@ getTouchActorsUrl <- function(study, stimulusId) {
 }
 
 
-#' Generic getTouchActorDetailsUrl function that takes as parameter a study object, an imAOI/imStimulus object and a
-#' respondent object.
+#' Generic getTouchActorDetailsUrl function that takes as parameter a study object, an imTouchAOI/imStimulus object
+#' and a respondent object.
 #'
 #' Return the path/url to the contact in/out details for one touch actor, or for every touch actor on a stimulus.
 #' Contact detection is desktop-only, so this is only ever used for a local study.
@@ -3348,16 +3362,17 @@ getTouchActorDetailsUrl <- function(study, imObject, respondent) {
 }
 
 
-#' getTouchActorDetailsUrl.imAOI method to return the path/url to one touch actor's contact in/out details.
+#' getTouchActorDetailsUrl.imTouchAOI method to return the path/url to one touch actor's contact in/out details.
 #'
 #' Unlike the gaze equivalent the wildcard sits on the touch actor rather than the AOI, because the endpoint reports
-#' every AOI of the actors it matches in one response.
+#' every AOI of the actors it matches in one response. Dispatching on imTouchAOI rather than imAOI matters here: an
+#' ordinary gaze imAOI is not guaranteed to carry touchActorId, which this method relies on.
 #'
 #' @inheritParams getTouchActorDetailsUrl
 #'
 #' @keywords internal
-#' @exportS3Method getTouchActorDetailsUrl imAOI
-getTouchActorDetailsUrl.imAOI <- function(study, imObject, respondent) {
+#' @exportS3Method getTouchActorDetailsUrl imTouchAOI
+getTouchActorDetailsUrl.imTouchAOI <- function(study, imObject, respondent) {
     url <- getTouchActorsUrl(study, imObject$stimulusId)
     url <- file.path(url, "respondent", respondent$id, imObject$touchActorId)
     return(url)

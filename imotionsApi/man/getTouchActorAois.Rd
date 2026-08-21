@@ -4,25 +4,29 @@
 \alias{getTouchActorAois}
 \title{Get the interactive AOIs of a stimulus's touch actors, paired with their contact in/out data.}
 \usage{
-getTouchActorAois(study, stimulus, respondent, touchActor = NULL)
+getTouchActorAois(study, imObject, respondent)
 }
 \arguments{
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
-\item{stimulus}{An imStimulus object as returned from \code{\link{getStimuli}}.}
+\item{imObject}{An imStimulus object as returned from \code{\link{getStimuli}} to return every touch actor's AOIs
+on it, or an imTouchActor object as returned from \code{\link{getTouchActors}} to return only that
+actor's AOIs.}
 
 \item{respondent}{An imRespondent object as returned from \code{\link{getRespondents}}.}
-
-\item{touchActor}{Optional - an imTouchActor object as returned from \code{\link{getTouchActors}} to only return
-that actor's AOIs. Defaults to NULL, meaning every touch actor on the stimulus.}
 }
 \value{
-An imAOIList object (data.table) with one row per (touch actor, AOI) combination, or NULL if none exist.
+An imTouchAOIList object (data.table, a subclass of imAOIList so shared AOI functions still accept it)
+        with one row per (touch actor, AOI) combination, or NULL if none exist. A single-row result is an
+        imTouchAOI, subclassing imAOI the same way.
 }
 \description{
 Each touch actor marks one or more AOIs as interactive, and contact is recorded per (touch actor, AOI) pair. This
-returns one row per pair, carrying the AOI's own definition (name, type, group, area) so it can be used anywhere an
-imAOI is expected, plus the touch actor that produced it and the path to the contact in/out signal.
+returns one row per pair, plus the touch actor that produced it and the path to the contact in/out signal, so it
+can be used anywhere an imAOI is expected. It also carries the AOI's own definition (name, type, group, area) when
+one is available - which today is only for a touch actor on the Stimulus/Scene camera, since that is the only
+camera \code{\link{getAois}} can see. A touch actor on any other media source (e.g. Environment) still gets its
+row, with those four columns NA - contact and metrics are unaffected, only their display labelling is.
 }
 \details{
 Requesting this triggers generation of any in/out signals that are missing or older than the contact detection
@@ -36,6 +40,9 @@ study <- imotionsApi::imStudy(connection, studies$id[1])
 stimulus <- imotionsApi::getStimuli(study)[1, ]
 respondent <- imotionsApi::getRespondents(study, stimulus = stimulus)[1, ]
 touchAois <- imotionsApi::getTouchActorAois(study, stimulus, respondent)
+
+touchActor <- imotionsApi::getTouchActors(study, stimulus)[1, ]
+touchAois <- imotionsApi::getTouchActorAois(study, touchActor, respondent) # only that actor's AOIs
 
 print(touchAois$fileId) # path to the contact in/out file for each (touch actor, AOI) pair
 }
