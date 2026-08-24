@@ -207,5 +207,3 @@ test_that("remote check - should call getJSON, getFile and fread when metrics ar
     expect_equal(ncol(metrics), 37, infos = "no column should be lost")
     expect_s3_class(metrics, "imAOIMetrics")
 })
-
-
