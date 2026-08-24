@@ -35,6 +35,12 @@ jobs:
       - uses: r-lib/actions/setup-tinytex@v2
         if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
 
+      - name: Install PDF manual dependencies
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          tlmgr update --self
+          tlmgr install makeindex
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck, any::lintr
