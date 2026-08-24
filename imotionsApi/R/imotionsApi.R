@@ -1399,11 +1399,11 @@ convertRecordingTsToIntervals <- function(recordingTs, intervals, keepTs = FALSE
     }
 
     # Converting timestamps to intervals fragments ranges
-    invisible(lapply(seq_len(nrow(intervals)), function(x) {
+    for (x in seq_len(nrow(intervals))) {
         isIn <- timestamps %inrange% intervals[x, c("fragments.start", "fragments.end")]
-        timestamps[isIn] <<- timestamps[isIn] - intervals[x, ]$fragments.start +
+        timestamps[isIn] <- timestamps[isIn] - intervals[x, ]$fragments.start +
             sum(intervals[0:(x - 1), ]$fragments.duration)
-    }))
+    }
 
     if (inherits(recordingTs, "data.frame")) {
         recordingTs$Timestamp <- timestamps
