@@ -32,6 +32,9 @@ jobs:
           r-version: '4.4.0'
           use-public-rspm: true
 
+      - uses: r-lib/actions/setup-tinytex@v2
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck, any::lintr
@@ -68,6 +71,22 @@ jobs:
           sed -i "/^Version:/c\Version: ${{ steps.get_version.outputs.VERSION }}" imotionsApi/DESCRIPTION
         shell: bash
 
+      - name: Generate PDF manual
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          R CMD Rd2pdf . --output=../documentation/imotionsApi_${{ steps.get_version.outputs.VERSION }}.pdf --force --no-preview
+        shell: bash
+        working-directory: './imotionsApi'
+
+      - name: Upload PDF manual for documentation branch
+        if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-documentation-${{ github.ref_name }}
+          path: ./documentation/imotionsApi_${{ steps.get_version.outputs.VERSION }}.pdf
+          if-no-files-found: error
+          retention-days: 1
+
       - uses: r-lib/actions/check-r-package@v2
         with:
           error-on: '"error"'
@@ -93,9 +112,78 @@ jobs:
           files: |
             LICENSE
             ./imotionsApi/check/*.tar.gz
+            ./documentation/imotionsApi_${{ steps.get_version.outputs.VERSION }}.pdf
 
       - name: Publish test results
         uses: EnricoMi/publish-unit-test-result-action/windows@v2
         if: always()
         with:
           files: './imotionsApi/check/imotionsApi.Rcheck/tests/test-results-tests.xml'
+
+  update-tagged-branch:
+    needs: R-test-lint-build-release
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+    runs-on: windows-latest
+    concurrency:
+      group: tagged-branch-documentation
+      cancel-in-progress: false
+
+    steps:
+      - name: Find branch tagged at this commit
+        id: target_branch
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $headers = @{
+            Accept = 'application/vnd.github+json'
+            Authorization = "Bearer $env:GH_TOKEN"
+            'X-GitHub-Api-Version' = '2022-11-28'
+          }
+          $uri = "$env:GITHUB_API_URL/repos/$env:GITHUB_REPOSITORY/commits/$env:GITHUB_SHA/branches-where-head"
+          $response = Invoke-RestMethod -Uri $uri -Headers $headers
+          $defaultBranch = '${{ github.event.repository.default_branch }}'
+          $branches = @($response | Where-Object { $_.name -ne $defaultBranch } | ForEach-Object { $_.name })
+          if ($branches.Count -eq 0) {
+            throw "No non-default branch has tagged commit $env:GITHUB_SHA as its head."
+          }
+          if ($branches.Count -gt 1) {
+            throw "Multiple non-default branches have tagged commit $env:GITHUB_SHA as their head: $($branches -join ', ')"
+          }
+          "branch=$($branches[0])" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.target_branch.outputs.branch }}
+          fetch-depth: 0
+
+      - name: Download PDF manual
+        uses: actions/download-artifact@v4
+        with:
+          name: release-documentation-${{ github.ref_name }}
+          path: ./release-documentation
+
+      - name: Prepare latest release documentation
+        shell: pwsh
+        run: |
+          $version = '${{ github.ref_name }}'.Substring(1)
+          Get-ChildItem -LiteralPath './documentation' -Filter 'imotionsApi_*.pdf' -File | Remove-Item -Force
+          Move-Item -LiteralPath "./release-documentation/imotionsApi_$version.pdf" -Destination './documentation/'
+          $description = Get-Content -Raw -LiteralPath './imotionsApi/DESCRIPTION'
+          $description = $description -replace '(?m)^Version:.*$', "Version: $version-0000000000"
+          Set-Content -NoNewline -LiteralPath './imotionsApi/DESCRIPTION' -Value $description
+
+      - name: Commit release documentation to tagged branch
+        shell: pwsh
+        run: |
+          $branch = '${{ steps.target_branch.outputs.branch }}'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add --all -- documentation imotionsApi/DESCRIPTION
+          git diff --cached --quiet
+          if ($LASTEXITCODE -eq 0) {
+            Write-Output 'Release documentation is already up to date.'
+            exit 0
+          }
+          git commit -m "Update release documentation for ${{ github.ref_name }}"
+          git push origin "HEAD:$branch"
