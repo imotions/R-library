@@ -2,19 +2,23 @@
 % Please edit documentation in R/imotionsApi.R
 \name{privateGetTouchActorDetails}
 \alias{privateGetTouchActorDetails}
-\title{Private function returning where a stimulus's or a touch actor AOI's contact in/out signals live for a respondent.}
+\title{Private function returning where a stimulus's or a touch actor AOI's contact in/out signals live.}
 \usage{
-privateGetTouchActorDetails(study, imObject, respondent)
+privateGetTouchActorDetails(study, imObject, respondent = NULL)
 }
 \arguments{
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
-\item{imObject}{An imStimulus object (all touch actors on it) or one row of \code{\link{getTouchActorAois}}.}
+\item{imObject}{An imStimulus object (all touch actors on it), an imTouchActor object as returned from
+\code{\link{getTouchActors}} (that actor's AOIs only), or one row of \code{\link{getTouchActorAois}}
+(that specific (touch actor, AOI) pair only).}
 
-\item{respondent}{An imRespondent object as returned from \code{\link{getRespondents}}.}
+\item{respondent}{Optional - An imRespondent object as returned from \code{\link{getRespondents}}. Without one,
+details for every respondent exposed to the stimulus are returned in a single response,
+disambiguated by the `respId` column.}
 }
 \value{
-A data.frame with one row per (touch actor, AOI) combination that has an in/out signal.
+A data.frame with one row per (touch actor, AOI[, respondent]) combination that has an in/out signal.
 }
 \description{
 Requesting these generates any signal that is missing or older than the contact detection result it derives from,

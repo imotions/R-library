@@ -21,9 +21,9 @@ because \code{\link{privateRespondentFiltering.imAOI}} resolves respondents thro
 returns nothing on a study without eyetracking data - exactly the case contact metrics exist to support.
 }
 \details{
-Unlike the gaze equivalent, the contact endpoint has no "all respondents" wildcard for a single touch actor AOI
-(see \code{\link{getTouchActorDetailsUrl.imTouchAOI}}), so this is resolved one respondent at a time: every
-respondent exposed to the AOI's stimulus is queried (via the stimulus-wide wildcard, one call each) and kept only
-if its own contact details contain a matching (touchActorId, aoiId) pair.
+Resolved with a single stimulus-wide, respondent-less call to \code{\link{privateGetTouchActorDetails}} (see
+\code{\link{getTouchActorDetailsUrl.imStimulus}}), which returns contact details for every respondent exposed to
+the stimulus in one response - kept are only the respondents whose own contact details contain a matching
+(touchActorId, aoiId) pair.
 }
 \keyword{internal}

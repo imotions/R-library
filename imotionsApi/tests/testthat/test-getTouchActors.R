@@ -21,6 +21,7 @@ noTouchActorsPath <- "../data/noTouchActors.json"
 touchActorDetailsPath <- "../data/touchActorDetails.json"
 touchActorDetailsMissingPath <- "../data/touchActorDetails_missingfileId.json"
 touchActorDetailsNoMatchPath <- "../data/touchActorDetails_noMatchingPair.json"
+touchActorDetailsMultiRespondentPath <- "../data/touchActorDetailsMultiRespondent.json"
 
 # The AOI definitions getTouchActorAois() joins against - what privateGetTouchActorAoiDefinitions() would return for
 # this stimulus.
@@ -130,6 +131,16 @@ test_that("local return - details for every touch actor on a stimulus", {
     expect_identical(unique(details$respId), respondent$id, "details should all be for the requested respondent")
 })
 
+test_that("local return - respondent is optional, details for every respondent are returned in one call", {
+    details <- mockedGetTouchActorDetails(study, stimulus, respondent = NULL,
+                                          jsonPath = touchActorDetailsMultiRespondentPath)
+
+    expect_equal(nrow(details), 3, info = "3 (touch actor, AOI, respondent) combinations should be returned")
+    expect_named(details, expectedDetailNames, info = "touch actor details infos not matching")
+    expect_setequal(details$respId, c("09bd22e6-29b6-4a8a-8cc1-4780a5163e63", "750ed075-1c8d-4aff-91b1-ed6c9e052808",
+                                      "846041b3-1485-4e56-9d73-829601dcfe20"))
+})
+
 test_that("local return - combinations without a fileId are filtered out", {
     details <- mockedGetTouchActorDetails(study, stimulus, respondent, touchActorDetailsMissingPath)
 
@@ -187,9 +198,6 @@ test_that("error - arguments are missing or not from the good class", {
                  "Please specify a stimulus loaded with `getStimuli()` or a touch actor loaded with `getTouchActors()`",
                  fixed = TRUE, info = "missing `imObject` param not handled properly")
 
-    expect_error(getTouchActorAois(study, stimulus), "Please specify a respondent loaded with `getRespondents()`",
-                 fixed = TRUE, info = "missing `respondent` param not handled properly")
-
     expect_error(getTouchActorAois(study, stimulus, respondent = "whatever"),
                  "`respondent` argument is not an imRespondent object",
                  info = "respondent not being an imRespondent object should throw an error")
@@ -205,6 +213,15 @@ test_that("local return - one row per (touch actor, AOI) combination", {
     expect_equal(nrow(touchAois), 3, info = "3 (touch actor, AOI) combinations should be returned")
     expect_equal(sum(touchAois$id == AOI1), 2, info = "AOI1 is referenced by both touch actors")
     expect_equal(sum(touchAois$id == AOI2), 1, info = "AOI2 is referenced by one touch actor")
+})
+
+test_that("local return - without a respondent, only the AOI/touch actor definitions are returned", {
+    touchAois <- mockedGetTouchActorAois(study, stimulus, respondent = NULL)
+
+    expect_equal(nrow(touchAois), 3, info = "3 (touch actor, AOI) combinations should still be returned")
+    expect_false("fileId" %in% names(touchAois), info = "no contact in/out details should be attached")
+    expect_false("resultId" %in% names(touchAois), info = "no contact in/out details should be attached")
+    expect_s3_class(touchAois, "imTouchAOIList")
 })
 
 test_that("local return - the AOI definition wins the id/name columns so it can stand in for an imAOI", {
@@ -252,6 +269,25 @@ test_that("local return - filtering on a single touch actor", {
 
     expect_equal(nrow(touchAois), 1, info = "only the second actor's single AOI should be returned")
     expect_identical(touchAois$touchActorId, TA2, "wrong touch actor kept")
+})
+
+test_that("local return - contact details are fetched scoped to the requested actor, not the whole stimulus", {
+    touchActor <- suppressWarnings(mockedGetTouchActors(study, stimulus))[2, ]
+
+    touchAois <- mockr::with_mock(
+        getTouchActors = function(...) stop("getTouchActors() should not be called - imObject is already a touch actor"),
+        privateGetTouchActorAoiDefinitions = function(...) aoiDefinitions(),
+        privateGetTouchActorDetails = function(study, imObject, respondent) {
+            expect_s3_class(imObject, "imTouchActor")
+            expect_identical(imObject$id, TA2,
+                             "privateGetTouchActorDetails should be scoped to the requested touch actor")
+            jsonlite::fromJSON(touchActorDetailsPath)
+        }, {
+            getTouchActorAois(study, touchActor, respondent)
+        }
+    )
+
+    expect_equal(nrow(touchAois), 1, info = "only the second actor's single AOI should be returned")
 })
 
 test_that("local return - a touch actor on a non-Scene media source resolves its AOI name too", {
@@ -437,19 +473,16 @@ touchAoiForRespondents <- function() {
 }
 
 test_that("local return - getRespondents() dispatches on imTouchAOI to use contact data, not gaze data", {
-    allRespondents <- getRespondents(study, stimulus = stimulus)
-
-    # Only the first respondent of the stimulus has a matching (touchActorId, aoiId) contact pair.
+    # A single, respondent-less call returns contact details across every respondent exposed to the stimulus -
+    # only Wendy and Quilana have a matching (touchActorId, aoiId) pair here, Olana's is for a different pair.
     respondents <- mockr::with_mock(
-        privateGetTouchActorDetails = function(study, imObject, respondent) {
-            if (respondent$id == allRespondents$id[1]) jsonlite::fromJSON(touchActorDetailsPath) else NULL
-        }, {
+        privateGetTouchActorDetails = function(...) jsonlite::fromJSON(touchActorDetailsMultiRespondentPath), {
             getRespondents(study, AOI = touchAoiForRespondents())
         }
     )
 
-    expect_equal(nrow(respondents), 1, info = "only the respondent with a matching contact pair should be kept")
-    expect_identical(respondents$id, allRespondents$id[1], "wrong respondent kept")
+    expect_equal(nrow(respondents), 2, info = "both respondents with a matching contact pair should be kept")
+    expect_setequal(respondents$id, c("09bd22e6-29b6-4a8a-8cc1-4780a5163e63", "750ed075-1c8d-4aff-91b1-ed6c9e052808"))
 })
 
 test_that("local return - a respondent with contact data for another (touch actor, AOI) pair is not kept", {
@@ -499,6 +532,13 @@ test_that("url for every touch actor on a stimulus uses the wildcard form", {
                      "wrong url for all touch actors")
 })
 
+test_that("url for every touch actor on a stimulus, without a respondent, omits the respondent segment", {
+    url <- imotionsApi:::getTouchActorDetailsUrl(study, stimulus)
+
+    expect_identical(url, file.path("http://localhost:8086/touchactors", study$id, "stimuli", stimulus$id, "*"),
+                     "wrong url for all touch actors, all respondents")
+})
+
 test_that("url for a single touch actor uses its id - the wildcard sits on the actor, not the AOI", {
     touchAoi <- aoiDefinitions()[1, ]
     touchAoi$touchActorId <- TA1
@@ -509,4 +549,30 @@ test_that("url for a single touch actor uses its id - the wildcard sits on the a
     expect_identical(url, file.path("http://localhost:8086/touchactors", study$id, "stimuli", "1002",
                                     "respondent", respondent$id, TA1),
                      "wrong url for a single touch actor")
+})
+
+test_that("url for a single touch actor, without a respondent, omits the respondent segment", {
+    touchAoi <- aoiDefinitions()[1, ]
+    touchAoi$touchActorId <- TA1
+    class(touchAoi) <- c("imTouchAOI", class(touchAoi))
+
+    url <- imotionsApi:::getTouchActorDetailsUrl(study, touchAoi)
+
+    expect_identical(url, file.path("http://localhost:8086/touchactors", study$id, "stimuli", "1002", TA1),
+                     "wrong url for a single touch actor, all respondents")
+})
+
+test_that("url for a bare imTouchActor matches its imTouchAOI equivalent for the same actor", {
+    touchActor <- suppressWarnings(mockedGetTouchActors(study, stimulus))[2, ]
+
+    urlWithRespondent <- imotionsApi:::getTouchActorDetailsUrl(study, touchActor, respondent)
+    urlAllRespondents <- imotionsApi:::getTouchActorDetailsUrl(study, touchActor)
+
+    expect_identical(urlWithRespondent, file.path("http://localhost:8086/touchactors", study$id, "stimuli", "1002",
+                                                  "respondent", respondent$id, TA2),
+                     "wrong url for a bare touch actor, one respondent")
+
+    expect_identical(urlAllRespondents, file.path("http://localhost:8086/touchactors", study$id, "stimuli", "1002",
+                                                  TA2),
+                     "wrong url for a bare touch actor, all respondents")
 })

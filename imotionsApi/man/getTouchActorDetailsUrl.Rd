@@ -2,17 +2,19 @@
 % Please edit documentation in R/imotionsApi.R
 \name{getTouchActorDetailsUrl}
 \alias{getTouchActorDetailsUrl}
-\title{Generic getTouchActorDetailsUrl function that takes as parameter a study object, an imTouchAOI/imStimulus object
-and a respondent object.}
+\title{Generic getTouchActorDetailsUrl function that takes as parameter a study object, an imTouchAOI/imTouchActor/
+imStimulus object and, optionally, a respondent object.}
 \usage{
-getTouchActorDetailsUrl(study, imObject, respondent)
+getTouchActorDetailsUrl(study, imObject, respondent = NULL)
 }
 \arguments{
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
-\item{imObject}{An imStimulus object, or one row of \code{\link{getTouchActorAois}}.}
+\item{imObject}{An imStimulus object, an imTouchActor object as returned from \code{\link{getTouchActors}}, or one
+row of \code{\link{getTouchActorAois}}.}
 
-\item{respondent}{An imRespondent object as returned from \code{\link{getRespondents}}.}
+\item{respondent}{Optional - An imRespondent object as returned from \code{\link{getRespondents}}. Without one,
+the url targets every respondent exposed to the stimulus in a single response.}
 }
 \description{
 Return the path/url to the contact in/out details for one touch actor, or for every touch actor on a stimulus.

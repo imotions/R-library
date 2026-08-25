@@ -2,9 +2,9 @@
 % Please edit documentation in R/imotionsApi.R
 \name{getTouchActorAois}
 \alias{getTouchActorAois}
-\title{Get the interactive AOIs of a stimulus's touch actors, paired with their contact in/out data.}
+\title{Get the interactive AOIs of a stimulus's touch actors, optionally paired with their contact in/out data.}
 \usage{
-getTouchActorAois(study, imObject, respondent)
+getTouchActorAois(study, imObject, respondent = NULL)
 }
 \arguments{
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
@@ -13,7 +13,8 @@ getTouchActorAois(study, imObject, respondent)
 on it, or an imTouchActor object as returned from \code{\link{getTouchActors}} to return only that
 actor's AOIs.}
 
-\item{respondent}{An imRespondent object as returned from \code{\link{getRespondents}}.}
+\item{respondent}{Optional - An imRespondent object as returned from \code{\link{getRespondents}} to attach that
+respondent's contact in/out fileId/resultId to each row.}
 }
 \value{
 An imTouchAOIList object (data.table, a subclass of imAOIList so shared AOI functions still accept it)
@@ -22,15 +23,16 @@ An imTouchAOIList object (data.table, a subclass of imAOIList so shared AOI func
 }
 \description{
 Each touch actor marks one or more AOIs as interactive, and contact is recorded per (touch actor, AOI) pair. This
-returns one row per pair, plus the touch actor that produced it and the path to the contact in/out signal, so it
-can be used anywhere an imAOI is expected. It also carries the AOI's own definition (name, type, group, area) when
-one is available - which today is only for a touch actor on the Stimulus/Scene camera, since that is the only
-camera \code{\link{getAois}} can see. A touch actor on any other media source (e.g. Environment) still gets its
-row, with those four columns NA - contact and metrics are unaffected, only their display labelling is.
+returns one row per pair, plus the touch actor that produced it, so it can be used anywhere an imAOI is expected.
+It also carries the AOI's own definition (name, type, group, area), resolved from whichever camera the AOI is
+actually defined on (see \code{\link{privateGetTouchActorAoiDefinitions}}), so a touch actor on a non-Scene camera
+(e.g. Environment) is labelled the same as one on Scene.
 }
 \details{
-Requesting this triggers generation of any in/out signals that are missing or older than the contact detection
-result they derive from, which is why a respondent is required.
+Providing a respondent additionally attaches that respondent's contact in/out fileId/resultId to each row,
+triggering generation of any signal that is missing or older than the contact detection result it derives from.
+Without one, only the AOI/touch actor definitions are returned - use \code{\link{getRespondents}} (e.g.
+\code{getRespondents(study, AOI = touchAoi)}) to find which respondents have contact data for a given row.
 }
 \examples{
 \dontrun{
@@ -38,11 +40,18 @@ connection <- imotionsApi::imConnection("xxxxxxxx")
 studies <- imotionsApi::listStudies(connection)
 study <- imotionsApi::imStudy(connection, studies$id[1])
 stimulus <- imotionsApi::getStimuli(study)[1, ]
-respondent <- imotionsApi::getRespondents(study, stimulus = stimulus)[1, ]
-touchAois <- imotionsApi::getTouchActorAois(study, stimulus, respondent)
+
+## List the touch actor AOIs defined for a stimulus, without triggering signal generation
+touchAois <- imotionsApi::getTouchActorAois(study, stimulus)
+
+## Get the respondents that have contact data for one of them
+respondents <- imotionsApi::getRespondents(study, AOI = touchAois[1, ])
+
+## Attach the contact in/out file for a specific respondent
+touchAois <- imotionsApi::getTouchActorAois(study, stimulus, respondents[1, ])
 
 touchActor <- imotionsApi::getTouchActors(study, stimulus)[1, ]
-touchAois <- imotionsApi::getTouchActorAois(study, touchActor, respondent) # only that actor's AOIs
+touchAois <- imotionsApi::getTouchActorAois(study, touchActor, respondents[1, ]) # only that actor's AOIs
 
 print(touchAois$fileId) # path to the contact in/out file for each (touch actor, AOI) pair
 }

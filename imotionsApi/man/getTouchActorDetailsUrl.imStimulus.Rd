@@ -5,14 +5,15 @@
 \title{getTouchActorDetailsUrl.imStimulus method to return the path/url to the contact in/out details of every touch actor
 defined for a stimulus.}
 \usage{
-\method{getTouchActorDetailsUrl}{imStimulus}(study, imObject, respondent)
+\method{getTouchActorDetailsUrl}{imStimulus}(study, imObject, respondent = NULL)
 }
 \arguments{
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
 \item{imObject}{An imStimulus object, or one row of \code{\link{getTouchActorAois}}.}
 
-\item{respondent}{An imRespondent object as returned from \code{\link{getRespondents}}.}
+\item{respondent}{Optional - An imRespondent object as returned from \code{\link{getRespondents}}. Without one,
+the url targets every respondent exposed to the stimulus in a single response.}
 }
 \description{
 getTouchActorDetailsUrl.imStimulus method to return the path/url to the contact in/out details of every touch actor
