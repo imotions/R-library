@@ -275,7 +275,9 @@ test_that("local return - contact details are fetched scoped to the requested ac
     touchActor <- suppressWarnings(mockedGetTouchActors(study, stimulus))[2, ]
 
     touchAois <- mockr::with_mock(
-        getTouchActors = function(...) stop("getTouchActors() should not be called - imObject is already a touch actor"),
+        getTouchActors = function(...) {
+            stop("getTouchActors() should not be called - imObject is already a touch actor")
+        },
         privateGetTouchActorAoiDefinitions = function(...) aoiDefinitions(),
         privateGetTouchActorDetails = function(study, imObject, respondent) {
             expect_s3_class(imObject, "imTouchActor")
