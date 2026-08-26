@@ -964,7 +964,7 @@ getSensors <- function(study, target, stimulus = NULL) {
     if (study$connection$localIM == TRUE) {
         for (i in seq_along(sensors)) {
             suppressWarnings(signalsMetaData[[i]] <- rbindlist(sensors[[i]]$signalsMetaData, fill = TRUE))
-            signals[[i]] <- sensors[[i]]$signals
+            signals[i] <- list(sensors[[i]]$signals)
             sensors[[i]][c("signals", "signalsMetaData")] <- NULL
         }
     } else {
@@ -1478,7 +1478,7 @@ getSensorData <- function(study, sensor, signalsName = NULL, intervals = NULL) {
 #'
 #' @importFrom arrow read_parquet set_cpu_count
 #' @importFrom rlang enquo
-#' @importFrom utils download.file unzip
+#' @importFrom utils unzip
 #' @return A data.table with all signals (or specified signals) from the sensor of interest.
 #' @keywords internal
 privateDownloadData <- function(study, sensor, signalsName = NULL) {
@@ -1651,7 +1651,7 @@ getAoiRespondentData <- function(study, AOI, respondent) {
 #'
 #' @keywords internal
 privateGetAoiRespondentMetricsPath <- function(study, AOI, respondent) {
-    if (is.null(study$connection$localPath)) return(NULL)
+    if (is.null(study$connection$localPath) || !length(AOI$fileId) || is.na(AOI$fileId)) return(NULL)
 
     return(file.path(study$connection$localPath, sub("^.*/aoiDefinition/", "", AOI$fileId),
                      paste0(respondent$id, "metrics.csv")))
@@ -1701,21 +1701,21 @@ getAoiRespondentMetrics <- function(study, AOI, respondent) {
 
         # Retrieve the S3 location only when the metrics are not already cached locally.
         if (is.null(metricsFile) || !file.exists(metricsFile)) {
-            stats <- tryCatch({
-                getJSON(study$connection, getAoiMetricsUrl(study, respondent, AOI),
-                        message = paste("Retrieving AOI respondent metrics for", endpoint))
+            metricsFile <- tryCatch({
+                stats <- getJSON(study$connection, getAoiMetricsUrl(study, respondent, AOI),
+                                 message = paste("Retrieving AOI respondent metrics for", endpoint))
+
+                if (is.null(stats)) {
+                    NULL
+                } else {
+                    getFile(study$connection, stats$aoiRespondentStatsUrl,
+                            message = paste("Downloading AOI respondent metrics for", endpoint),
+                            localFilePath = metricsFile)$file_path
+                }
             }, error = function(err) {
                 if (grepl("Resource not found", err$message, fixed = TRUE)) return(NULL)
                 stop(err)
             })
-
-            if (!is.null(stats)) {
-                metricsFile <- getFile(study$connection, stats$aoiRespondentStatsUrl,
-                                       message = paste("Downloading AOI respondent metrics for", endpoint),
-                                       localFilePath = metricsFile)$file_path
-            } else {
-                metricsFile <- NULL
-            }
         }
     }
 
@@ -1983,6 +1983,7 @@ privateUploadAoiMetrics.imRespondent <- function(study, obj, AOI, metrics) {
         dataFileName <- paste0(tools::file_path_sans_ext(AOIDetails$fileId), "metrics.csv")
     } else {
         dataFileName <- tempfile(fileext = ".csv")
+        on.exit(unlink(dataFileName), add = TRUE)
     }
 
     fwrite(x = metrics, file = dataFileName, col.names = TRUE, row.names = FALSE)
@@ -1996,14 +1997,12 @@ privateUploadAoiMetrics.imRespondent <- function(study, obj, AOI, metrics) {
         fileInfos <- privateUploadToPresignedUrl(study$connection, uploadUrl, postData, dataFileName,
                                                  "Getting presignedUrl to upload AOI metrics", uploadMessage)
 
-        putHttr(study$connection, uploadUrl, reqBody = toJSON(fileInfos, null = "null"),
-                message = paste("Upload of AOI metrics for", endpoint, "confirmed"))
-
-        # Check if some locally saved metrics needs to be invalidated
+        # The uploaded file makes any locally cached metrics stale, even if confirmation fails.
         cachedFile <- privateGetAoiRespondentMetricsPath(study, AOI, obj)
         if (!is.null(cachedFile)) unlink(cachedFile)
 
-        unlink(dataFileName)
+        putHttr(study$connection, uploadUrl, reqBody = toJSON(fileInfos, null = "null"),
+                message = paste("Upload of AOI metrics for", endpoint, "confirmed"))
     }
 }
 
@@ -3067,8 +3066,6 @@ getJSON <- function(connection, url, message = NULL, ...) {
 #' @return A list with the temporary folder path and the downloaded file name.
 #' @keywords internal
 getFile <- function(connection, url, message = NULL, fileName = NULL, localFilePath = NULL) {
-    response <- getHttr(connection, url, message)
-
     # Use the requested file path, or fall back to the connection/temporary download directory.
     if (!is.null(localFilePath)) {
         tmp_dir <- dirname(localFilePath)
@@ -3084,12 +3081,18 @@ getFile <- function(connection, url, message = NULL, fileName = NULL, localFileP
     # Reuse files already downloaded to the selected path.
     if (!file.exists(file_path)) {
         dir.create(dirname(file_path), showWarnings = FALSE, recursive = TRUE)
-        download.file(response$url, file_path, method = "auto", mode = "wb")
+        tmp_path <- paste0(file_path, ".part")
+
+        getHttr(connection, url, message, writePath = tmp_path)
+        file.rename(tmp_path, file_path)
     } else {
         message("Retrieving local data for ", file_path)
     }
 
-    if (grepl("zip", response$headers$`content-type`)) {
+    # Check the retrieved/downloaded file for a zip signature directly
+    is_zip <- identical(readBin(file_path, "raw", n = 2), charToRaw("PK"))
+
+    if (is_zip) {
         files_in_zip <- unzip(file_path, exdir = tmp_dir)
         assertValid(!is.null(fileName), "You need to provide a fileName for zip file extraction.")
         file_path <- str_subset(files_in_zip, fileName)
@@ -3145,10 +3148,11 @@ jsonHeaders <- function() httr::add_headers("Content-Type" = "application/json")
 #' @param url The url/path where the file is located.
 #' @param message Optional - a short message indicating which steps are getting performed to get a more indicative
 #'                error message.
+#' @param writePath Optional - A local path where the response body should be streamed.
 #'
 #' @return The last response.
 #' @keywords internal
-getHttr <- function(connection, url, message = NULL) {
+getHttr <- function(connection, url, message = NULL, writePath = NULL) {
     if (connection$localIM) {
         # Locally there is no point to retry request if we get a 404 not found error
         terminate_on <- 404
@@ -3156,7 +3160,9 @@ getHttr <- function(connection, url, message = NULL) {
         terminate_on <- NULL
     }
 
-    response <- retryHttr(message, "GET", url, tokenHeaders(connection$token), terminate_on = terminate_on)
+    output <- if (is.null(writePath)) httr::write_memory() else httr::write_disk(writePath, overwrite = TRUE)
+    response <- retryHttr(message, "GET", url, tokenHeaders(connection$token), output, terminate_on = terminate_on)
+
     return(response)
 }
 

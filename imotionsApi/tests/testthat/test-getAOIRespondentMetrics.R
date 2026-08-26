@@ -25,19 +25,27 @@ test_that("remote check - should return the local AOI respondent metrics path", 
     expect_identical(privateGetAoiRespondentMetricsPath(study_cloud_local, AOI_cloud, respondent), expectedTmpPath)
 })
 
+test_that("remote check - should not return a local path when the AOI file ID is unavailable", {
+    AOI_cloud$fileId <- NULL
+    expect_null(privateGetAoiRespondentMetricsPath(study_cloud_local, AOI_cloud, respondent))
+
+    AOI_cloud$fileId <- NA_character_
+    expect_null(privateGetAoiRespondentMetricsPath(study_cloud_local, AOI_cloud, respondent))
+})
+
 # getAoiRespondentMetrics =============================================================================================
 context("getAoiRespondentMetrics()")
 
 mockGetAoiRespondentMetrics <- function(study, AOI, respondent, AOIDetailsFile = NULL, stats = NULL,
                                         expectedFilePath = NULL, fileExists = FALSE, expectCallsDetails = 0,
                                         expectCallsFileExists = 0, expectCallsFread = 0, expectCallsGetJSON = 0,
-                                        expectCallsGetFile = 0) {
+                                        expectCallsGetFile = 0, fail_getFile = NULL) {
 
     privateGetAoiDetails_Stub <- mock(AOIDetailsFile)
     file.exists_Stub <- mock(fileExists)
     fread_Stub <- mock(metrics_output)
     getJSON_Stub <- mock(stats)
-    getFile_Stub <- mock(list(file_path = expectedFilePath))
+    getFile_Stub <- if (!is.null(fail_getFile)) mock(stop(fail_getFile)) else mock(list(file_path = expectedFilePath))
 
     metrics <- mockr::with_mock(privateGetAoiDetails = privateGetAoiDetails_Stub,
                                 file.exists = file.exists_Stub,
@@ -158,9 +166,7 @@ test_that("remote warning - no metrics have been uploaded for this respondent", 
                                                           stats = stop("Resource not found"),
                                                           expectedFilePath = expectedTmpPath,
                                                           expectCallsFileExists = 1, expectCallsGetJSON = 1),
-                   "No metrics found for AOI: El Manuel Area, Respondent: Wendy",
-                   fixed = TRUE
-    )
+                   "No metrics found for AOI: El Manuel Area, Respondent: Wendy", fixed = TRUE)
 
     expect_null(metrics)
 })
@@ -169,6 +175,26 @@ test_that("remote error - getJSON errors other than resource not found should be
     expect_error(mockGetAoiRespondentMetrics(study_cloud_local, AOI_cloud, respondent, stats = stop("Server error"),
                                              expectedFilePath = expectedTmpPath, expectCallsFileExists = 1,
                                              expectCallsGetJSON = 1),
+                 "Server error", fixed = TRUE)
+})
+
+stats <- list(aoiRespondentStatsUrl = "https://s3.test/respondent-aoi-metrics.csv")
+
+test_that("remote warning - missing AOI respondent metrics file should return no metrics", {
+    expect_warning(metrics <- mockGetAoiRespondentMetrics(study_cloud_local, AOI_cloud, respondent, stats = stats,
+                                                          expectedFilePath = expectedTmpPath, expectCallsFileExists = 1,
+                                                          expectCallsGetJSON = 1, expectCallsGetFile = 1,
+                                                          fail_getFile = "Resource not found"),
+                   "No metrics found for AOI: El Manuel Area, Respondent: Wendy", fixed = TRUE)
+
+    expect_null(metrics)
+})
+
+test_that("remote error - getFile errors other than resource not found should be rethrown", {
+    expect_error(mockGetAoiRespondentMetrics(study_cloud_local, AOI_cloud, respondent, stats = stats,
+                                             expectedFilePath = expectedTmpPath, expectCallsFileExists = 1,
+                                             expectCallsGetJSON = 1, expectCallsGetFile = 1,
+                                             fail_getFile = "Server error"),
                  "Server error", fixed = TRUE)
 })
 

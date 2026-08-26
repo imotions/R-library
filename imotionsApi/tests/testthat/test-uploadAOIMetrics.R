@@ -42,15 +42,23 @@ metrics <- data.frame("metric1" = 2, "metric2" = 234, "metric3" = 1234)
 
 mockPrivateUploadAoiMetrics <- function(study, obj, AOI, metrics, AOIDetailsFile = NULL, expectedFilepath = NULL,
                                         expectedEndpoint = NULL, expectedBody = NULL, expectCallsfwrite = 0,
-                                        expectCallsPut = 0, expectCallsPresigned = 0, expectFileRemoved = FALSE) {
+                                        expectCallsPut = 0, expectCallsPresigned = 0, uploadStub = NULL,
+                                        confirmationStub = NULL, expectFileRemoved = FALSE) {
 
     privateGetAoiDetails_Stub <- mock(AOIDetailsFile)
     fwrite_Stub <- mock()
     fwriteMock <- if (expectFileRemoved) function(...) data.table::fwrite(...) else fwrite_Stub
     getUploadAoiMetricsUrl_Stub <- mock("myurl")
     fileInfos <- list(assetId = "assetId", presignedUrl = "presignedUrl")
-    privateUploadToPresignedUrl_Stub <- mock(fileInfos)
-    putHttr_Stub <- mock()
+    privateUploadToPresignedUrl_Stub <- if (is.null(uploadStub)) mock(fileInfos) else mock(stop(uploadStub))
+    putHttr_Stub <- if (is.null(confirmationStub)) mock() else mock(stop(confirmationStub))
+
+    if (expectFileRemoved) {
+        on.exit({
+            uploadedFile <- mock_args(privateUploadToPresignedUrl_Stub)[[1]][[4]]
+            expect_false(file.exists(uploadedFile), info = "temporary metrics file should have been deleted")
+        }, add = TRUE)
+    }
 
     mockr::with_mock(privateGetAoiDetails = privateGetAoiDetails_Stub,
                      fwrite = fwriteMock,
@@ -83,10 +91,6 @@ mockPrivateUploadAoiMetrics <- function(study, obj, AOI, metrics, AOIDetailsFile
 
             expect_args(putHttr_Stub, 1, study$connection, "myurl", reqBody = toJSON(fileInfos, null = "null"),
                         message = paste("Upload of AOI metrics for", endpoint, "confirmed"))
-
-            if (expectFileRemoved) {
-                expect_false(file.exists(expectedFilepath), info = "temporary metrics file should have been deleted")
-            }
         }
 
         if (expectCallsfwrite > 0) {
@@ -117,10 +121,17 @@ test_that("remote check - should call privateUploadToPresignedUrl and putHttr fo
                                 expectCallsPut = 1, expectCallsPresigned = 1, expectFileRemoved = TRUE)
 })
 
-test_that("remote check - should remove cached metrics after uploading for a specific respondent", {
-    expectedTmpPath <- paste0("myLocalPath/93fbaae0-8b6f-45b6-b5dd-9a5d4216d7fd/",
-                              "dd8a9342-f5c0-4a02-bf27-de68fc13f2bc/", respondent_cloud$id, "metrics.csv")
+test_that("remote error - should remove the temporary metrics file when upload fails", {
+    expect_error(mockPrivateUploadAoiMetrics(study_cloud, respondent_cloud, AOI_cloud, metrics,
+                                             AOIDetailsFile = AOI_cloud, uploadStub = "Upload failed",
+                                             expectFileRemoved = TRUE),
+                 "Upload failed", fixed = TRUE)
+})
 
+expectedTmpPath <- paste0("myLocalPath/93fbaae0-8b6f-45b6-b5dd-9a5d4216d7fd/",
+                          "dd8a9342-f5c0-4a02-bf27-de68fc13f2bc/", respondent_cloud$id, "metrics.csv")
+
+test_that("remote check - should remove cached metrics after uploading for a specific respondent", {
     dir.create(dirname(expectedTmpPath), recursive = TRUE)
     file.create(expectedTmpPath)
 
@@ -128,6 +139,19 @@ test_that("remote check - should remove cached metrics after uploading for a spe
                                 expectCallsPut = 1, expectCallsPresigned = 1, expectFileRemoved = TRUE)
 
     expect_false(file.exists(expectedTmpPath), info = "cached metrics file should have been deleted")
+    unlink(study_cloud_local$connection$localPath, recursive = TRUE)
+})
+
+test_that("remote error - should invalidate cached metrics before upload confirmation", {
+    dir.create(dirname(expectedTmpPath), recursive = TRUE)
+    file.create(expectedTmpPath)
+
+    expect_error(mockPrivateUploadAoiMetrics(study_cloud_local, respondent_cloud, AOI_cloud, metrics,
+                                             AOIDetailsFile = AOI_cloud, confirmationStub = "Confirmation failed",
+                                             expectFileRemoved = TRUE),
+                 "Confirmation failed", fixed = TRUE)
+
+    expect_false(file.exists(expectedTmpPath))
     unlink(study_cloud_local$connection$localPath, recursive = TRUE)
 })
 
