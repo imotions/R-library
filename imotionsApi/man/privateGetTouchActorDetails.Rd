@@ -10,8 +10,8 @@ privateGetTouchActorDetails(study, imObject, respondent = NULL)
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
 \item{imObject}{An imStimulus object (all touch actors on it), an imTouchActor object as returned from
-\code{\link{getTouchActors}} (that actor's AOIs only), or one row of \code{\link{getTouchActorAois}}
-(that specific (touch actor, AOI) pair only).}
+\code{\link{getTouchActors}} (that actor's AOIs only), or an imTouchAOI object as returned from
+\code{\link{getTouchActorAois}} (that specific (touch actor, AOI) pair only).}
 
 \item{respondent}{Optional - An imRespondent object as returned from \code{\link{getRespondents}}. Without one,
 details for every respondent exposed to the stimulus are returned in a single response,

@@ -148,6 +148,20 @@ test_that("local return - combinations without a fileId are filtered out", {
     expect_false(TA2 %in% details$touchActorId, "the touch actor without contact detection should be gone")
 })
 
+test_that("local return - passing an imTouchAOI scopes details down to that (touch actor, AOI) pair", {
+    # TA1 has 2 interactive AOIs (AOI1, AOI2) - the endpoint reports both since the wildcard sits on the touch
+    # actor, not the AOI (see getTouchActorDetailsUrl.imTouchAOI). Only the (TA1, AOI1) pair should survive.
+    touchAoi <- aoiDefinitions()[1, ]
+    touchAoi$touchActorId <- TA1
+    class(touchAoi) <- c("imTouchAOI", class(touchAoi))
+
+    details <- mockedGetTouchActorDetails(study, touchAoi, respondent)
+
+    expect_equal(nrow(details), 1, info = "only the requested (touch actor, AOI) pair should be kept")
+    expect_identical(details$touchActorId, TA1)
+    expect_identical(details$aoiId, AOI1)
+})
+
 test_that("local return - a fileId already present short-circuits the request", {
     touchAoi <- aoiDefinitions()[1, ]
     touchAoi$fileId <- "../data/touchActorRespondentData.pbin"
@@ -194,9 +208,17 @@ mockedGetTouchActorAois <- function(study, imObject, respondent, detailsPath = t
 }
 
 test_that("error - arguments are missing or not from the good class", {
+    expect_error(getTouchActorAois(imObject = stimulus, respondent = respondent),
+                 "Please specify a study loaded with `imStudy()`", fixed = TRUE,
+                 info = "missing `study` param not handled properly")
+
     expect_error(getTouchActorAois(study, respondent = respondent),
                  "Please specify a stimulus loaded with `getStimuli()` or a touch actor loaded with `getTouchActors()`",
                  fixed = TRUE, info = "missing `imObject` param not handled properly")
+
+    expect_error(getTouchActorAois(study = "whatever", stimulus, respondent),
+                 "`study` argument is not an imStudy object",
+                 info = "study not being an imStudy object should throw an error")
 
     expect_error(getTouchActorAois(study, stimulus, respondent = "whatever"),
                  "`respondent` argument is not an imRespondent object",

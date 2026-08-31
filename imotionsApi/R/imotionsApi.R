@@ -1944,8 +1944,11 @@ privateGetTouchActorAoiDefinitions <- function(study, stimulus) {
 #' print(touchAois$fileId) # path to the contact in/out file for each (touch actor, AOI) pair
 #' }
 getTouchActorAois <- function(study, imObject, respondent = NULL) {
+    assertValid(hasArg(study), "Please specify a study loaded with `imStudy()`")
     assertValid(hasArg(imObject),
                 "Please specify a stimulus loaded with `getStimuli()` or a touch actor loaded with `getTouchActors()`")
+
+    assertClass(study, "imStudy", "`study` argument is not an imStudy object")
     assertClass(respondent, "imRespondent", "`respondent` argument is not an imRespondent object")
 
     if (inherits(imObject, "imTouchActor")) {
@@ -2168,8 +2171,8 @@ getAoiRespondentTouchMetrics <- function(study, touchAoi, respondent) {
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param imObject An imStimulus object (all touch actors on it), an imTouchActor object as returned from
-#'                 \code{\link{getTouchActors}} (that actor's AOIs only), or one row of \code{\link{getTouchActorAois}}
-#'                 (that specific (touch actor, AOI) pair only).
+#'                 \code{\link{getTouchActors}} (that actor's AOIs only), or an imTouchAOI object as returned from
+#'                 \code{\link{getTouchActorAois}} (that specific (touch actor, AOI) pair only).
 #' @param respondent Optional - An imRespondent object as returned from \code{\link{getRespondents}}. Without one,
 #'                    details for every respondent exposed to the stimulus are returned in a single response,
 #'                    disambiguated by the `respId` column.
@@ -2204,6 +2207,13 @@ privateGetTouchActorDetails <- function(study, imObject, respondent = NULL) {
     # Filtering out combinations without data if any - a null fileId means detection never ran for that touch actor,
     # as opposed to a 0-byte one, which means the AOI was simply never active.
     details <- details[!is.na(details$fileId), ]
+
+    if (inherits(imObject, "imTouchAOI")) {
+        # Narrow back down to the single (touch actor, AOI) pair,
+        # so a multi-AOI touch actor doesn't leak its other AOIs' data.
+        details <- details[details$touchActorId == imObject$touchActorId & details$aoiId == imObject$id, ]
+    }
+
     return(details)
 }
 
@@ -2327,7 +2337,8 @@ uploadSensorData <- function(params, study, data, target, sensorName, scriptName
 #' Upload metrics for a specific respondent and AOI in a study.
 #'
 #' @param study An imStudy object as returned from imStudy()
-#' @param AOI An imAOI object as returned from \code{\link{getAois}}.
+#' @param AOI An imAOI object as returned from \code{\link{getAois}}, or an imTouchAOI object as returned from
+#'            \code{\link{getTouchActorAois}} to upload metrics for that specific touch actor AOI instead.
 #' @param target The target respondent/segment for the sensor (an imRespondent/imSegment object as returned from
 #'               \code{\link{getRespondents}} or \code{\link{getSegments}}).
 #' @param metrics A data.table containing the metrics to upload.
@@ -2374,7 +2385,8 @@ uploadAoiMetrics <- function(study, AOI, target, metrics) {
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
 #' @param obj An imRespondent or imSegment object of interest.
-#' @param AOI An imAOI object as returned from \code{\link{getAois}}.
+#' @param AOI An imAOI object as returned from \code{\link{getAois}}, or an imTouchAOI object as returned from
+#'            \code{\link{getTouchActorAois}}.
 #' @param metrics A data.table containing the metrics to upload.
 #'
 #' @keywords internal
@@ -2392,7 +2404,13 @@ privateUploadAoiMetrics <- function(study, obj, AOI, metrics) {
 #' @keywords internal
 #' @exportS3Method privateUploadAoiMetrics imRespondent
 privateUploadAoiMetrics.imRespondent <- function(study, obj, AOI, metrics) {
-    AOIDetails <- privateGetAoiDetails(study, AOI, obj)
+    # A touch AOI happens to carry enough of the same shape (fileId included) that privateGetAoiDetails() would
+    # "work" on it too, but only incidentally - dispatch explicitly so that overlap isn't relied upon.
+    AOIDetails <- if (inherits(AOI, "imTouchAOI")) {
+        privateGetTouchActorDetails(study, AOI, obj)
+    } else {
+        privateGetAoiDetails(study, AOI, obj)
+    }
 
     if (length(AOIDetails) == 0) {
         warning(paste("AOI", AOI$name, "was not found for respondent", obj$name))
