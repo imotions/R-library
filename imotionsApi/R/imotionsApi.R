@@ -2080,21 +2080,22 @@ getTouchActorAois <- function(study, imObject, respondent = NULL) {
 }
 
 
-#' Get a specific (touch actor, AOI) combination from a stimulus.
+#' Get the touch actor AOI(s) matching a specific aoiId.
 #'
-#' Available combinations can be found with \code{\link{getTouchActorAois}}. Both a touchActorId and an aoiId are
-#' required - unlike a gaze AOI, more than one touch actor can share the same interactive AOI, so the aoiId alone
-#' would not uniquely identify one combination.
+#' Calls \code{\link{getTouchActorAois}} and filters the result down to aoiId. Passing an imTouchActor pins the
+#' search to that one actor, so the result is a single imTouchAOI row. Passing an imStimulus can still return more
+#' than one row (an imTouchAOIList) if several touch actors share that interactive AOI.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#' @param stimulus An imStimulus object as returned from \code{\link{getStimuli}}.
-#' @param touchActorId The id of the touch actor you would like to retrieve.
+#' @param imObject An imStimulus object as returned from \code{\link{getStimuli}} to look across every touch actor on
+#'                 it, or an imTouchActor object as returned from \code{\link{getTouchActor}}/
+#'                 \code{\link{getTouchActors}} to only look at that one actor.
 #' @param aoiId The id of the AOI you would like to retrieve.
 #' @param respondent Optional - An imRespondent object as returned from \code{\link{getRespondents}} to attach that
 #'                    respondent's contact in/out fileId/resultId to the result.
 #'
-#' @return An imTouchAOI object (data.table) containing the (touch actor, AOI) combination of interest, or NULL if
-#'         touchActorId itself doesn't match, or matches but has no AOI matching aoiId.
+#' @return An imTouchAOI object (data.table) if imObject narrows the match to a single (touch actor, AOI)
+#'         combination, an imTouchAOIList if more than one touch actor shares aoiId, or NULL if none match.
 #' @export
 #' @examples
 #' \dontrun{
@@ -2103,23 +2104,17 @@ getTouchActorAois <- function(study, imObject, respondent = NULL) {
 #' study <- imotionsApi::imStudy(connection, studies$id[1])
 #' stimulus <- imotionsApi::getStimuli(study)[1, ]
 #' touchAois <- imotionsApi::getTouchActorAois(study, stimulus)
-#' touchAoi <- imotionsApi::getTouchActorAoi(study, stimulus, touchAois$touchActorId[1], touchAois$id[1])
+#'
+#' touchActor <- imotionsApi::getTouchActor(study, stimulus, touchAois$touchActorId[1])
+#' touchAoi <- imotionsApi::getTouchActorAoi(study, touchActor, touchAois$id[1])
 #' }
-getTouchActorAoi <- function(study, stimulus, touchActorId, aoiId, respondent = NULL) {
-    assertValid(hasArg(touchActorId),
-                "Please specify a touchActorId. Available touch actors can be found with `getTouchActors()`")
+getTouchActorAoi <- function(study, imObject, aoiId, respondent = NULL) {
+    assertValid(hasArg(imObject),
+                "Please specify a stimulus loaded with `getStimuli()` or a touch actor loaded with `getTouchActors()`")
     assertValid(hasArg(aoiId),
                 "Please specify an aoiId. Available touch actor AOIs can be found with `getTouchActorAois()`")
 
-    touchActor <- getTouchActor(study, stimulus, touchActorId)
-
-    if (is.null(touchActor)) {
-        return(NULL)
-    }
-
-    # Passing the resolved touch actor rather than the whole stimulus scopes the underlying contact detail fetch to
-    # just this actor, instead of triggering signal generation for every touch actor on the stimulus.
-    touchAois <- getTouchActorAois(study, touchActor, respondent)
+    touchAois <- getTouchActorAois(study, imObject, respondent)
 
     if (is.null(touchAois)) {
         return(NULL)
@@ -2128,7 +2123,7 @@ getTouchActorAoi <- function(study, stimulus, touchActorId, aoiId, respondent = 
     touchAoi <- touchAois[touchAois$id == aoiId, ]
 
     if (nrow(touchAoi) == 0) {
-        warning(paste("No touch actor AOI found matching touchActorId:", touchActorId, "and aoiId:", aoiId))
+        warning(paste("No touch actor AOI found matching aoiId:", aoiId))
         return(NULL)
     }
 

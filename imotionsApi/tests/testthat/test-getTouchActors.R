@@ -433,7 +433,7 @@ test_that("warning - contact in/out signals found do not match any touch actor p
 # getTouchActorAoi =====================================================================================================
 context("getTouchActorAoi()")
 
-mockedGetTouchActorAoi <- function(study, stimulus, touchActorId, aoiId, respondent = NULL,
+mockedGetTouchActorAoi <- function(study, imObject, aoiId, respondent = NULL,
                                    detailsPath = touchActorDetailsPath) {
     touchActors <- suppressWarnings(mockedGetTouchActors(study, stimulus))
 
@@ -441,39 +441,50 @@ mockedGetTouchActorAoi <- function(study, stimulus, touchActorId, aoiId, respond
         getTouchActors = function(...) touchActors,
         privateGetTouchActorAoiDefinitions = function(...) aoiDefinitions(),
         privateGetTouchActorDetails = function(...) jsonlite::fromJSON(detailsPath), {
-            getTouchActorAoi(study, stimulus, touchActorId, aoiId, respondent)
+            getTouchActorAoi(study, imObject, aoiId, respondent)
         }
     )
 
     return(touchAoi)
 }
 
-test_that("error - touchActorId or aoiId are missing", {
-    expect_error(getTouchActorAoi(study, stimulus),
-                 "Please specify a touchActorId. Available touch actors can be found with `getTouchActors()`",
-                 fixed = TRUE, info = "missing `touchActorId` param not handled properly")
+test_that("error - imObject or aoiId are missing", {
+    expect_error(getTouchActorAoi(study),
+                 "Please specify a stimulus loaded with `getStimuli()` or a touch actor loaded with `getTouchActors()`",
+                 fixed = TRUE, info = "missing `imObject` param not handled properly")
 
-    expect_error(getTouchActorAoi(study, stimulus, TA1),
+    expect_error(getTouchActorAoi(study, stimulus),
                  "Please specify an aoiId. Available touch actor AOIs can be found with `getTouchActorAois()`",
                  fixed = TRUE, info = "missing `aoiId` param not handled properly")
 })
 
-test_that("warning - no touch actor matches touchActorId", {
-    expect_warning(touchAoi <- mockedGetTouchActorAoi(study, stimulus, "wrong-id", AOI1),
-                   "No touch actor found matching id: wrong-id",
-                   info = "wrong touchActorId not handled properly")
+test_that("warning - imObject is a stimulus with no touch actor matching aoiId", {
+    expect_warning(touchAoi <- mockedGetTouchActorAoi(study, stimulus, "wrong-id"),
+                   "No touch actor AOI found matching aoiId: wrong-id",
+                   info = "wrong aoiId not handled properly")
 
     expect_null(touchAoi, info = "result should be null")
 })
 
 test_that("warning - touch actor matches but has no AOI matching aoiId", {
+    touchActor <- suppressWarnings(mockedGetTouchActors(study, stimulus))[2, ] # TA2
+
     # AOI2 is only ever referenced by TA1 (see "interactiveAoiIds is kept as a list column" above) - TA2's own AOI
     # list never includes it, regardless of respondent/contact data, so this should fail before any detail is fetched.
-    expect_warning(touchAoi <- mockedGetTouchActorAoi(study, stimulus, TA2, AOI2),
-                   paste("No touch actor AOI found matching touchActorId:", TA2, "and aoiId:", AOI2),
+    expect_warning(touchAoi <- mockedGetTouchActorAoi(study, touchActor, AOI2),
+                   paste("No touch actor AOI found matching aoiId:", AOI2),
                    info = "wrong aoiId not handled properly")
 
     expect_null(touchAoi, info = "result should be null")
+})
+
+test_that("local return - imObject is a stimulus and aoiId matches more than one touch actor", {
+    # AOI1 is referenced by both TA1 and TA2, so a bare stimulus intentionally returns both as an imTouchAOIList.
+    touchAois <- mockedGetTouchActorAoi(study, stimulus, AOI1, respondent)
+
+    expect_s3_class(touchAois, "imTouchAOIList")
+    expect_equal(nrow(touchAois), 2, info = "both touch actors sharing AOI1 should be returned")
+    expect_setequal(touchAois$touchActorId, c(TA1, TA2))
 })
 
 test_that("local return - specific (touch actor, AOI) combination, scoped to the requested actor", {
@@ -486,7 +497,8 @@ test_that("local return - specific (touch actor, AOI) combination, scoped to the
                              "privateGetTouchActorDetails should be scoped to the requested touch actor")
             jsonlite::fromJSON(touchActorDetailsPath)
         }, {
-            getTouchActorAoi(study, stimulus, TA2, AOI1, respondent)
+            touchActor <- suppressWarnings(mockedGetTouchActors(study, stimulus))[2, ] # TA2
+            getTouchActorAoi(study, touchActor, AOI1, respondent)
         }
     )
 
@@ -496,8 +508,18 @@ test_that("local return - specific (touch actor, AOI) combination, scoped to the
     expect_identical(touchAoi$id, AOI1, "wrong AOI id")
 })
 
+test_that("local return - a stimulus resolves fine as long as aoiId is unambiguous", {
+    # AOI2 is only ever referenced by TA1, so passing the whole stimulus is not ambiguous here.
+    touchAoi <- mockedGetTouchActorAoi(study, stimulus, AOI2, respondent)
+
+    expect_equal(nrow(touchAoi), 1, info = "should only contain a single (touch actor, AOI) combination")
+    expect_identical(touchAoi$touchActorId, TA1, "wrong touch actor id")
+    expect_identical(touchAoi$id, AOI2, "wrong AOI id")
+})
+
 test_that("local return - without a respondent, only the AOI/touch actor definition is returned", {
-    touchAoi <- mockedGetTouchActorAoi(study, stimulus, TA2, AOI1, respondent = NULL)
+    touchActor <- suppressWarnings(mockedGetTouchActors(study, stimulus))[2, ] # TA2
+    touchAoi <- mockedGetTouchActorAoi(study, touchActor, AOI1, respondent = NULL)
 
     expect_equal(nrow(touchAoi), 1, info = "should only contain a single (touch actor, AOI) combination")
     expect_false("fileId" %in% names(touchAoi), info = "no contact in/out details should be attached")

@@ -2,16 +2,16 @@
 % Please edit documentation in R/imotionsApi.R
 \name{getTouchActorAoi}
 \alias{getTouchActorAoi}
-\title{Get a specific (touch actor, AOI) combination from a stimulus.}
+\title{Get the touch actor AOI(s) matching a specific aoiId.}
 \usage{
-getTouchActorAoi(study, stimulus, touchActorId, aoiId, respondent = NULL)
+getTouchActorAoi(study, imObject, aoiId, respondent = NULL)
 }
 \arguments{
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
-\item{stimulus}{An imStimulus object as returned from \code{\link{getStimuli}}.}
-
-\item{touchActorId}{The id of the touch actor you would like to retrieve.}
+\item{imObject}{An imStimulus object as returned from \code{\link{getStimuli}} to look across every touch actor on
+it, or an imTouchActor object as returned from \code{\link{getTouchActor}}/
+\code{\link{getTouchActors}} to only look at that one actor.}
 
 \item{aoiId}{The id of the AOI you would like to retrieve.}
 
@@ -19,13 +19,13 @@ getTouchActorAoi(study, stimulus, touchActorId, aoiId, respondent = NULL)
 respondent's contact in/out fileId/resultId to the result.}
 }
 \value{
-An imTouchAOI object (data.table) containing the (touch actor, AOI) combination of interest, or NULL if
-        touchActorId itself doesn't match, or matches but has no AOI matching aoiId.
+An imTouchAOI object (data.table) if imObject narrows the match to a single (touch actor, AOI)
+        combination, an imTouchAOIList if more than one touch actor shares aoiId, or NULL if none match.
 }
 \description{
-Available combinations can be found with \code{\link{getTouchActorAois}}. Both a touchActorId and an aoiId are
-required - unlike a gaze AOI, more than one touch actor can share the same interactive AOI, so the aoiId alone
-would not uniquely identify one combination.
+Calls \code{\link{getTouchActorAois}} and filters the result down to aoiId. Passing an imTouchActor pins the
+search to that one actor, so the result is a single imTouchAOI row. Passing an imStimulus can still return more
+than one row (an imTouchAOIList) if several touch actors share that interactive AOI.
 }
 \examples{
 \dontrun{
@@ -34,6 +34,8 @@ studies <- imotionsApi::listStudies(connection)
 study <- imotionsApi::imStudy(connection, studies$id[1])
 stimulus <- imotionsApi::getStimuli(study)[1, ]
 touchAois <- imotionsApi::getTouchActorAois(study, stimulus)
-touchAoi <- imotionsApi::getTouchActorAoi(study, stimulus, touchAois$touchActorId[1], touchAois$id[1])
+
+touchActor <- imotionsApi::getTouchActor(study, stimulus, touchAois$touchActorId[1])
+touchAoi <- imotionsApi::getTouchActorAoi(study, touchActor, touchAois$id[1])
 }
 }
