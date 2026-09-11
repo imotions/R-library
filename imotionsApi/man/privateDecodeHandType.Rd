@@ -10,7 +10,9 @@ privateDecodeHandType(codes)
 \item{codes}{A numeric vector of hand codes as stored in the HandType column.}
 }
 \value{
-A character vector with one label per code.
+A character vector with one label per code. A code with no value at all (no touch on this row, so hand
+        type does not apply) stays \code{NA} rather than getting a label of its own - only a code that carries
+        an actual value but isn't a recognised one falls back to \code{"Unknown"}.
 }
 \description{
 Private function translating the numeric hand codes stored in a contact in/out file into readable labels.

@@ -9,7 +9,8 @@
 \arguments{
 \item{study}{An imStudy object as returned from \code{\link{imStudy}}.}
 
-\item{imObject}{An imStimulus object, or one row of \code{\link{getTouchActorAois}}.}
+\item{imObject}{An imStimulus object, an imTouchActor object as returned from \code{\link{getTouchActors}}, or one
+row of \code{\link{getTouchActorAois}}.}
 
 \item{respondent}{Optional - An imRespondent object as returned from \code{\link{getRespondents}}. Without one,
 the url targets every respondent exposed to the stimulus in a single response.}

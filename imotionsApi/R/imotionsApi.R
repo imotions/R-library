@@ -1862,6 +1862,50 @@ getTouchActors <- function(study, stimulus) {
 }
 
 
+#' Get a specific touch actor from a stimulus.
+#'
+#' Available touch actors can be found with \code{\link{getTouchActors}}. Passing the result on to
+#' \code{\link{getTouchActorAois}} (instead of the whole stimulus) scopes the underlying contact detail fetch to just
+#' this actor - see \code{getTouchActorDetailsUrl.imTouchActor} - rather than triggering signal generation for every
+#' touch actor on the stimulus.
+#'
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#' @param stimulus An imStimulus object as returned from \code{\link{getStimuli}}.
+#' @param touchActorId The id of the touch actor you would like to retrieve.
+#'
+#' @return An imTouchActor object (data.table) containing the touch actor of interest, or NULL if none is defined
+#'         for this stimulus or none matches touchActorId.
+#' @export
+#' @examples
+#' \dontrun{
+#' connection <- imotionsApi::imConnection("xxxxxxxx")
+#' studies <- imotionsApi::listStudies(connection)
+#' study <- imotionsApi::imStudy(connection, studies$id[1])
+#' stimulus <- imotionsApi::getStimuli(study)[1, ]
+#' touchActors <- imotionsApi::getTouchActors(study, stimulus)
+#' touchActor <- imotionsApi::getTouchActor(study, stimulus, touchActors$id[1])
+#' }
+getTouchActor <- function(study, stimulus, touchActorId) {
+    assertValid(hasArg(touchActorId),
+                "Please specify a touchActorId. Available touch actors can be found with `getTouchActors()`")
+
+    touchActors <- getTouchActors(study, stimulus)
+
+    if (is.null(touchActors)) {
+        return(NULL)
+    }
+
+    touchActor <- touchActors[touchActors$id == touchActorId, ]
+
+    if (nrow(touchActor) == 0) {
+        warning(paste("No touch actor found matching id:", touchActorId))
+        return(NULL)
+    }
+
+    return(touchActor)
+}
+
+
 #' Get the AOI definitions of every camera that supports contact, for a stimulus.
 #'
 #' Sibling of \code{\link{privateAoiFiltering}} for touch actors: that one only ever reaches the Stimulus/Scene
@@ -2033,6 +2077,62 @@ getTouchActorAois <- function(study, imObject, respondent = NULL) {
     }
 
     return(touchAois)
+}
+
+
+#' Get a specific (touch actor, AOI) combination from a stimulus.
+#'
+#' Available combinations can be found with \code{\link{getTouchActorAois}}. Both a touchActorId and an aoiId are
+#' required - unlike a gaze AOI, more than one touch actor can share the same interactive AOI, so the aoiId alone
+#' would not uniquely identify one combination.
+#'
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#' @param stimulus An imStimulus object as returned from \code{\link{getStimuli}}.
+#' @param touchActorId The id of the touch actor you would like to retrieve.
+#' @param aoiId The id of the AOI you would like to retrieve.
+#' @param respondent Optional - An imRespondent object as returned from \code{\link{getRespondents}} to attach that
+#'                    respondent's contact in/out fileId/resultId to the result.
+#'
+#' @return An imTouchAOI object (data.table) containing the (touch actor, AOI) combination of interest, or NULL if
+#'         touchActorId itself doesn't match, or matches but has no AOI matching aoiId.
+#' @export
+#' @examples
+#' \dontrun{
+#' connection <- imotionsApi::imConnection("xxxxxxxx")
+#' studies <- imotionsApi::listStudies(connection)
+#' study <- imotionsApi::imStudy(connection, studies$id[1])
+#' stimulus <- imotionsApi::getStimuli(study)[1, ]
+#' touchAois <- imotionsApi::getTouchActorAois(study, stimulus)
+#' touchAoi <- imotionsApi::getTouchActorAoi(study, stimulus, touchAois$touchActorId[1], touchAois$id[1])
+#' }
+getTouchActorAoi <- function(study, stimulus, touchActorId, aoiId, respondent = NULL) {
+    assertValid(hasArg(touchActorId),
+                "Please specify a touchActorId. Available touch actors can be found with `getTouchActors()`")
+    assertValid(hasArg(aoiId),
+                "Please specify an aoiId. Available touch actor AOIs can be found with `getTouchActorAois()`")
+
+    touchActor <- getTouchActor(study, stimulus, touchActorId)
+
+    if (is.null(touchActor)) {
+        return(NULL)
+    }
+
+    # Passing the resolved touch actor rather than the whole stimulus scopes the underlying contact detail fetch to
+    # just this actor, instead of triggering signal generation for every touch actor on the stimulus.
+    touchAois <- getTouchActorAois(study, touchActor, respondent)
+
+    if (is.null(touchAois)) {
+        return(NULL)
+    }
+
+    touchAoi <- touchAois[touchAois$id == aoiId, ]
+
+    if (nrow(touchAoi) == 0) {
+        warning(paste("No touch actor AOI found matching touchActorId:", touchActorId, "and aoiId:", aoiId))
+        return(NULL)
+    }
+
+    return(touchAoi)
 }
 
 
@@ -2222,22 +2322,27 @@ privateGetTouchActorDetails <- function(study, imObject, respondent = NULL) {
 #'
 #' @param codes A numeric vector of hand codes as stored in the HandType column.
 #'
-#' @return A character vector with one label per code.
+#' @return A character vector with one label per code. A code with no value at all (no touch on this row, so hand
+#'         type does not apply) stays \code{NA} rather than getting a label of its own - only a code that carries
+#'         an actual value but isn't a recognised one falls back to \code{"Unknown"}.
 #' @keywords internal
 privateDecodeHandType <- function(codes) {
-    # Codes are defined by TouchActorSampleMetaData in the desktop application: 0 = none, 1 = left, 2 = right,
-    # 3 = unknown. Anything unrecognised is reported as unknown rather than dropped, so a new code never silently
-    # becomes a missing value in the metrics.
-    labels <- c("None", "Left", "Right", "Unknown")
-    index <- as.integer(codes) + 1L
+    # Codes are defined by TouchActorSampleMetaData in the desktop application: 1 = left, 2 = right, 3 = unknown.
+    # A row with no contact carries no HandType value at all rather than a dedicated code for it, so that stays NA
+    # here rather than getting a label of its own. Anything else unrecognised is reported as unknown rather than
+    # dropped, so a bad code never silently becomes a missing value in the metrics.
+    labels <- c("Left", "Right", "Unknown")
+    index <- as.integer(codes)
 
-    # A negative code (e.g. -1) maps to index 0, which `labels[0]` silently drops instead of returning NA - shrinking
-    # the result vector rather than producing a value to overwrite below. Routing it through NA first keeps the
-    # result the same length as `codes`.
-    index[!is.na(index) & (index < 1L | index > length(labels))] <- NA_integer_
+    # A merely missing `codes` entry is already NA and so never out of range here, leaving it to resolve to NA via
+    # `labels[NA]` below rather than getting relabelled - only a code that carries an actual but unrecognised value
+    # (e.g. a negative one, which would otherwise silently map to `labels[0]` and shrink the result instead of
+    # producing a value to overwrite) falls back to "Unknown".
+    outOfRange <- !is.na(index) & (index < 1L | index > length(labels))
+    index[outOfRange] <- NA_integer_
 
     decoded <- labels[index]
-    decoded[is.na(decoded)] <- "Unknown"
+    decoded[outOfRange] <- "Unknown"
     return(decoded)
 }
 
