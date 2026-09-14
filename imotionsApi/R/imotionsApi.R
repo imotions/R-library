@@ -1497,11 +1497,11 @@ privateDownloadData <- function(study, sensor, signalsName = NULL) {
 
         # Accessing fileInfos corresponding to this sensor (can be a list of files)
         fileInfos <- getJSON(study$connection, dataUrl, message = paste("Retrieving data for sensor:", sensor$name))
-        data <- read_parquet(fileInfos$binFile, col_select = !!enquo(signalsName))
+        data <- read_parquet(fileInfos$binFile, col_select = !!enquo(signalsName), mmap = FALSE)
 
         # if corrected timestamps are available - correct the original timestamps
         if (nchar(fileInfos$timestampBinFile) > 0) {
-            tmp <- read_parquet(fileInfos$timestampBinFile)
+            tmp <- read_parquet(fileInfos$timestampBinFile, mmap = FALSE)
             data$Timestamp <- tmp$Timestamp
         }
 
@@ -1588,7 +1588,7 @@ getAoiRespondentData <- function(study, AOI, respondent) {
         if (file.info(AOIDetails$fileId)$size == 0) {
             notActivatedAOI <- TRUE
         } else {
-            data <- read_parquet(AOIDetails$fileId)
+            data <- read_parquet(AOIDetails$fileId, mmap = FALSE)
             data <- data |> mutate_at(namesInout, as.logical)
             setDT(data)
         }
