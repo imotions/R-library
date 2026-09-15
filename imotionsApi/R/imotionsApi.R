@@ -252,10 +252,9 @@ getSegment <- function(study, segmentId) {
 #' Retrieves detailed information about stimuli in the study.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#' @param respondent Optional - An imRespondent object as returned from \code{\link{getRespondents}}.
 #' @param relevant A boolean indicating whether only relevant stimuli should be kept, by default non-relevant stimuli
 #'                 are discarded.
-#'
-#' @param respondent Optional - An imRespondent object as returned from \code{\link{getRespondents}}.
 #'
 #' @return An imStimulusList object (data.table) containing all stimuli from the study.
 #' @export
@@ -1753,7 +1752,8 @@ privateGetAoiDetails <- function(study, imObject, respondent = NULL) {
             return(imObject)
         }
 
-        AOIDetails <- getJSON(study$connection, imObject$fileId, message = paste("Retrieving details for", endpoint))
+        AOIDetails <- getJSON(study$connection, imObject$fileId, message = paste("Retrieving details for", endpoint),
+                              auth = FALSE)
 
         # Give a warning in case some AOIs data are missing due to IVT issues
         if (length(AOIDetails) == 0) {
@@ -2956,13 +2956,14 @@ getRespondentAnnotationsUrl <- function(study, respondent) {
 #' @param url The url/path where the JSON file is located.
 #' @param message Optional - a short message indicating which steps are getting performed to get a more indicative
 #'                error message.
+#' @param auth Whether to add the bearer token to the request, by default it is added to the request.
 #'
 #' @param ... Optional - arguments passed to jsonlite::fromJSON.
 #'
 #' @return The retrieved JSON file.
 #' @keywords internal
-getJSON <- function(connection, url, message = NULL, ...) {
-    response <- getHttr(connection, url, message)
+getJSON <- function(connection, url, message = NULL, auth = TRUE, ...) {
+    response <- getHttr(connection, url, message, auth = auth)
     text <- content(x = response, as = "text", encoding = "UTF-8")
     return(fromJSON(txt = text, ...))
 }
@@ -2994,8 +2995,11 @@ getFile <- function(connection, url, message = NULL, fileName = NULL) {
     }
 
     if (!file.exists(file_path)) {
-        # We only download the file if it's not there yet
-        download.file(response$url, file_path, method = "auto", mode = "wb")
+        dir.create(dirname(file_path), showWarnings = FALSE, recursive = TRUE)
+        tmp_path <- paste0(file_path, ".part")
+
+        getHttr(connection, url, message, writePath = tmp_path, auth = connection$localIM)
+        file.rename(tmp_path, file_path)
     } else {
         message("Retrieving local data for ", file_path)
     }
@@ -3048,7 +3052,7 @@ csvHeaders <- function() httr::add_headers("Content-Type" = "text/csv")
 jsonHeaders <- function() httr::add_headers("Content-Type" = "application/json")
 
 
-#' Perform a GET HTTP request with authentication.
+#' Perform a GET HTTP request with optional authentication.
 #'
 #' The request will be retried up to 3 times if an error is encountered.
 #'
@@ -3056,10 +3060,12 @@ jsonHeaders <- function() httr::add_headers("Content-Type" = "application/json")
 #' @param url The url/path where the file is located.
 #' @param message Optional - a short message indicating which steps are getting performed to get a more indicative
 #'                error message.
+#' @param writePath Optional - A local path where the response body should be streamed.
+#' @param auth Whether to add the bearer token to the request, by default it is added to the request.
 #'
 #' @return The last response.
 #' @keywords internal
-getHttr <- function(connection, url, message = NULL) {
+getHttr <- function(connection, url, message = NULL, writePath = NULL, auth = TRUE) {
     if (connection$localIM) {
         # Locally there is no point to retry request if we get a 404 not found error
         terminate_on <- 404
@@ -3067,7 +3073,10 @@ getHttr <- function(connection, url, message = NULL) {
         terminate_on <- NULL
     }
 
-    response <- retryHttr(message, "GET", url, tokenHeaders(connection$token), terminate_on = terminate_on)
+    output <- if (is.null(writePath)) httr::write_memory() else httr::write_disk(writePath, overwrite = TRUE)
+    config <- if (auth) tokenHeaders(connection$token) else httr::add_headers()
+    response <- retryHttr(message, "GET", url, config, output, terminate_on = terminate_on)
+
     return(response)
 }
 

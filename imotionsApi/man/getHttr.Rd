@@ -2,9 +2,9 @@
 % Please edit documentation in R/imotionsApi.R
 \name{getHttr}
 \alias{getHttr}
-\title{Perform a GET HTTP request with authentication.}
+\title{Perform a GET HTTP request with optional authentication.}
 \usage{
-getHttr(connection, url, message = NULL)
+getHttr(connection, url, message = NULL, writePath = NULL, auth = TRUE)
 }
 \arguments{
 \item{connection}{An imConnection object as returned from \code{\link{imConnection}}.}
@@ -13,6 +13,10 @@ getHttr(connection, url, message = NULL)
 
 \item{message}{Optional - a short message indicating which steps are getting performed to get a more indicative
 error message.}
+
+\item{writePath}{Optional - A local path where the response body should be streamed.}
+
+\item{auth}{Whether to add the bearer token to the request, by default it is added to the request.}
 }
 \value{
 The last response.

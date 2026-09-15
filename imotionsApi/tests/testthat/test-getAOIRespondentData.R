@@ -25,7 +25,9 @@ stimulus <- getStimuli(study)[4, ]
 respondent_cloud <- getRespondents(study_cloud)[1, ]
 stimulus_cloud <- getStimuli(study)[4, ]
 
-mockedPrivateGetAoiDetails <- function(study, imObject, expected_endpoint, respondent = NULL, expectedAOICall = 1) {
+mockedPrivateGetAoiDetails <- function(study, imObject, expected_endpoint, respondent = NULL, expectedAOICall = 1,
+                                       expectedAuth = TRUE) {
+
     # Replace url to load test data
     mockUrl <- function(study, url) {
         if (!study$connection$localIM) {
@@ -62,8 +64,13 @@ mockedPrivateGetAoiDetails <- function(study, imObject, expected_endpoint, respo
     expect_called(getJSON_Stub, expectedAOICall)
 
     if (expectedAOICall > 0) {
-        expect_args(getJSON_Stub, 1, connection = study$connection, url = expectedUrl,
-                    message = paste("Retrieving details for", expected_endpoint))
+        if (expectedAuth) {
+            expect_args(getJSON_Stub, 1, connection = study$connection, url = expectedUrl,
+                        message = paste("Retrieving details for", expected_endpoint))
+        } else {
+            expect_args(getJSON_Stub, 1, connection = study$connection, url = expectedUrl,
+                        message = paste("Retrieving details for", expected_endpoint), auth = FALSE)
+        }
     }
 
     return(AOIdetails)
@@ -142,7 +149,7 @@ expectedNames <- c("stimId", "respId", "startMediaOffset", "endMediaOffset", "ao
 
 test_that("remote return - AOI details for a specific AOI", {
     expected_endpoint <- "AOI: El Manuel Area"
-    aoiDetails <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud, expected_endpoint)
+    aoiDetails <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud, expected_endpoint, expectedAuth = FALSE)
 
     expect_equal(nrow(aoiDetails), 3, info = "3 respondents should have the AOI defined")
     expect_named(aoiDetails, expectedNames, info = "aoi details infos not matching")
@@ -152,7 +159,8 @@ test_that("remote return - AOI details for a specific AOI", {
 test_that("remote return - AOI details for a specific AOI/respondent", {
     respondent <- getRespondents(study_cloud)[1, ]
     expected_endpoint <- "AOI: El Manuel Area, Respondent: bab55356-43fc-4c25-a39d-a1d513965614"
-    aoiDetails <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud, expected_endpoint, respondent)
+    aoiDetails <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud, expected_endpoint, respondent,
+                                             expectedAuth = FALSE)
 
     expect_equal(nrow(aoiDetails), 1, info = "only the respondent of interest should be kept")
     expect_named(aoiDetails, expectedNames, info = "aoi details infos not matching")
@@ -168,7 +176,8 @@ AOIDetailsPath_cloud <- "../data/AOIDetails_failed.json"
 test_that("remote warning - failed to generate AOI details", {
     expected_endpoint <- "AOI: El Manuel Area"
 
-    expect_warning(aoiDetails <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud, expected_endpoint),
+    expect_warning(aoiDetails <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud, expected_endpoint,
+                                                            expectedAuth = FALSE),
                    "AOI: El Manuel Area in/out file generation failed, check the IVT data.",
                    info = "no AOI defined for this respondent should throw an error")
 
@@ -347,7 +356,7 @@ test_that("local check - work if no AOI exposure", {
 
 respondent <- getRespondents(study_cloud)[1, ]
 expected_endpoint <- "AOI: El Manuel Area, Respondent: bab55356-43fc-4c25-a39d-a1d513965614"
-aoiDetails <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud, expected_endpoint, respondent)
+aoiDetails <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud, expected_endpoint, respondent, expectedAuth = FALSE)
 aoiDetails_inout <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud_inout, expected_endpoint, respondent,
                                                expectedAOICall = 0)
 
@@ -410,7 +419,8 @@ respondent$id <- "7dbdca47-3d70-4d1c-86ba-372f34e20948"
 
 
 test_that("remote return - intervals should work on dynamic AOIs", {
-    aoiDetails <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud, expected_endpoint, respondent)
+    aoiDetails <- mockedPrivateGetAoiDetails(study_cloud, AOI_cloud, expected_endpoint, respondent,
+                                             expectedAuth = FALSE)
     AOIintervals <- mockedGetAoiRespondentData(study_cloud, AOI_cloud, respondent, aoiDetails)$intervals
 
     # Check AOI intervals as for remote study dynamic AOIs start with an non-activated row
