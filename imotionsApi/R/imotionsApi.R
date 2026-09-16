@@ -2982,8 +2982,6 @@ getJSON <- function(connection, url, message = NULL, auth = TRUE, ...) {
 #' @return A list with the temporary folder path and the downloaded file name.
 #' @keywords internal
 getFile <- function(connection, url, message = NULL, fileName = NULL) {
-    response <- getHttr(connection, url, message)
-
     # Use temporary directory to download data
     if (!is.null(connection$localPath)) {
         tmp_dir <- connection$localPath
@@ -3004,7 +3002,10 @@ getFile <- function(connection, url, message = NULL, fileName = NULL) {
         message("Retrieving local data for ", file_path)
     }
 
-    if (grepl("zip", response$headers$`content-type`)) {
+    # Every zip file starts with the bytes "PK"
+    is_zip <- identical(readBin(file_path, "raw", n = 2), charToRaw("PK"))
+
+    if (is_zip) {
         files_in_zip <- unzip(file_path, exdir = tmp_dir)
         assertValid(!is.null(fileName), "You need to provide a fileName for zip file extraction.")
         file_path <- str_subset(files_in_zip, fileName)
@@ -3012,7 +3013,6 @@ getFile <- function(connection, url, message = NULL, fileName = NULL) {
 
     return(list(tmp_dir = tmp_dir, file_path = file_path))
 }
-
 
 #' Post a JSON file to the indicated path/url - optionally allow the user to add more information about to know
 #' when an error occurred.
