@@ -17,7 +17,9 @@ getRespondents(
 
 \item{stimulus}{Optional - An imStimulus object as returned from \code{\link{getStimuli}}.}
 
-\item{AOI}{Optional - An imAOI object as returned from \code{\link{getAois}}.}
+\item{AOI}{Optional - An imAOI object as returned from \code{\link{getAois}}, or an imTouchAOI object as returned
+from \code{\link{getTouchActorAois}} to get the respondents that have contact data for that specific
+touch actor AOI instead of gaze data.}
 
 \item{segment}{Optional - An imSegment object as returned from \code{\link{getSegments}}.}
 
@@ -52,6 +54,11 @@ respondents <- imotionsApi::getRespondents(study, segment = segments[1, ])
 
 ## Get all respondents for whom a specific AOI has been defined
 respondents <- imotionsApi::getRespondents(study, AOI = AOIs[1, ])
+
+## Get all respondents that have contact data for a specific touch actor AOI
+respondent <- imotionsApi::getRespondents(study)[1, ]
+touchAoi <- imotionsApi::getTouchActorAois(study, stimuli[1, ], respondent)[1, ]
+respondents <- imotionsApi::getRespondents(study, AOI = touchAoi)
 
 ## Get all respondents in a specific segment exposed to a specific stimulus
 respondents <- imotionsApi::getRespondents(study, stimulus = stimuli[1, ], segment = segments[1, ])

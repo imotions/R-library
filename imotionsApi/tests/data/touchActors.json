@@ -1,0 +1,22 @@
+[
+  {
+    "id": "5b1f0c42-9d6e-4a3b-8f21-0c7d5e9a1b34",
+    "name": "Right hand",
+    "stimulusId": 1002,
+    "stimulusName": "IAAF",
+    "mediaSourceType": "StimulusCamera",
+    "detectionMethod": "HoiDetr",
+    "hand": "Right",
+    "interactiveAoiIds": ["09a234fc-00ad-4257-b7e1-da5754986c9d", "7d3b81e5-4c92-4f07-b6a1-52e8d90c3af6"]
+  },
+  {
+    "id": "c8e4a17d-2f60-4b95-a3d8-6e1b70f2c945",
+    "name": "Left hand",
+    "stimulusId": 1002,
+    "stimulusName": "IAAF",
+    "mediaSourceType": "StimulusCamera",
+    "detectionMethod": "HoiDetr",
+    "hand": "Left",
+    "interactiveAoiIds": "09a234fc-00ad-4257-b7e1-da5754986c9d"
+  }
+]
