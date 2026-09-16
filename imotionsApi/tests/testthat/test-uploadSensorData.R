@@ -435,7 +435,9 @@ test_that("remote check - upload signals to a given respondent/segment", {
     # upload to a respondent
     data <- checkDataFormat(data)
     params$reportRunId <- "1234"
-    expectedBody <- '{"instance":"flowName","name":"TestSensor","fileName":"../data/testFile.csv"}'
+    expectedBody <- paste0('{"instance":"flowName","name":"TestSensor","fileName":"../data/testFile.csv",',
+                           '"sampleDescription":["Timestamp","Thresholded value"]}')
+
     expectedEndpoint <- "Getting presignedUrl to upload data"
 
     res <- mockedPrivateUpload(params, study_cloud, data, respondent, expectedBody, expectedEndpoint, sampleName,

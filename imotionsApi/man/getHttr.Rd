@@ -4,7 +4,7 @@
 \alias{getHttr}
 \title{Perform a GET HTTP request with authentication.}
 \usage{
-getHttr(connection, url, message = NULL)
+getHttr(connection, url, message = NULL, writePath = NULL)
 }
 \arguments{
 \item{connection}{An imConnection object as returned from \code{\link{imConnection}}.}
@@ -13,6 +13,8 @@ getHttr(connection, url, message = NULL)
 
 \item{message}{Optional - a short message indicating which steps are getting performed to get a more indicative
 error message.}
+
+\item{writePath}{Optional - A local path where the response body should be streamed.}
 }
 \value{
 The last response.

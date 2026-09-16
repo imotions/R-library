@@ -4,7 +4,14 @@
 \alias{privateCreatePostRequest}
 \title{Create headers specific to the data format (signals, events, exports).}
 \usage{
-privateCreatePostRequest(params, study, sampleName, fileName, overwrite = TRUE)
+privateCreatePostRequest(
+  params,
+  study,
+  sampleName,
+  fileName,
+  overwrite = TRUE,
+  data_names = NULL
+)
 }
 \arguments{
 \item{params}{The list of parameters provided to the script - specific parameters value will be stored as metadata.}
@@ -16,6 +23,8 @@ this should correspond to the name of the file created (a path can also be provi
 
 \item{overwrite}{Optional - a boolean indicating if the new sensor/metrics/events/export should overwrite
 sensor/metrics/events/export generated for the same flowName. By default, they are overwritten.}
+
+\item{data_names}{Optional names of the data columns included in an online sensor upload.}
 }
 \description{
 Create headers specific to the data format (signals, events, exports).

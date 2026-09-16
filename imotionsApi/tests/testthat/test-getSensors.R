@@ -95,6 +95,19 @@ test_that("local return - imSensorList object", {
     expect_s3_class(sensors, c("data.table", "data.frame"), exact = TRUE)
 })
 
+test_that("local return - should preserve a NULL signals entry for the last sensor", {
+    sensors_with_null <- jsonlite::fromJSON(sensorsRespondentPath, simplifyDataFrame = FALSE)
+    sensors_with_null[[4]]["signals"] <- list(NULL)
+
+    sensors <- mockr::with_mock(getJSON = mock(sensors_with_null), {
+        getSensors(study, respondent)
+    })
+
+    expect_equal(nrow(sensors), 4)
+    expect_length(sensors$signals, 4)
+    expect_null(sensors$signals[[4]])
+})
+
 test_that("remote return - imSensorList object", {
     respondent <- getRespondents(study_cloud)[1, ]
     expectedEndpoint <- "Retrieving sensors for respondent: bab55356-43fc-4c25-a39d-a1d513965614"

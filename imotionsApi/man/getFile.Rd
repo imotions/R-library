@@ -5,7 +5,7 @@
 \title{Retrieve a zip/csv file from the indicated path/url - optionally allow the user to add more information to know
 when an error occurred.}
 \usage{
-getFile(connection, url, message = NULL, fileName = NULL)
+getFile(connection, url, message = NULL, fileName = NULL, localFilePath = NULL)
 }
 \arguments{
 \item{connection}{An imConnection object as returned from \code{\link{imConnection}}.}
@@ -16,6 +16,8 @@ getFile(connection, url, message = NULL, fileName = NULL)
 error message.}
 
 \item{fileName}{Optional - In case of a zip folder, the name of the file to look for.}
+
+\item{localFilePath}{Optional - Exact local path where the downloaded file should be cached.}
 }
 \value{
 A list with the temporary folder path and the downloaded file name.

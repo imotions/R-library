@@ -985,6 +985,7 @@ getSensors <- function(study, target, stimulus = NULL) {
 
     type <- tolower(gsub("^im|List", "", class(target)[1]))
     endpoint <- paste0(type, ": ", target$name)
+
     if (!is.null(stimulus)) {
         endpoint <- paste0(endpoint, ", stimulus: ", stimulus$name)
     }
@@ -1003,12 +1004,12 @@ getSensors <- function(study, target, stimulus = NULL) {
     if (study$connection$localIM == TRUE) {
         for (i in seq_along(sensors)) {
             suppressWarnings(signalsMetaData[[i]] <- rbindlist(sensors[[i]]$signalsMetaData, fill = TRUE))
-            signals[[i]] <- sensors[[i]]$signals
+            signals[i] <- list(sensors[[i]]$signals)
             sensors[[i]][c("signals", "signalsMetaData")] <- NULL
         }
     } else {
         for (i in seq_along(sensors)) {
-            signals[[i]] <- sensors[[i]]$sampleDescription$signals
+            signals[i] <- list(sensors[[i]]$sampleDescription$signals)
             sensors[[i]][c("id", "respondent", "sampleDescription")] <- NULL
             sensors[[i]]$sensorSpecific <- list()
         }
@@ -1517,7 +1518,7 @@ getSensorData <- function(study, sensor, signalsName = NULL, intervals = NULL) {
 #'
 #' @importFrom arrow read_parquet set_cpu_count
 #' @importFrom rlang enquo
-#' @importFrom utils download.file unzip
+#' @importFrom utils unzip
 #' @return A data.table with all signals (or specified signals) from the sensor of interest.
 #' @keywords internal
 privateDownloadData <- function(study, sensor, signalsName = NULL) {
@@ -1536,11 +1537,11 @@ privateDownloadData <- function(study, sensor, signalsName = NULL) {
 
         # Accessing fileInfos corresponding to this sensor (can be a list of files)
         fileInfos <- getJSON(study$connection, dataUrl, message = paste("Retrieving data for sensor:", sensor$name))
-        data <- read_parquet(fileInfos$binFile, col_select = !!enquo(signalsName))
+        data <- read_parquet(fileInfos$binFile, col_select = !!enquo(signalsName), mmap = FALSE)
 
         # if corrected timestamps are available - correct the original timestamps
         if (nchar(fileInfos$timestampBinFile) > 0) {
-            tmp <- read_parquet(fileInfos$timestampBinFile)
+            tmp <- read_parquet(fileInfos$timestampBinFile, mmap = FALSE)
             data$Timestamp <- tmp$Timestamp
         }
 
@@ -1550,8 +1551,12 @@ privateDownloadData <- function(study, sensor, signalsName = NULL) {
         fileInfos <- getFile(study$connection, dataUrl, message = paste("Retrieving data for sensor:", sensor$name),
                              sensor$fileName)
 
-        # Downloading data of interest
+        # Add extra filtering because online signals are ordered alphabetically instead of by file order
         index <- str_which(readLines(fileInfos$file_path, warn = FALSE), "#DATA")
+        file_columns <- names(fread(fileInfos$file_path, skip = index, nrows = 0))
+        signalsName <- if (is.null(signalsName)) NULL else file_columns[file_columns %in% signalsName]
+
+        # Downloading data of interest
         data <- fread(fileInfos$file_path, header = TRUE, skip = index, select = signalsName)
 
         if (is.null(study$connection$localPath)) {
@@ -1623,7 +1628,7 @@ getAoiRespondentData <- function(study, AOI, respondent) {
         if (file.info(AOIDetails$fileId)$size == 0) {
             notActivatedAOI <- TRUE
         } else {
-            data <- read_parquet(AOIDetails$fileId)
+            data <- read_parquet(AOIDetails$fileId, mmap = FALSE)
             data <- data |> mutate_at(namesInout, as.logical)
             setDT(data)
         }
@@ -1678,6 +1683,21 @@ getAoiRespondentData <- function(study, AOI, respondent) {
 }
 
 
+#' Return the local cache path for AOI respondent metrics.
+#'
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#' @param AOI An imAOI object as returned from \code{\link{getAois}}.
+#' @param respondent An imRespondent object as returned from \code{\link{getRespondents}}.
+#'
+#' @keywords internal
+privateGetAoiRespondentMetricsPath <- function(study, AOI, respondent) {
+    if (is.null(study$connection$localPath) || !length(AOI$fileId) || is.na(AOI$fileId)) return(NULL)
+
+    return(file.path(study$connection$localPath, sub("^.*/aoiDefinition/", "", AOI$fileId),
+                     paste0(respondent$id, "metrics.csv")))
+}
+
+
 #' Get the metrics for a specific AOI/respondent combination.
 #'
 #' @param study An imStudy object as returned from imStudy()
@@ -1705,6 +1725,7 @@ getAoiRespondentMetrics <- function(study, AOI, respondent) {
     assertClass(respondent, "imRespondent", "`respondent` argument is not an imRespondent object")
 
     endpoint <- paste0("AOI: ", AOI$name, ", Respondent: ", respondent$name)
+    metricsFile <- NULL
 
     if (study$connection$localIM) {
         AOIDetails <- privateGetAoiDetails(study, AOI, respondent)
@@ -1714,31 +1735,36 @@ getAoiRespondentMetrics <- function(study, AOI, respondent) {
             return(NULL)
         }
 
-        if (is.na(AOIDetails$resultId)) {
-            warning(paste0("No metrics found for ", endpoint))
-            return(NULL)
-        }
-
-        metrics <- fread(AOIDetails$resultId)
+        metricsFile <- AOIDetails$resultId
     } else {
-        # For online we load metrics written locally
-        if (is.null(study$connection$localPath)) {
-            warning("No localPath set when calling imConnection(), not possible to read metrics locally.")
-            return(NULL)
-        }
+        metricsFile <- privateGetAoiRespondentMetricsPath(study, AOI, respondent)
 
-        tmp_dir <- study$connection$localPath
-        file_name <- file.path(tmp_dir, sub("^.*/aoiDefinition/", "", AOI$fileId), paste0(respondent$id, "metrics.csv"))
+        # Retrieve the S3 location only when the metrics are not already cached locally.
+        if (is.null(metricsFile) || !file.exists(metricsFile)) {
+            metricsFile <- tryCatch({
+                stats <- getJSON(study$connection, getAoiMetricsUrl(study, respondent, AOI),
+                                 message = paste("Retrieving AOI respondent metrics for", endpoint))
 
-        if (file.exists(file_name)) {
-            metrics <- fread(file_name)
-        } else {
-            warning(paste0("No metrics found for ", endpoint))
-            return(NULL)
+                if (is.null(stats)) {
+                    NULL
+                } else {
+                    getFile(study$connection, stats$aoiRespondentStatsUrl,
+                            message = paste("Downloading AOI respondent metrics for", endpoint),
+                            localFilePath = metricsFile)$file_path
+                }
+            }, error = function(err) {
+                if (grepl("Resource not found", err$message, fixed = TRUE)) return(NULL)
+                stop(err)
+            })
         }
     }
 
-    metrics <- checkDataFormat(metrics)
+    if (is.null(metricsFile) || is.na(metricsFile)) {
+        warning(paste0("No metrics found for ", endpoint))
+        return(NULL)
+    }
+
+    metrics <- checkDataFormat(fread(metricsFile))
     return(metrics)
 }
 
@@ -2478,6 +2504,24 @@ uploadAoiMetrics <- function(study, AOI, target, metrics) {
 }
 
 
+#' Get upload credentials and upload a file to the returned presigned URL.
+#'
+#' @param connection An imConnection object as returned from \code{\link{imConnection}}.
+#' @param uploadUrl The URL used to request upload credentials.
+#' @param postData The JSON body used to request upload credentials.
+#' @param fileName The path of the file to upload.
+#' @param credentialsMsg Message used if requesting credentials fails.
+#' @param uploadMsg Message used if uploading the file fails.
+#'
+#' @return The upload credentials returned by the API.
+#' @keywords internal
+privateUploadToPresignedUrl <- function(connection, uploadUrl, postData, fileName, credentialsMsg, uploadMsg) {
+    fileInfos <- postJSON(connection, uploadUrl, postData, message = credentialsMsg)
+    putHttr(connection, fileInfos$presignedUrl, fileName, message = uploadMsg)
+    return(fileInfos)
+}
+
+
 #' Generic privateUploadAoiMetrics function that takes as parameter a study object, a respondent/segment object, an AOI
 #' and some metrics to upload.
 #'
@@ -2495,9 +2539,9 @@ privateUploadAoiMetrics <- function(study, obj, AOI, metrics) {
 }
 
 
-#' Writes back metrics locally for a respondent of interest.
+#' Write back or upload metrics for a respondent of interest.
 #'
-#' S3 method to write back metrics locally for a specific respondent.
+#' S3 method to write back metrics locally or upload them for a specific respondent.
 #'
 #' @inheritParams privateUploadAoiMetrics
 #'
@@ -2520,19 +2564,28 @@ privateUploadAoiMetrics.imRespondent <- function(study, obj, AOI, metrics) {
     if (study$connection$localIM) {
         dataFileName <- paste0(tools::file_path_sans_ext(AOIDetails$fileId), "metrics.csv")
     } else {
-        if (is.null(study$connection$localPath)) {
-            warning("Please set a localPath when calling imConnection() to write back metrics locally.")
-            return()
-        }
-
-        # For online we write back metrics locally
-        tmp_dir <- study$connection$localPath
-        dataFileName <- file.path(tmp_dir, sub("^.*/aoiDefinition/", "", AOI$fileId), paste0(obj$id, "metrics.csv"))
-
-        dir.create(dirname(dataFileName), showWarnings = FALSE, recursive = TRUE)
+        dataFileName <- tempfile(fileext = ".csv")
+        on.exit(unlink(dataFileName), add = TRUE)
     }
 
     fwrite(x = metrics, file = dataFileName, col.names = TRUE, row.names = FALSE)
+
+    if (!study$connection$localIM) {
+        uploadUrl <- getUploadAoiMetricsUrl(study, obj, AOI)
+        postData <- toJSON(list(name = AOI$name, fileName = dataFileName), null = "null")
+        endpoint <- paste0("respondent: ", obj$name, ", AOI: ", AOI$name)
+        uploadMessage <- paste("Uploading AOI metrics for", endpoint)
+
+        fileInfos <- privateUploadToPresignedUrl(study$connection, uploadUrl, postData, dataFileName,
+                                                 "Getting presignedUrl to upload AOI metrics", uploadMessage)
+
+        # The uploaded file makes any locally cached metrics stale, even if confirmation fails.
+        cachedFile <- privateGetAoiRespondentMetricsPath(study, AOI, obj)
+        if (!is.null(cachedFile)) unlink(cachedFile)
+
+        putHttr(study$connection, uploadUrl, reqBody = toJSON(fileInfos, null = "null"),
+                message = paste("Upload of AOI metrics for", endpoint, "confirmed"))
+    }
 }
 
 
@@ -2775,7 +2828,7 @@ privateUpload <- function(params, study, data, target, sampleName, scriptName, m
     # Prepare the http request
     if (inherits(data, "imSignals")) {
         uploadUrl <- getUploadSensorDataUrl(study, target, stimulus)
-        postData <- privateCreatePostRequest(params, study, sampleName, tempFileName, overwrite)
+        postData <- privateCreatePostRequest(params, study, sampleName, tempFileName, overwrite, names(data))
         endpoint_data <- "sensor data"
     } else if (inherits(data, "imEvents")) {
         uploadUrl <- getUploadEventsUrl(study, target)
@@ -2798,16 +2851,15 @@ privateUpload <- function(params, study, data, target, sampleName, scriptName, m
         endpoint <- paste0(endpoint, ", stimulus: ", stimulus$name)
     }
 
+    uploadMessage <- paste("Uploading", endpoint_data, "for", endpoint)
+
     if (study$connection$localIM) {
-        fileInfos <- postJSON(study$connection, uploadUrl, postData,
-                              message = paste("Uploading", endpoint_data, "for", endpoint))
+        fileInfos <- postJSON(study$connection, uploadUrl, postData, message = uploadMessage)
     } else {
         assertValid(exists("reportRunId", params), "Required `reportRunId` field in params for remote connection")
         uploadUrl <- str_replace(uploadUrl, "placeholder_reportId", params$reportRunId)
-        fileInfos <- postJSON(study$connection, uploadUrl, postData, message = "Getting presignedUrl to upload data")
-
-        putHttr(study$connection, fileInfos$presignedUrl, tempFileName,
-                message = paste("Uploading", endpoint_data, "for", endpoint))
+        fileInfos <- privateUploadToPresignedUrl(study$connection, uploadUrl, postData, tempFileName,
+                                                 "Getting presignedUrl to upload data", uploadMessage)
 
         if (inherits(data, "imExport")) {
             confirmUrl <- uploadUrl
@@ -2885,9 +2937,10 @@ privateSaveToFile <- function(params, study, data, sampleName, scriptName, metad
 #' Create headers specific to the data format (signals, events, exports).
 #'
 #' @inheritParams privateUpload
+#' @param data_names Optional names of the data columns included in an online sensor upload.
 #'
 #' @keywords internal
-privateCreatePostRequest <- function(params, study, sampleName, fileName, overwrite = TRUE) {
+privateCreatePostRequest <- function(params, study, sampleName, fileName, overwrite = TRUE, data_names = NULL) {
     postRequest <- list(params$flowName, sampleName, fileName)
 
     if (study$connection$localIM) {
@@ -2895,6 +2948,7 @@ privateCreatePostRequest <- function(params, study, sampleName, fileName, overwr
         names(postRequest) <- c("flowName", "sampleName", "fileName", "overwrite")
     } else {
         names(postRequest) <- c("instance", "name", "fileName")
+        if (!is.null(data_names)) postRequest$sampleDescription <- data_names
     }
 
     postRequest <- toJSON(postRequest, null = "null")
@@ -3362,7 +3416,6 @@ getUploadMetricsUrl <- function(study, imObject) {
     UseMethod("getUploadMetricsUrl", object = imObject)
 }
 
-
 #' getUploadMetricsUrl method to get the path/url to upload metrics to this respondent object.
 #'
 #' @inheritParams getUploadMetricsUrl
@@ -3372,49 +3425,6 @@ getUploadMetricsUrl <- function(study, imObject) {
 getUploadMetricsUrl.imRespondent <- function(study, imObject) {
     file.path(getStudyBaseUrl(study), "rmetrics", study$id, "respondent", imObject$id, "data")
 }
-
-
-#' getUploadAoiMetadataUrl function that takes as parameter a study object.
-#'
-#' Return the path/url to upload AOI metadata for a specific study.
-#'
-#' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#'
-#' @keywords internal
-getUploadAoiMetadataUrl <- function(study) {
-    if (!study$connection$localIM) {
-        file.path(getStudyBaseUrl(study), "aoi", "sets", study$aoiSet$id, "metadata")
-    }
-}
-
-
-#' Generic getUploadAoiMetricsUrl function that takes as parameter a study object, a respondent/segment object and
-#' an AOI
-#' .
-#' Return the path/url to upload AOI metrics to this respondent/segment object.
-#'
-#' @param study An imStudy object as returned from \code{\link{imStudy}}.
-#' @param imObject An imRespondent or imSegment object of interest.
-#' @param AOI An imAOI object as returned from \code{\link{getAois}}.
-#'
-#' @keywords internal
-getUploadAoiMetricsUrl <- function(study, imObject, AOI) {
-    UseMethod("getUploadAoiMetricsUrl", object = imObject)
-}
-
-
-#' getUploadAoiMetricsUrl method to get the path/url to upload AOI metrics to this segment object.
-#'
-#' @inheritParams getUploadAoiMetricsUrl
-#'
-#' @keywords internal
-#' @exportS3Method getUploadAoiMetricsUrl imSegment
-getUploadAoiMetricsUrl.imSegment <- function(study, imObject, AOI) {
-    if (!study$connection$localIM) {
-        file.path(getAoisUrl(study), AOI$id, "segments", imObject$id, "stats")
-    }
-}
-
 
 #' getAoiUrl function that takes as parameter a study object and optionally a respondent or a stimulus id.
 #'
@@ -3608,6 +3618,86 @@ getTouchActorDetailsUrl.imStimulus <- function(study, imObject, respondent = NUL
 }
 
 
+#' Generic getAoiMetricsUrl function that takes as parameter a study, respondent object and AOI.
+#'
+#' Return the path/url to retrieve AOI metrics for the given object.
+#'
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#' @param imObject An imRespondent object of interest.
+#' @param AOI An imAOI object as returned from \code{\link{getAois}}.
+#'
+#' @keywords internal
+getAoiMetricsUrl <- function(study, imObject, AOI) {
+    UseMethod("getAoiMetricsUrl", object = imObject)
+}
+
+
+#' getAoiMetricsUrl method to return the path/url to retrieve AOI metrics for a respondent.
+#'
+#' @inheritParams getAoiMetricsUrl
+#'
+#' @keywords internal
+#' @exportS3Method getAoiMetricsUrl imRespondent
+getAoiMetricsUrl.imRespondent <- function(study, imObject, AOI) {
+    if (!study$connection$localIM) {
+        file.path(getStudyBaseUrl(study), "aoi", "definitions", AOI$id, "respondents", imObject$id, "stats")
+    }
+}
+
+#' getUploadAoiMetadataUrl function that takes as parameter a study object.
+#'
+#' Return the path/url to upload AOI metadata for a specific study.
+#'
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#'
+#' @keywords internal
+getUploadAoiMetadataUrl <- function(study) {
+    if (!study$connection$localIM) {
+        file.path(getStudyBaseUrl(study), "aoi", "sets", study$aoiSet$id, "metadata")
+    }
+}
+
+#' Generic getUploadAoiMetricsUrl function that takes as parameter a study object, a respondent/segment object and
+#' an AOI.
+#'
+#' Return the path/url to upload AOI metrics to this respondent/segment object.
+#'
+#' @param study An imStudy object as returned from \code{\link{imStudy}}.
+#' @param imObject An imRespondent or imSegment object of interest.
+#' @param AOI An imAOI object as returned from \code{\link{getAois}}.
+#'
+#' @keywords internal
+getUploadAoiMetricsUrl <- function(study, imObject, AOI) {
+    UseMethod("getUploadAoiMetricsUrl", object = imObject)
+}
+
+
+#' getUploadAoiMetricsUrl method to get the path/url to upload AOI metrics to this respondent object.
+#'
+#' @inheritParams getUploadAoiMetricsUrl
+#'
+#' @keywords internal
+#' @exportS3Method getUploadAoiMetricsUrl imRespondent
+getUploadAoiMetricsUrl.imRespondent <- function(study, imObject, AOI) {
+    if (!study$connection$localIM) {
+        file.path(getStudyBaseUrl(study), "aoi", "definitions", AOI$id, "respondents", imObject$id, "upload")
+    }
+}
+
+
+#' getUploadAoiMetricsUrl method to get the path/url to upload AOI metrics to this segment object.
+#'
+#' @inheritParams getUploadAoiMetricsUrl
+#'
+#' @keywords internal
+#' @exportS3Method getUploadAoiMetricsUrl imSegment
+getUploadAoiMetricsUrl.imSegment <- function(study, imObject, AOI) {
+    if (!study$connection$localIM) {
+        file.path(getAoisUrl(study), AOI$id, "segments", imObject$id, "stats")
+    }
+}
+
+
 #' Return the path/url to the scenes of a specific respondent.
 #'
 #' @param study An imStudy object as returned from \code{\link{imStudy}}.
@@ -3660,30 +3750,38 @@ getJSON <- function(connection, url, message = NULL, ...) {
 #'                error message.
 #'
 #' @param fileName Optional - In case of a zip folder, the name of the file to look for.
+#' @param localFilePath Optional - Exact local path where the downloaded file should be cached.
 #'
 #' @return A list with the temporary folder path and the downloaded file name.
 #' @keywords internal
-getFile <- function(connection, url, message = NULL, fileName = NULL) {
-    response <- getHttr(connection, url, message)
-
-    # Use temporary directory to download data
-    if (!is.null(connection$localPath)) {
+getFile <- function(connection, url, message = NULL, fileName = NULL, localFilePath = NULL) {
+    # Use the requested file path, or fall back to the connection/temporary download directory.
+    if (!is.null(localFilePath)) {
+        tmp_dir <- dirname(localFilePath)
+        file_path <- localFilePath
+    } else if (!is.null(connection$localPath)) {
         tmp_dir <- connection$localPath
         file_path <- file.path(tmp_dir, sub("^.*/StudyUpload/", "", url))
-        dir.create(dirname(file_path), showWarnings = FALSE, recursive = TRUE)
     } else {
         tmp_dir <- tempdir(check = TRUE)
         file_path <- file.path(tmp_dir, basename(url))
     }
 
+    # Reuse files already downloaded to the selected path.
     if (!file.exists(file_path)) {
-        # We only download the file if it's not there yet
-        download.file(response$url, file_path, method = "auto", mode = "wb")
+        dir.create(dirname(file_path), showWarnings = FALSE, recursive = TRUE)
+        tmp_path <- paste0(file_path, ".part")
+
+        getHttr(connection, url, message, writePath = tmp_path)
+        file.rename(tmp_path, file_path)
     } else {
         message("Retrieving local data for ", file_path)
     }
 
-    if (grepl(".zip$", file_path)) {
+    # Check the retrieved/downloaded file for a zip signature directly
+    is_zip <- identical(readBin(file_path, "raw", n = 2), charToRaw("PK"))
+
+    if (is_zip) {
         files_in_zip <- unzip(file_path, exdir = tmp_dir)
         assertValid(!is.null(fileName), "You need to provide a fileName for zip file extraction.")
         file_path <- str_subset(files_in_zip, fileName)
@@ -3739,10 +3837,11 @@ jsonHeaders <- function() httr::add_headers("Content-Type" = "application/json")
 #' @param url The url/path where the file is located.
 #' @param message Optional - a short message indicating which steps are getting performed to get a more indicative
 #'                error message.
+#' @param writePath Optional - A local path where the response body should be streamed.
 #'
 #' @return The last response.
 #' @keywords internal
-getHttr <- function(connection, url, message = NULL) {
+getHttr <- function(connection, url, message = NULL, writePath = NULL) {
     if (connection$localIM) {
         # Locally there is no point to retry request if we get a 404 not found error
         terminate_on <- 404
@@ -3750,7 +3849,9 @@ getHttr <- function(connection, url, message = NULL) {
         terminate_on <- NULL
     }
 
-    response <- retryHttr(message, "GET", url, tokenHeaders(connection$token), terminate_on = terminate_on)
+    output <- if (is.null(writePath)) httr::write_memory() else httr::write_disk(writePath, overwrite = TRUE)
+    response <- retryHttr(message, "GET", url, tokenHeaders(connection$token), output, terminate_on = terminate_on)
+
     return(response)
 }
 

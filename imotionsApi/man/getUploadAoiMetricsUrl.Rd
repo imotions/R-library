@@ -3,9 +3,7 @@
 \name{getUploadAoiMetricsUrl}
 \alias{getUploadAoiMetricsUrl}
 \title{Generic getUploadAoiMetricsUrl function that takes as parameter a study object, a respondent/segment object and
-an AOI
-.
-Return the path/url to upload AOI metrics to this respondent/segment object.}
+an AOI.}
 \usage{
 getUploadAoiMetricsUrl(study, imObject, AOI)
 }
@@ -17,9 +15,6 @@ getUploadAoiMetricsUrl(study, imObject, AOI)
 \item{AOI}{An imAOI object as returned from \code{\link{getAois}}.}
 }
 \description{
-Generic getUploadAoiMetricsUrl function that takes as parameter a study object, a respondent/segment object and
-an AOI
-.
 Return the path/url to upload AOI metrics to this respondent/segment object.
 }
 \keyword{internal}

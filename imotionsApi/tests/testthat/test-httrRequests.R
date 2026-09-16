@@ -91,15 +91,17 @@ test_that("error - invalid response", {
 # getHttr =============================================================================================================
 context("getHttr()")
 
-mockedGetHttr <- function(connection, url, mockResponse, terminate_on) {
+mockedGetHttr <- function(connection, url, mockResponse, terminate_on, writePath = NULL) {
     config <- tokenHeaders(connection$token)
+    output <- if (is.null(writePath)) httr::write_memory() else httr::write_disk(writePath, overwrite = TRUE)
     retryHttr_Stub <- mock(mockResponse)
 
     response <- mockr::with_mock(retryHttr = retryHttr_Stub, {
-        getHttr(connection, url, "Test API")
+        getHttr(connection, url, "Test API", writePath = writePath)
     })
 
-    expect_args(retryHttr_Stub, 1, "Test API", "GET", url, config, terminate_on)
+    expect_args(retryHttr_Stub, 1, "Test API", "GET", url, config, output, terminate_on)
+
     return(response)
 }
 
@@ -114,6 +116,14 @@ test_that("remote/local check - should work correctly", {
     mockResponse$status_code <- 204
     class(mockResponse) <- "response"
     response <- mockedGetHttr(connection_cloud, "url", mockResponse, terminate_on = NULL)
+    expect_identical(response, mockResponse, "response should not have been modified")
+})
+
+test_that("remote check - should stream a GET response to the requested file", {
+    mockResponse$status_code <- 200
+    class(mockResponse) <- "response"
+
+    response <- mockedGetHttr(connection_cloud, "url", mockResponse, terminate_on = NULL, writePath = "download.part")
     expect_identical(response, mockResponse, "response should not have been modified")
 })
 
@@ -149,25 +159,28 @@ context("getFile()")
 # Get the sensors through the cloud
 sensors_cloud <- suppressWarnings(jsonlite::unserializeJSON(readLines("../data/imSensorList_cloud.json")))
 
-mockedGetFile <- function(connection, url, mockResponse, fileName) {
-    getHttr_Stub <- mock(mockResponse)
+mockGetFile <- function(connection, url, mockResponse, fileName = NULL, localFilePath = NULL) {
+    getHttr_Stub <- function(connection, url, message, writePath = NULL) {
+        # Mimic write_disk() by copying the fixture to the requested path.
+        file.copy(sub("^file://", "", mockResponse$url), writePath, overwrite = TRUE)
+        return(mockResponse)
+    }
 
     fileInfos <- mockr::with_mock(getHttr = getHttr_Stub, {
-        getFile(connection, url, "Test API", fileName)
+        getFile(connection, url, "Test API", fileName, localFilePath)
     })
 
-    expect_args(getHttr_Stub, 1, connection, url, "Test API")
     return(fileInfos)
 }
 
-test_that("remote return - correct paths to the file", {
+test_that("remote check - should call getHttr and return the correct file paths", {
     # Case with eyetracking data (zip file)
     eyetracking_fileName <- sensors_cloud[2, ]$fileName
     url <- "file://../data/example_data_cloud.zip"
     mockResponse <- list(headers = list("content-type" = "application/zip"), url = url)
     class(mockResponse) <- "response"
 
-    fileInfos <- mockedGetFile(connection_cloud, url, mockResponse, eyetracking_fileName)
+    fileInfos <- mockGetFile(connection_cloud, url, mockResponse, eyetracking_fileName)
 
     expected_path <- paste0("ProgramData/iMotions/Lab_NG/Data/RRRock The R/Signals/",
                             "20e73a6c-f2ae-4146-90f7-1430bbc9857b/ET_Eyetracker.csv")
@@ -185,7 +198,7 @@ test_that("remote return - correct paths to the file", {
     mockResponse <- list(headers = list("content-type" = "application/octet-stream"), url = url)
     class(mockResponse) <- "response"
 
-    fileInfos <- mockedGetFile(connection_cloud, url, mockResponse, events_fileName)
+    fileInfos <- mockGetFile(connection_cloud, url, mockResponse, events_fileName)
 
     expected_path <- file.path(fileInfos$tmp_dir, "Native_SlideEvents_cloud.csv")
     expect_identical(fileInfos$file_path, expected_path, "wrong file found")
@@ -193,6 +206,69 @@ test_that("remote return - correct paths to the file", {
     expect_true(file.exists(fileInfos$file_path), info = "file should exists")
     unlink(c(fileInfos$file_path, file.path(fileInfos$tmp_dir, "ProgramData")), recursive = TRUE)
     expect_false(file.exists(fileInfos$file_path), info = "file should have been deleted")
+})
+
+test_that("remote check - should call getHttr and download a file to an explicit local path", {
+    url <- "https://s3.test/respondent-aoi-metrics.csv"
+    expected_path <- tempfile("aoi-metrics-cache-", fileext = ".csv")
+    mockResponse <- list(headers = list("content-type" = "text/csv"), url = "file://../data/AOImetrics.csv")
+    class(mockResponse) <- "response"
+
+    fileInfos <- mockGetFile(connection_cloud, url, mockResponse, localFilePath = expected_path)
+
+    expect_identical(fileInfos$file_path, expected_path, "wrong file found")
+
+    expect_true(file.exists(expected_path))
+    unlink(expected_path)
+    expect_false(file.exists(expected_path))
+})
+
+test_that("remote check - should call getHttr and reuse a file from an explicit local path", {
+    url <- "https://s3.test/respondent-aoi-metrics.csv"
+    expected_path <- "../data/AOImetrics.csv"
+    getHttr_Stub <- mock()
+
+    fileInfos <- mockr::with_mock(getHttr = getHttr_Stub, {
+        getFile(connection_cloud, url, "Test API", localFilePath = expected_path)
+    })
+
+    expect_called(getHttr_Stub, 0)
+    expect_identical(fileInfos$file_path, expected_path)
+    expect_true(file.exists(expected_path))
+})
+
+test_that("remote check - should reuse a cached ZIP without a file extension", {
+    connection_cloud$localPath <- "../data"
+    file.copy("../data/example_data_cloud.zip", "../data/example_data_cloud", overwrite = TRUE)
+    getHttr_Stub <- mock()
+
+    fileInfos <- mockr::with_mock(getHttr = getHttr_Stub, {
+        getFile(connection_cloud, "api/content/StudyUpload/example_data_cloud", "Test API",
+                sensors_cloud[2, ]$fileName)
+    })
+
+    expect_called(getHttr_Stub, 0)
+    expect_true(file.exists(fileInfos$file_path))
+    unlink(c("../data/example_data_cloud", "../data/ProgramData"), recursive = TRUE)
+})
+
+test_that("remote error - should not promote a partial download", {
+    expected_path <- file.path(tempdir(), "aoi-metrics-cache.csv")
+    on.exit(unlink(paste0(expected_path, ".part")), add = TRUE)
+
+    expect_error(
+        mockr::with_mock(getHttr = function(connection, url, message, writePath = NULL) {
+            writeBin(charToRaw("partial"), writePath)
+            stop("Network error")
+        }, {
+            getFile(connection_cloud, "https://s3.test/respondent-aoi-metrics.csv", "Test API",
+                    localFilePath = expected_path)
+        }),
+        "Network error",
+        fixed = TRUE
+    )
+
+    expect_false(file.exists(expected_path))
 })
 
 # postHttr ============================================================================================================
