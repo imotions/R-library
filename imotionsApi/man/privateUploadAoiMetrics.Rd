@@ -12,7 +12,8 @@ privateUploadAoiMetrics(study, obj, AOI, metrics)
 
 \item{obj}{An imRespondent or imSegment object of interest.}
 
-\item{AOI}{An imAOI object as returned from \code{\link{getAois}}.}
+\item{AOI}{An imAOI object as returned from \code{\link{getAois}}, or an imTouchAOI object as returned from
+\code{\link{getTouchActorAois}}.}
 
 \item{metrics}{A data.table containing the metrics to upload.}
 }

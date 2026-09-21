@@ -116,6 +116,30 @@ test_that("local check - should call privateGetAoiDetails and fwrite for a speci
                                 expectCallsfwrite = 1)
 })
 
+test_that("local check - a touch AOI dispatches to privateGetTouchActorDetails rather than privateGetAoiDetails", {
+    touchAoi <- AOI
+    class(touchAoi) <- c("imTouchAOI", class(touchAoi))
+
+    expectedFilepath <- paste0(tools::file_path_sans_ext(AOIDetailsFile$fileId), "metrics.csv")
+
+    privateGetAoiDetails_Stub <- mock()
+    privateGetTouchActorDetails_Stub <- mock(AOIDetailsFile)
+    fwrite_Stub <- mock()
+
+    mockr::with_mock(privateGetAoiDetails = privateGetAoiDetails_Stub,
+                     privateGetTouchActorDetails = privateGetTouchActorDetails_Stub,
+                     fwrite = fwrite_Stub, {
+                         privateUploadAoiMetrics(study, respondent, touchAoi, metrics)
+                     })
+
+    expect_called(privateGetAoiDetails_Stub, 0)
+    expect_called(privateGetTouchActorDetails_Stub, 1)
+    expect_args(privateGetTouchActorDetails_Stub, 1, study = study, imObject = touchAoi, respondent = respondent)
+
+    expect_called(fwrite_Stub, 1)
+    expect_args(fwrite_Stub, 1, x = metrics, file = expectedFilepath, col.names = TRUE, row.names = FALSE)
+})
+
 test_that("remote check - should call privateUploadToPresignedUrl and putHttr for a specific respondent", {
     mockPrivateUploadAoiMetrics(study_cloud, respondent_cloud, AOI_cloud, metrics, AOIDetailsFile = AOI_cloud,
                                 expectCallsPut = 1, expectCallsPresigned = 1, expectFileRemoved = TRUE)

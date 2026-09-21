@@ -9,7 +9,8 @@ uploadAoiMetrics(study, AOI, target, metrics)
 \arguments{
 \item{study}{An imStudy object as returned from imStudy()}
 
-\item{AOI}{An imAOI object as returned from \code{\link{getAois}}.}
+\item{AOI}{An imAOI object as returned from \code{\link{getAois}}, or an imTouchAOI object as returned from
+\code{\link{getTouchActorAois}} to upload metrics for that specific touch actor AOI instead.}
 
 \item{target}{The target respondent/segment for the sensor (an imRespondent/imSegment object as returned from
 \code{\link{getRespondents}} or \code{\link{getSegments}}).}

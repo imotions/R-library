@@ -1,0 +1,18 @@
+[
+  {
+    "touchActorId": "5b1f0c42-9d6e-4a3b-8f21-0c7d5e9a1b34",
+    "aoiId": "09a234fc-00ad-4257-b7e1-da5754986c9d",
+    "respId": "09bd22e6-29b6-4a8a-8cc1-4780a5163e63",
+    "fileId": "../data/touchActorRespondentData.pbin",
+    "resultId": "../data/AOImetrics.csv",
+    "fileIdIsEmptyPlaceHolder": false
+  },
+  {
+    "touchActorId": "4f2d6b30-7c44-4d1b-9c19-9c6b9e2a5b60",
+    "aoiId": "1c9c8b18-3e1d-4b53-9c62-2a6b1a0d7e11",
+    "respId": "09bd22e6-29b6-4a8a-8cc1-4780a5163e63",
+    "fileId": "../data/touchActorRespondentData.pbin",
+    "resultId": null,
+    "fileIdIsEmptyPlaceHolder": false
+  }
+]
